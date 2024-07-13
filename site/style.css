@@ -1,0 +1,62 @@
+.f {
+
+}
+body {
+    margin: 0;
+}
+
+
+#topBar {
+    width: 100vw;
+    display: flex;
+}
+#csLogo {
+}
+#csLogo img {
+    width: 50vw;
+}
+
+#menuBar {
+
+}
+#menuDropdown {
+    display: none;
+}
+#bottomBar {
+
+}
+
+
+#main {
+
+}
+#green {
+
+}
+#white {
+
+}
+
+
+#collectDiv {
+
+}
+#collectText {
+
+}
+#collectButton {
+
+}
+
+
+#map {
+
+}
+
+#categories {
+
+}
+#category {
+
+}
+
