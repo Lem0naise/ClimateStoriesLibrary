@@ -25,6 +25,7 @@
 
 :root {
     --lightgreen: #8cc63f;
+    --darkgreen: #304e25;
 }
 body {
     margin: 0;
@@ -38,7 +39,7 @@ body {
     width: 100vw;
     display: flex;
     flex: 50% 50%;
-    background-image: url("imgs/backgroundgreen.png");
+    background-image: url("imgs/out.webp");
     background-size:150vw;
     background-repeat: repeat;
     box-shadow: 0px 20px 30px #00000060;
@@ -106,13 +107,13 @@ body {
 
 
 #main {
-    height: 100vh;
-    background-image: url("imgs/backgroundgreen.png");
+    height: 200vh;
+    background-image: url("imgs/out.webp");
     background-size:150vw;
     background-repeat: repeat;
 }
 #green {
-
+    height: 100vh;
 }
 #white {
 
@@ -136,8 +137,9 @@ body {
     width: 60%;
     font-weight:bold;
     padding-top: 70px;
+    padding-left: 10%;
     padding-right: 15%;
-    box-shadow: 10px 0px 5px #00000060;
+    box-shadow: 10px 0px 10px #00000060;
     clip-path: inset(0px -50px 0px 0px);
 }
 #collectButton {
@@ -151,6 +153,8 @@ body {
 
     padding-left: 40px;
     margin-top: 50px;
+    padding-bottom: 80px;
+
 }
 #collectButton p{
     font-family: "FuturaBold";
@@ -177,7 +181,35 @@ body {
 
 
 #map {
+    width: 90vw;
+    margin-left: 5vw;
 
+    border-color: var(--darkgreen);
+    border-width: 10px;
+    border-style: solid;
+
+
+    background-color: white;
+    border-radius: 50px;
+    height: 80vh;
+    /*
+    background-image: url(imgs/blankworldmap.svg);
+    background-size:contain;
+    padding-top: 42%;
+    */
+    
+}
+#hidden {
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-size: 40px;
+    font-family: "FuturaDemi";
+
+    display: none;
 }
 
 #categories {
