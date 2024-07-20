@@ -22,7 +22,7 @@ document.onclick = function(){
 }
 
 function loadMap(){ // loading from leaflet js
-    let map = L.map('map').setView([20, 10], 3);
+    //let map = L.map('map').setView([20, 10], 3);
     
     //https://leaflet-extras.github.io/leaflet-providers/preview/
 
@@ -36,5 +36,5 @@ function loadMap(){ // loading from leaflet js
     });
     
     //Esri_OceanBasemap.addTo(map);
-    Esri_WorldTerrain.addTo(map);
+    //Esri_WorldTerrain.addTo(map);
 }
