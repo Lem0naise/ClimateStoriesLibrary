@@ -1,0 +1,283 @@
+@font-face {
+    font-family: 'FuturaBook';
+    src : url("fonts/FuturaCyrillicBook.woff");
+}
+@font-face {
+    font-family: 'FuturaMedium';
+    src : url("fonts/FuturaCyrillicMedium.woff");
+}
+@font-face {
+    font-family: 'FuturaDemi';
+    src : url("fonts/FuturaCyrillicDemi.woff");
+}
+@font-face {
+    font-family: 'FuturaHeavy';
+    src : url("fonts/FuturaCyrillicHeavy.woff");
+}
+@font-face {
+    font-family: 'FuturaBold';
+    src : url("fonts/FuturaCyrillicBold.woff");
+}
+
+.f {
+
+}
+
+:root {
+    --lightgreen: #8cc63f;
+    --darkgreen: #304e25;
+}
+body {
+    margin: 0;
+    background-color: black;
+    font-family: 'FuturaBook';
+    font-weight: lighter;
+}
+
+
+#topBar {
+    width: 100vw;
+    display: flex;
+
+    flex: 1;
+    background-image: url("imgs/bg.png");
+    background-size:6vw;
+    background-repeat: repeat;
+    box-shadow: 0px 20px 30px #00000060;
+    z-index: 10;
+    position: relative;
+    font-family: "FuturaMedium";
+    color: var(--lightgreen);
+
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+}
+#csBar {
+}
+#csBar img {
+    margin: 20px;
+    margin-left: 40px;
+    width: 30vw;
+}
+
+#menuBar {
+    width: 40%;
+}
+#menuBar-nav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 100%;
+    width: 100%;
+}
+.menuButton {
+    text-align: center;
+    cursor: pointer;
+    font-size: calc(1.5vw + 5px);
+    position: relative;
+    min-width: 30%;
+    transition: background .2s;
+    border-radius: 10px 10px 0px 0px;
+}
+.menuButton a {
+    text-decoration: none;
+    color: var(--lightgreen);
+    transition: color .5s;
+}
+.menuButton a:hover {
+    color: white;
+}
+.hasDropdown:focus-within .dropdown {
+    opacity: 1;
+    pointer-events: auto;
+}
+.hasDropdown:focus-within {
+    background: #010101B0;
+}
+.dropdown {
+    opacity: 0;
+    list-style-type: none;
+    position: absolute;
+    z-index: 2;
+    background: #010101B0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    justify-content: space-around;
+    padding: 0;
+    margin: 0;
+    margin-top: 16px;
+    text-align: left;
+    box-sizing: border-box;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    transition: opacity .2s;
+    border-radius: 0px 0px 15px 15px;
+    font-family: "FuturaBook";
+}
+.dropdownItem{
+    width: 100%;
+    height: 100%;
+    color: white;
+    transition: color .2s;
+}
+.dropdownItem:hover {
+    color: var(--lightgreen);
+
+}
+.menuButton::after {
+    content:'';
+    width: 0rem; /*1.6rem*/
+    height: 1rem;
+    display: block;
+    background: url('https://api.iconify.design/fe/arrow-down.svg') no-repeat center center / contain;
+    filter: invert(69%) sepia(67%) saturate(427%) hue-rotate(40deg) brightness(93%) contrast(86%);    
+    position: relative;
+    right: 0px;
+    transition: filter .5s;
+}
+
+.menuDropdown {
+    display: none;
+    position: absolute;
+    justify-content: space-between;
+    flex-direction: column;
+    font-size: 20px;
+    background-color: #01010190;
+    border-radius: 2px;
+    padding: 10px;
+    padding-top: 30px;
+    padding-bottom: 20px;
+}
+.menuDropdown a{
+    margin-bottom: 10px;
+}
+#bottomBar {
+
+}
+
+
+#main {
+    height: 200vh;
+    background-image: url("imgs/bg.png");
+    background-size:6vw;
+    background-repeat: repeat;
+}
+#green {
+    height: 100vh;
+}
+#white {
+
+}
+
+.flexDiv {
+    display: flex;
+    flex-direction: row;
+    width: 80vw;
+    margin-left: 10vw;
+}
+.rightShadow {
+    box-shadow: 10px 0px 10px #00000060;
+    clip-path: inset(0px -50px 0px 0px);
+}
+.leftPage {
+    box-sizing: border-box;
+    color: white;
+    font-size: calc(1vw + 7px);
+    width: 60%;
+    font-weight:bold;
+    padding-top: 70px;
+    padding-left: 10%;
+    padding-right: 15%;
+}
+#collectText {
+}
+#collectButton {
+    display: flex;
+    justify-content: space-between;
+    width: 40%;
+    box-sizing: border-box;
+    color: var(--lightgreen);
+    font-family: "FuturaMedium";
+    font-size: calc(1vw + 40px);
+
+    padding-left: 40px;
+    margin-top: 50px;
+    padding-bottom: 80px;
+
+}
+#collectButton p{
+    font-family: "FuturaBold";
+    margin: 0;
+}
+#c1 {
+    margin-left: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#c2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+#collectButton img {
+    filter: invert(69%) sepia(67%) saturate(427%) hue-rotate(40deg) brightness(93%) contrast(86%);    
+    width: calc(4vw + 60px);
+
+}
+
+
+#map {
+    width: 90vw;
+    margin-left: 5vw;
+
+    border-color: var(--darkgreen);
+    border-width: 10px;
+    border-style: solid;
+
+
+    background-color: white;
+    border-radius: 50px;
+    height: 80vh;
+    /*
+    background-image: url(imgs/blankworldmap.svg);
+    background-size:contain;
+    padding-top: 42%;
+    */
+    
+}
+#hidden {
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-size: 40px;
+    font-family: "FuturaDemi";
+
+    display: flex;
+}
+
+#categories {
+
+}
+#category {
+
+}
+
+
+
+/** STORIES **/
+#storiesLeftPage {
+    width: 60%;
+    height: 180vw;
+}
