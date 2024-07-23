@@ -231,6 +231,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 #collectButton img {
     filter: invert(69%) sepia(67%) saturate(427%) hue-rotate(40deg) brightness(93%) contrast(86%);    
@@ -293,4 +294,13 @@ h2 {
     display: inline;
     font-family: "FuturaMedium";
 
+}
+.block {
+    display: block;
+}
+.q {/*question*/
+    font-family:"FuturaMedium";
+
+    text-decoration:underline;
+    font-size: 30px;
 }

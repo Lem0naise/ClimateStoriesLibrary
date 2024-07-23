@@ -12,7 +12,7 @@ window.onload = function(){
 }
 
 
-function loadMap(){ // loading from leaflet js
+async function loadMap(){ // loading from leaflet js
     //let map = L.map('map').setView([20, 10], 3);
     
     //https://leaflet-extras.github.io/leaflet-providers/preview/
@@ -30,7 +30,9 @@ function loadMap(){ // loading from leaflet js
     //Esri_WorldTerrain.addTo(map);
 }
 
-
+async function share(){
+    window.open("share", "_self");
+}
 
 /**
  * 

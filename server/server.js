@@ -80,6 +80,48 @@ app.get('/aboutus' , async function(req, res) {
     }
     return;
 })
+app.get('/share' , async function(req, res) {
+  res.sendFile(path.join(__dirname, 'public/share.html'));
+  try {
+    // connecting on start
+    /*
+    if (!connected){
+      console.log("Connecting to the table initially...");
+      poolConnection = await sql.connect(config);
+      connected = true;
+      console.log("Connected, " + poolConnection)
+    }
+    else{
+      console.log("Already connected.")
+    }
+      */
+  }
+  catch (err){
+    console.error(err.message);
+  }
+  return;
+})
+app.get('/stories' , async function(req, res) {
+  res.sendFile(path.join(__dirname, 'public/stories.html'));
+  try {
+    // connecting on start
+    /*
+    if (!connected){
+      console.log("Connecting to the table initially...");
+      poolConnection = await sql.connect(config);
+      connected = true;
+      console.log("Connected, " + poolConnection)
+    }
+    else{
+      console.log("Already connected.")
+    }
+      */
+  }
+  catch (err){
+    console.error(err.message);
+  }
+  return;
+})
 
 
 app.post('/sqlquery', async function(req, res){
