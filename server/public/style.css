@@ -83,14 +83,15 @@ body {
     transition: background .2s;
     border-radius: 10px 10px 0px 0px;
 }
-.menuButton a {
+.menuButton a{
     text-decoration: none;
     color: var(--lightgreen);
-    transition: color .5s;
+    transition: color .3s;
 }
 .menuButton a:hover {
     color: white;
 }
+
 .hasDropdown:focus-within .dropdown {
     opacity: 1;
     pointer-events: auto;
@@ -124,11 +125,14 @@ body {
     width: 100%;
     height: 100%;
     color: white;
-    transition: color .2s;
 }
-.dropdownItem:hover {
+.dropdownItem a{
+    text-decoration: none;
     color: var(--lightgreen);
-
+    transition: color .3s;
+}
+.dropdownItem a:hover {
+    color: white;
 }
 .menuButton::after {
     content:'';
@@ -275,9 +279,18 @@ body {
 }
 
 
-
 /** STORIES **/
 #storiesLeftPage {
+    padding-left: 0;
     width: 60%;
-    height: 180vw;
+    height: fit-content;
+}
+h1 {
+    font-family: "FuturaHeavy";
+    font-size: 55px;
+}
+h2 {
+    display: inline;
+    font-family: "FuturaMedium";
+
 }
