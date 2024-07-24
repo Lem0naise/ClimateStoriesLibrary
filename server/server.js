@@ -306,6 +306,6 @@ app.get('/clients', async function(req, res){
 })
 
 
-let server = app.listen(443, "0.0.0.0", function() {
-  console.log('Site running at port 443...')
+let server = app.listen(8080, function() {
+  console.log('Site running at port 8080...')
 })
