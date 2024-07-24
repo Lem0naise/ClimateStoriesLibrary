@@ -1,4 +1,8 @@
 @font-face {
+    font-family: 'FuturaLight';
+    src : url("fonts/FuturaCyrillicLight.woff");
+}
+@font-face {
     font-family: 'FuturaBook';
     src : url("fonts/FuturaCyrillicBook.woff");
 }
@@ -73,9 +77,18 @@ body {
     position: sticky;
     top: 0;
 }
-
+#copyright {
+    font-size: max(8px + 1vw, 10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-right: 20px;
+    box-sizing: border-box;
+    text-align: right;
+}
 .csBar {
-
+    margin-left: 5px;
+    margin-right: 5px;
 }
 .csBar img {
     margin: 20px;
@@ -83,7 +96,7 @@ body {
     width: 30vw;
 }
 .csSmall {
-    width: 20vw;
+    width: 30vw;
 }
 
 .menuBar {
@@ -99,10 +112,6 @@ body {
     justify-content: space-evenly;
     height: 100%;
     width: 100%;
-}
-.bottomBarText li {
-    font-family: "FuturaBook";
-    font-size: calc(1vw + 5px);
 }
 .menuButton {
     text-align: center;
@@ -121,6 +130,7 @@ body {
 .menuButton a:hover {
     color: white;
 }
+
 
 .hasDropdown:focus-within .dropdown {
     opacity: 1;
@@ -290,16 +300,16 @@ body {
     
 }
 #hidden {
+
     height: 100%;
     width: 100%;
     text-align: center;
     justify-content: center;
     align-items: center;
-    display: flex;
     font-size: 40px;
     font-family: "FuturaDemi";
 
-    display: flex;
+    display: none;
 }
 
 #categories {
@@ -406,8 +416,17 @@ h2 {
     .menuBar-nav {
         width: 100vw;
     }
+    #bottomBar {
+        justify-content: space-evenly;
+    }
+    #bottomLogo {
+        display: inline;
+    }
+    #bottomLogo img {
+        margin-left:0;
+    }
     .bottomBarText {
-        width: 100%;
+
     }
     .csBar {
         display: none;
@@ -415,9 +434,7 @@ h2 {
     .menuBar {
         display: block;
     }
-    #bottomLogo {
-        display: flex;
-    }
+
     .rightShadow{   
         box-sizing: border-box;
         width: 100vw;
@@ -465,6 +482,7 @@ h2 {
     #aboutUsLeftPage {
         font-size: 16px;
         padding-top: 5%;
+        font-family: "FuturaLight";
     }
     #map {
         width: calc(100vw - 20px);
