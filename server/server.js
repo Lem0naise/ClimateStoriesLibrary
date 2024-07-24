@@ -306,10 +306,6 @@ app.get('/clients', async function(req, res){
 })
 
 
-
-
-let server = app.listen(5500, function() {
-    console.log('Site running at port 5500...')
-
+let server = app.listen(443, "0.0.0.0", function() {
+  console.log('Site running at port 443...')
 })
-

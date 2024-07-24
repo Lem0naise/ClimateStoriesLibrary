@@ -41,9 +41,10 @@ body {
 
     flex: 1;
     background-image: url("imgs/bg.png");
+    background: linear-gradient( rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) ), url('imgs/bg.png');
     background-size:6vw;
     background-repeat: repeat;
-    box-shadow: 0px 20px 30px #00000060;
+    box-shadow: 0px 20px 30px #000000C0;
     z-index: 10;
     position: relative;
     font-family: "FuturaMedium";
@@ -53,18 +54,43 @@ body {
     position: sticky;
     top: 0;
 }
-#csBar {
+
+#bottomBar {
+    width: 100vw;
+    display: flex;
+
+    background: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url('imgs/bg.png');
+    background-size:6vw;
+    background-repeat: repeat;
+    box-shadow: 0px -20px 30px #000000B0;
+    z-index: 10;
+    position: relative;
+
+    font-family: "FuturaMedium";
+    color: var(--lightgreen);
+
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
 }
-#csBar img {
+
+.csBar {
+
+}
+.csBar img {
     margin: 20px;
     margin-left: 40px;
     width: 30vw;
 }
-
-#menuBar {
-    width: 40%;
+.csSmall {
+    width: 20vw;
 }
-#menuBar-nav {
+
+.menuBar {
+    margin-right: 5vw;
+    width: calc(60%);
+}
+.menuBar-nav {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -74,10 +100,14 @@ body {
     height: 100%;
     width: 100%;
 }
+.bottomBarText li {
+    font-family: "FuturaBook";
+    font-size: calc(1vw + 5px);
+}
 .menuButton {
     text-align: center;
     cursor: pointer;
-    font-size: calc(1.5vw + 5px);
+    font-size: max(1vw + 15px, 16px);
     position: relative;
     min-width: 30%;
     transition: background .2s;
@@ -161,22 +191,21 @@ body {
 .menuDropdown a{
     margin-bottom: 10px;
 }
-#bottomBar {
-
-}
 
 
 #main {
-    height: 200vh;
+    min-height: fit-content;
+    padding-bottom: 20vh;
     background-image: url("imgs/bg.png");
     background-size:6vw;
     background-repeat: repeat;
 }
-#green {
+.green {
     height: 100vh;
 }
-#white {
-
+.white {
+    background: white !important;
+    height: 100%;
 }
 
 .flexDiv {
@@ -184,22 +213,23 @@ body {
     flex-direction: row;
     width: 80vw;
     margin-left: 10vw;
+    height: 80%;
 }
 .rightShadow {
     box-shadow: 10px 0px 10px #00000060;
     clip-path: inset(0px -50px 0px 0px);
+    height: 100%;
+    padding-bottom: 5%;
 }
 .leftPage {
     box-sizing: border-box;
     color: white;
-    font-size: calc(1vw + 7px);
+    font-size: max(1vw + 7px, 16px);
     width: 60%;
     font-weight:bold;
     padding-top: 70px;
     padding-left: 10%;
     padding-right: 15%;
-}
-#collectText {
 }
 #collectButton {
     display: flex;
@@ -212,8 +242,8 @@ body {
 
     padding-left: 40px;
     margin-top: 50px;
-    padding-bottom: 80px;
 
+    margin-bottom: 0;
 }
 #collectButton p{
     font-family: "FuturaBold";
@@ -224,8 +254,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 }
-
 #c2 {
     display: flex;
     flex-direction: column;
@@ -241,7 +271,7 @@ body {
 
 
 #map {
-    width: 90vw;
+    width: calc(90vw - 20px);
     margin-left: 5vw;
 
     border-color: var(--darkgreen);
@@ -280,12 +310,8 @@ body {
 }
 
 
-/** STORIES **/
-#storiesLeftPage {
-    padding-left: 0;
-    width: 60%;
-    height: fit-content;
-}
+/** ABOUT US **/
+
 h1 {
     font-family: "FuturaHeavy";
     font-size: 55px;
@@ -293,6 +319,7 @@ h1 {
 h2 {
     display: inline;
     font-family: "FuturaMedium";
+    font-size: max(16px + 2vw, 18px);
 
 }
 .block {
@@ -302,5 +329,161 @@ h2 {
     font-family:"FuturaMedium";
 
     text-decoration:underline;
-    font-size: 30px;
+    font-size: max(1vw + 16px, 20px);
+}
+
+
+/** STORIES **/
+.collapsibleButton {
+    cursor: pointer; 
+}
+.collapsible:hover, active{
+    background-color: #ccc;
+}
+.collapsible {
+    display: none;
+    overflow: hidden;
+}
+
+#stories {
+    padding-left: 0;
+    height: fit-content;
+    box-sizing: border-box;
+    text-align: center;
+    color: var(--darkgreen);
+    font-size: calc(1vw + 7px);
+    font-weight:bold;
+    padding-top: 70px;
+    width: 100vw;
+}
+#stories h1 {
+    font-size: calc(2vw + 40px);
+}
+.coverStory {
+
+}
+.coverStory img {
+
+}
+.coverStory-Text {
+
+}
+.coverStory-Title {
+    
+}
+.coverStory-Description {
+    
+}
+
+
+/** GENERAL **/
+.bottomPadding {
+    padding-bottom: 20vh;
+}
+.noPadding {
+    padding-bottom: 0 !important;
+}
+
+
+
+
+
+
+
+@media (max-width: 900px)  {
+    .leftPage {
+        width: 80vw;
+    }
+}
+@media (max-width: 480px)  {
+    #topBar {
+        height: 10vh;
+    }
+    .menuButton {
+        font-size: 20px;
+        padding-top: 20px;
+    }
+    .menuBar-nav {
+        width: 100vw;
+    }
+    .bottomBarText {
+        width: 100%;
+    }
+    .csBar {
+        display: none;
+    }
+    .menuBar {
+        display: block;
+    }
+    #bottomLogo {
+        display: flex;
+    }
+    .rightShadow{   
+        box-sizing: border-box;
+        width: 100vw;
+        padding-right: 10%;
+        margin-left: 0;
+        padding-left: 10vw;
+        padding-bottom: 10%;
+        padding-top: 15%;
+        box-shadow: 0px 10px 10px #00000060;
+        clip-path: inset(0px 00px -50px 0px);
+        font-size: 18px;
+    }
+    .flexDiv {
+        width: 100vw;
+        flex-direction: column;
+        margin-left: 0;
+    }
+    #main {
+        background-size:16vw;
+        background-repeat: repeat;
+    }
+    #topBar {
+        background-size:16vw;
+        background-repeat: repeat;
+    }
+
+
+    #collectButton {
+        display: flex;
+        justify-content: space-evenly;
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+        font-size: calc(1vw + 40px);
+        margin-top: 50px;
+        margin-bottom: 50px;
+    }
+    #c1 {
+        margin-left: 0;
+    }
+
+    h1 {
+        font-size: 35px;
+    }
+    #aboutUsLeftPage {
+        font-size: 16px;
+        padding-top: 5%;
+    }
+    #map {
+        width: calc(100vw - 20px);
+        margin-left: 0vw;
+    
+        border-color: var(--darkgreen);
+        border-width: 10px;
+        border-style: solid;
+    
+    
+        background-color: white;
+        border-radius: 50px;
+        height: 80vh;
+        /*
+        background-image: url(imgs/blankworldmap.svg);
+        background-size:contain;
+        padding-top: 42%;
+        */
+    }
+    
+    
 }
