@@ -3,7 +3,7 @@ window.onload = function(){
     loadMap();
 }
 
-let MAP = false;
+let MAP = true;
 async function loadMap(){ // loading from leaflet js
     if (MAP){
         let map = L.map('map').setView([20, 10], 3);
