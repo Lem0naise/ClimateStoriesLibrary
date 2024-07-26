@@ -1,3 +1,4 @@
+//[title, subtitle, imagelink]
 let stories = [
     [],
     [],
