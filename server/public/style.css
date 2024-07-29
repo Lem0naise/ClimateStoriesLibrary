@@ -365,6 +365,7 @@ h2 {
     font-weight:bold;
     padding-top: 70px;
     width: 100vw;
+    min-height: 80vh;
 }
 #stories h1 {
     font-size: calc(2vw + 40px);
