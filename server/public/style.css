@@ -336,7 +336,7 @@ h2 {
     display: block;
 }
 .q {/*question*/
-    font-family:"FuturaMedium";
+    font-family:"FuturaBook";
 
     text-decoration:underline;
     font-size: max(1vw + 16px, 20px);
@@ -396,9 +396,26 @@ h2 {
 }
 
 
+#aboutusRightPage {
+    margin-left: 40px;
+    margin-top: 80vh;
+}
+.aboutusHidden {
+    display: none;
+    width: 40vw;
+    margin-left: 20vw;
+    border: var(--lightgreen) 8px solid;
+    border-radius: 10px;
+    margin-top: 10px;
+    margin-bottom: 00px;
+}
 
-
-
+#aboutusRightPage img {
+    width: 20vw;
+    border: var(--lightgreen) 8px solid;
+    border-radius: 10px;
+    margin-top: 60px;
+}
 
 
 @media (max-width: 900px)  {
@@ -406,7 +423,8 @@ h2 {
         width: 80vw;
     }
 }
-@media (max-width: 480px)  {
+@media (max-width: 480px)  { /*mobile*/
+    
     #topBar {
         height: 10vh;
     }
@@ -484,6 +502,12 @@ h2 {
         font-size: 16px;
         padding-top: 5%;
         font-family: "FuturaLight";
+    }
+    .aboutusHidden {
+        display: block;
+    }
+    #aboutusRightPage {
+        display: none;
     }
     #map {
         width: calc(100vw - 20px);
