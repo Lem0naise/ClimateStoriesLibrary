@@ -276,7 +276,6 @@ body {
 #collectButton img {
     filter: invert(69%) sepia(67%) saturate(427%) hue-rotate(40deg) brightness(93%) contrast(86%);    
     width: calc(4vw + 60px);
-
 }
 
 
@@ -416,6 +415,9 @@ h2 {
     border-radius: 10px;
     margin-top: 60px;
 }
+.leftPage h3 {
+    font-family: "FuturaMedium";
+}
 
 
 @media (max-width: 900px)  {
@@ -487,9 +489,9 @@ h2 {
         width: 100%;
         margin: 0;
         box-sizing: border-box;
-        font-size: calc(1vw + 40px);
-        margin-top: 50px;
-        margin-bottom: 50px;
+        font-size: calc(1vw + 30px);
+        margin-top: 30px;
+        margin-bottom: 20px;
     }
     #c1 {
         margin-left: 0;

@@ -43,6 +43,7 @@ async function hiddenClick(){
     if (MAP == false){
         MAP = true;
         loadMap();
+        document.getElementById("hidden").style.display = 'none';
     }
 }
 async function share(){
