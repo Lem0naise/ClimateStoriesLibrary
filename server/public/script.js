@@ -3,12 +3,11 @@ window.onload = function(){
     loadMap();
 }
 
-let MAP = true;
+let MAP = false;
 async function loadMap(){ // loading from leaflet js
     if (MAP){
         let map = L.map('map').setView([20, 10], 3);
         map.options.maxZoom=9;
-
         //https://leaflet-extras.github.io/leaflet-providers/preview/
 
         let Esri_WorldTerrain = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}', {
@@ -21,6 +20,12 @@ async function loadMap(){ // loading from leaflet js
         });
         //Esri_OceanBasemap.addTo(map);
         Esri_WorldTerrain.addTo(map);
+
+
+        // here request sql??
+        
+        await loadStories();
+
         return 1;
     }
     else {
@@ -30,6 +35,16 @@ async function loadMap(){ // loading from leaflet js
     
 }
 
+async function loadStories(){
+    return 1;
+}
+
+async function hiddenClick(){
+    if (MAP == false){
+        MAP = true;
+        loadMap();
+    }
+}
 async function share(){
     window.open("share", "_self");
 }
