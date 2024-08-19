@@ -44,8 +44,7 @@ body {
     display: flex;
 
     flex: 1;
-    background-image: url("imgs/bg.png");
-    background: linear-gradient( rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) ), url('imgs/bg.png');
+    background: linear-gradient( rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) ), url('imgs/bg.webp');
     background-size:6vw;
     background-repeat: repeat;
     box-shadow: 0px 20px 30px #000000C0;
@@ -63,7 +62,7 @@ body {
     width: 100vw;
     display: flex;
 
-    background: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url('imgs/bg.png');
+    background: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url('imgs/bg.webp');
     background-size:6vw;
     background-repeat: repeat;
     box-shadow: 0px -20px 30px #000000B0;
@@ -206,7 +205,7 @@ body {
 #main {
     min-height: fit-content;
     padding-bottom: 20vh;
-    background-image: url("imgs/bg.png");
+    background-image: url("imgs/bg.webp");
     background-size:6vw;
     background-repeat: repeat;
 }
@@ -224,10 +223,10 @@ body {
     width: 80vw;
     margin-left: 10vw;
     height: 80%;
+
 }
 .rightShadow {
     box-shadow: 10px 0px 10px #00000060;
-    clip-path: inset(0px -50px 0px 0px);
     height: 100%;
     padding-bottom: 5%;
 }
@@ -386,7 +385,7 @@ h2 {
 }
 
 
-/** GENERAL **/
+/* GENERAL */
 .bottomPadding {
     padding-bottom: 20vh;
 }
@@ -394,11 +393,50 @@ h2 {
     padding-bottom: 0 !important;
 }
 
+/* ABOUT US*/ 
+#aboutUsLeftPage {
+    display: flex;
+    flex-direction: column;
 
-#aboutusRightPage {
-    margin-left: 40px;
-    margin-top: 80vh;
+    box-sizing: border-box;
+    color: white;
+    font-size: max(1vw + 7px, 16px);
+    width: 60%;
+    font-weight:bold;
+    padding-top: 70px;
+    padding-left: 10%;
+
+
 }
+.aboutUs-fullPage {
+    width: 80vw;
+}
+.fullPage-half {
+    width: 35vw;
+}
+.fullPage-two {
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    flex-grow: 0;
+    flex-shrink: 0;
+    justify-content: space-between;
+}
+.fullPage-two img {
+    align-self: center;
+}
+.fullPage-two-first {
+    padding-right: 20%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.fullPage-one {
+    display: flex;
+    flex-direction: column;
+    overflow:visible;
+}
+
 .aboutusHidden {
     display: none;
     width: 40vw;
@@ -408,25 +446,26 @@ h2 {
     margin-top: 10px;
     margin-bottom: 00px;
 }
-
-#aboutusRightPage img {
+.rightimage {
     width: 20vw;
     border: var(--lightgreen) 8px solid;
     border-radius: 10px;
     margin-top: 60px;
 }
+.inlineimage {
+    width: 20vw;
+    border: var(--lightgreen) 8px solid;
+    border-radius: 10px;
+    margin-top: 60px;
+}
+
 .leftPage h3 {
     font-family: "FuturaMedium";
 }
 
 
-@media (max-width: 900px)  {
-    .leftPage {
-        width: 80vw;
-    }
-}
-@media (max-width: 480px)  { /*mobile*/
-    
+
+@media (max-width: 600px)  { /*mobile*/
     #topBar {
         height: 10vh;
     }
@@ -504,13 +543,40 @@ h2 {
         font-size: 16px;
         padding-top: 5%;
         font-family: "FuturaLight";
+        width: 100vw;
     }
     .aboutusHidden {
         display: block;
     }
-    #aboutusRightPage {
-        display: none;
+    .aboutUs-fullPage h2 {
+        text-align: center;
     }
+    .fullPage-two{
+        flex-direction: column-reverse;
+        margin-top: 20px;
+    }
+    .fullPage-two-first h2{
+        text-align: center;
+    }
+
+    .fullPage-half {
+        margin-top: 20px;
+    }
+    .fullPage-two-first{
+        padding: 0;
+    }
+    .inlineimage {
+        width: 40vw;
+        margin-top: 10px;
+        margin-left: 20vw;
+        border-width: 3px;
+    }
+    .fullPage-half {
+        width: 80vw;
+    }
+
+
+
     #map {
         width: calc(100vw - 20px);
         margin-left: 0vw;
