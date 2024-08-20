@@ -1,0 +1,28 @@
+.login {
+    margin-top: 50px;
+}
+.adminFlex {
+    flex-direction: column;
+    color:white;
+    font-size: 20px;
+    padding-top: 50px;
+}
+#response {
+    color: white;
+    font-size: 20px;
+    margin-top: 20px;
+}
+.hiddenAdmin {
+    display: none;
+}
+
+.f1 {
+    min-height: 15px;
+    display: inline-block;
+    font-size: 20px;
+    padding: 10px;
+}
+.inp {
+    font-size: 20px;
+    width: max(20vw, 200px);
+}

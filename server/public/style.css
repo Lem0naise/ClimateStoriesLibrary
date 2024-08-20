@@ -26,6 +26,9 @@
 .f {
 
 }
+title {
+    display: none;
+}
 
 :root {
     --lightgreen: #8cc63f;
@@ -467,6 +470,8 @@ h2 {
 @media (max-width: 600px)  { /*mobile*/
     #topBar {
         height: 10vh;
+        background-size:16vw;
+        background-repeat: repeat;
     }
     .menuButton {
         font-size: 20px;
@@ -512,10 +517,6 @@ h2 {
         margin-left: 0;
     }
     #main {
-        background-size:16vw;
-        background-repeat: repeat;
-    }
-    #topBar {
         background-size:16vw;
         background-repeat: repeat;
     }

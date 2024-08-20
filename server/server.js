@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 let bodyParser = require('body-parser');
+const { fileURLToPath } = require('url');
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -56,6 +57,45 @@ app.get('/' , async function(req, res) {
       console.error(err.message);
     }
     return;
+})
+
+app.get('/admin' , async function(req, res) {
+  res.sendFile(path.join(__dirname, 'public/admin.html'));
+  try {
+  }
+  catch (err){
+    console.error(err.message);
+  }
+  return;
+})
+
+let admin_connected = false;
+app.post('/login', async function(req, res) {
+  let username = req.body['username']
+  let password = req.body['password']
+
+  if (username=='juliet'){
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: 'Authorised'}));
+  }
+  else {
+    res.writeHead(401, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: 'Invalid username or password, try again.' }));
+  }
+  return 1;
+})
+app.post('/customSQL', async function(req, res) {
+  let customSql = req.body['custom-sql']
+  let loggedIn = true;
+  if (loggedIn){
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: 'Authorised'}));
+  }
+  else {
+    res.writeHead(401, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: 'Not logged in.' }));
+  }
+  return 1;
 })
 
 app.get('/aboutus' , async function(req, res) {

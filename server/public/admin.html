@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css?version=1.0">
+        <link rel="stylesheet" href="adminstyle.css"
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="admin.js"></script>
+    </head>
+    <body>
+        <div class="f" id="topBar" class="topBar">
+            <div class="f csBar">
+                <img src="imgs/tbgt.webp">
+            </div>
+            <nav class="menuBar">
+                <ul class="menuBar-nav">
+                    <li class="menuButton">
+                        <a href="/">Home</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div id="main" class="noPadding green">
+            <div class='adminFlex flexDiv'>
+
+                <span>Select an option to continue.</span>
+                <select class='f1' name="optionSelector" id="optionSelector">
+                    <option value="begin">Select an option to begin ...</option>
+                    <option value="getVideos">Download Videos from Server ...</option>
+                    <option value="uploadVideo">Add a YouTube Link to a Story ...</option>
+                    <option value="uploadResponse">Upload a Response ...</option>
+                    <option value="custom">Custom ...</option>
+                </select>  
+
+                <br/><br/>
+                <form id="custom-sql-form">
+                    <div id="begin" class="hiddenAdmin hides"></div>
+                    <div id="custom" class="hiddenAdmin hides"> 
+                        <label for="query" class="f1">This box is for Custom SQL Queries. Do NOT touch it unless you know what you are doing. </label>
+                        <input class='f1 inp' placeholder='SQL Query' type="text" id='query' name="query"><br/><br/>
+                    </div>
+                    <div id="uploadResponse" class="hiddenAdmin hides"> 
+                        <label for="aa" class="f1">Upload a response! </label>
+                        <input class='f1 inp' placeholder='SQL Query' type="text" id='aa' name="aa"><br/><br/>
+                    </div>
+                    <div id="uploadVideo" class="hiddenAdmin hides"> 
+                        <label for="bb" class="f1">Put a youtube video link! </label>
+                        <input class='f1 inp' placeholder='SQL Query' type="text" id='bb' name="bb"><br/><br/>
+                    </div>
+                    <div id="getVideos" class="hiddenAdmin hides"> 
+                        <label for="cc" class="f1">Download the videos from the server</label>
+                        <input class='f1 inp' placeholder='SQL Query' type="text" id='cc' name="cc"><br/><br/>
+                    </div>
+                   
+                    <br/><br/>
+                    <span>Enter your username and password to complete action.</span>
+                    <input class='f1 inp' placeholder='username' type="text" id='username' name="username">
+                    <input class='f1 inp' placeholder='password' type="password" id='password' name="password">
+                    <input class='f1' type="submit" value="Execute As Admin">
+                </form>
+                <span id="response"></span>
+            </div>
+        </div>
+    </body>
+</html>
