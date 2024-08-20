@@ -328,7 +328,6 @@ h2 {
     display: inline;
     font-family: "FuturaMedium";
     font-size: max(16px + 2vw, 18px);
-
 }
 .block {
     display: block;
@@ -548,17 +547,15 @@ h2 {
     .aboutusHidden {
         display: block;
     }
-    .aboutUs-fullPage h2 {
-        text-align: center;
-    }
+
+
     .fullPage-two{
         flex-direction: column-reverse;
         margin-top: 20px;
     }
-    .fullPage-two-first h2{
-        text-align: center;
+    .fullPage-two img {
+        align-self: baseline;
     }
-
     .fullPage-half {
         margin-top: 20px;
     }
@@ -568,8 +565,8 @@ h2 {
     .inlineimage {
         width: 40vw;
         margin-top: 10px;
-        margin-left: 20vw;
         border-width: 3px;
+        justify-self: left;
     }
     .fullPage-half {
         width: 80vw;
