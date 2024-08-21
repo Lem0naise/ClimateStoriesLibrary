@@ -26,3 +26,19 @@
     font-size: 20px;
     width: max(20vw, 200px);
 }
+.long {
+    width: max(40vw, 500px);
+}
+.paragraph {
+    font-family: "FuturaBook";
+    height: 200px;
+    width: max(50vw, 500px);
+}
+
+#uploadResponse-img-preview {
+    max-width: max(400px, 20vw);
+}
+.forever {
+    min-height: fit-content !important;
+    padding-bottom: 20vh;
+}
