@@ -69,19 +69,44 @@ app.get('/admin' , async function(req, res) {
   return;
 })
 
+let hashed_user = "P011511210110110011910110810801151121011011001191011081084849494849494848494957494849494856494856";
+let hashed_pass = "P07797114116105110103971081011154950515233077971141161051101039710810111549505152334948494851575549485649484949495352575348534953505151";
+async function hashPass(toHash){
+  let hash = 50; // length
+  let hashed = "P";
+  while (hashed.length < hash)
+  { 
+    let conc = 0;
+    for (let i=0;i<(toHash.length + hashed.length);i++){
+      try{conc += toHash[i].charCodeAt(0).toString()}
+      catch{
+          try{conc += hashed[i].charCodeAt(0).toString()}
+      catch{}} 
+    }
+    hashed = hashed.concat(conc)
+  }
+  return hashed;
+}
+
 let admin_connected = false;
 app.post('/login', async function(req, res) {
   let username = req.body['username']
   let password = req.body['password']
-  
-  if (username=='juliet'){
+  console.log("Admin login attempted with username", username)
+
+  if (await hashPass(username)==hashed_user && await hashPass(password)==hashed_pass){
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ message: 'Authorised'}));
+    console.log("Admin login authorised.")
   }
   else {
-    res.writeHead(401, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'Invalid username or password, try again.' }));
-  }
+    setTimeout(function(){
+      console.log("Admin login denied.")
+      console.log(hashPass(username))
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: 'Invalid username or password, try again.'}))
+    }, 500)
+    }
   return 1;
 })
 app.post('/customSQL', async function(req, res) {
