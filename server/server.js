@@ -1,26 +1,25 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+const mysql = require('mysql')
 let bodyParser = require('body-parser');
 const { fileURLToPath } = require('url');
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname, 'public')))
 
-
-//const sql = require("mssql");
-/*const config = {
-  user: "giraffepad",
-  password: "F579,0ulY1E]65]mbGwF", 
-  server: 'giraffe-crm.database.windows.net',
-  port: 1433,
-  database: "giraffe-crm",
+const config = {
+  user: "climates",
+  password: "kryLemonaise2705!", 
+  server: 'localhost',
+  port: 3306,
+  database: "climates_stories",
   authentication: {
     type: 'default'
   },
   options : {
     encrypt: true
   }
-}*/
+}
 
 //CORS middleware
 let corsMiddleware = function(req, res, next) {
@@ -34,28 +33,8 @@ app.use(corsMiddleware);
 app.use(bodyParser.json());
 
 
-let poolConnection;
-
-
 app.get('/' , async function(req, res) {
     res.sendFile(path.join(__dirname, 'public/index.html'));
-    try {
-      // connecting on start
-      /*
-      if (!connected){
-        console.log("Connecting to the table initially...");
-        poolConnection = await sql.connect(config);
-        connected = true;
-        console.log("Connected, " + poolConnection)
-      }
-      else{
-        console.log("Already connected.")
-      }
-        */
-    }
-    catch (err){
-      console.error(err.message);
-    }
     return;
 })
 
@@ -88,18 +67,36 @@ async function hashPass(toHash){
   return hashed;
 }
 
-let admin_connected = false;
-app.post('/login', async function(req, res) {
-  let username = req.body['username']
-  let password = req.body['password']
+app.get('/login', async function(req, res) {
+  let formData = req.body;
+
+  let username = formData['username']
+  let password = formData['password']
   console.log("Admin login attempted with username", username)
 
   if (await hashPass(username)==hashed_user && await hashPass(password)==hashed_pass){
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'Authorised'}));
-    console.log("Admin login authorised.")
+    //res.writeHead(200, { 'Content-Type': 'application/json' });
+    //res.end(JSON.stringify({ message: 'Authorised'}));
+    //console.log("Admin login authorised.")
+    
+    let poolConnection = mysql.createConnection({
+      host:"localhost",
+      user:"climates",
+      password:"kryLemonaise2705!"
+    });
+    poolConnection.connect(function(err){
+      if (err) throw err;
+      console.log("Connected!");
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: 'Authorised', body:'SQL Connected'}));
+      console.log("Admin login authorised, SQL connected")
+    })
+    // list of formData requests (TODO)
+    if (formData['selector'] == 'custom') { // custom sql
+      let customQuery = formData['custom-query'];
+    }
   }
-  else {
+  else { // incorrect password
     setTimeout(function(){
       console.log("Admin login denied.")
       console.log(hashPass(username))
@@ -109,6 +106,7 @@ app.post('/login', async function(req, res) {
     }
   return 1;
 })
+
 app.post('/customSQL', async function(req, res) {
   let customSql = req.body['custom-sql']
   let loggedIn = true;
@@ -308,6 +306,7 @@ app.post('/map', function(req, res){
   res.setHeader('Content-Type', 'application/json');
   res.send('api');
 });
+
 app.get('/clients', async function(req, res){
 
     try {
