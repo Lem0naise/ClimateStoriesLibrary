@@ -67,7 +67,7 @@ async function hashPass(toHash){
   return hashed;
 }
 
-app.get('/login', async function(req, res) {
+app.post('/login', async function(req, res) {
   let formData = req.body;
 
   let username = formData['username']
@@ -88,7 +88,7 @@ app.get('/login', async function(req, res) {
       if (err) throw err;
       console.log("Connected!");
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ message: 'Authorised', body:'SQL Connected'}));
+      res.end(JSON.stringify({ message: 'Authorised'}));
       console.log("Admin login authorised, SQL connected")
     })
     // list of formData requests (TODO)

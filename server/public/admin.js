@@ -65,7 +65,7 @@ async function loginForm(event){
     formData[username] = document.getElementById('username').value;
     formData[password] = document.getElementById('password').value;
     fetch('/login', {
-        method: 'GET',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
