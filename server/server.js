@@ -1,24 +1,17 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const mysql = require('mysql')
+const sql = require('mysql')
 let bodyParser = require('body-parser');
-const { fileURLToPath } = require('url');
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname, 'public')))
 
+let poolConnection;
 const config = {
   user: "climates",
   password: "kryLemonaise2705!", 
   server: 'localhost',
-  port: 3306,
   database: "climates_stories",
-  authentication: {
-    type: 'default'
-  },
-  options : {
-    encrypt: true
-  }
 }
 
 //CORS middleware
@@ -37,6 +30,7 @@ app.get('/' , async function(req, res) {
     res.sendFile(path.join(__dirname, 'public/index.html'));
     return;
 })
+
 
 app.get('/admin' , async function(req, res) {
   res.sendFile(path.join(__dirname, 'public/admin.html'));
@@ -67,6 +61,23 @@ async function hashPass(toHash){
   return hashed;
 }
 
+app.post('sqlLoad', async function(req, res){
+  poolConnection = sql.createConnection(config);
+  poolConnection.connect(function(err) {
+      if(err) throw err;
+      console.log("Connected!")
+      return;
+  })
+});
+async function SQLQuery(query){
+  console.log(query)
+  poolConnection.query(query, function(error, results, fields) {
+      if (error) throw error;
+      console.log(results, fields)
+      return(results);
+  })
+}
+
 app.post('/login', async function(req, res) {
   let formData = req.body;
 
@@ -75,22 +86,11 @@ app.post('/login', async function(req, res) {
   console.log("Admin login attempted with username", username)
 
   if (await hashPass(username)==hashed_user && await hashPass(password)==hashed_pass){
-    //res.writeHead(200, { 'Content-Type': 'application/json' });
-    //res.end(JSON.stringify({ message: 'Authorised'}));
-    //console.log("Admin login authorised.")
-    
-    let poolConnection = mysql.createConnection({
-      host:"localhost",
-      user:"climates",
-      password:"kryLemonaise2705!"
-    });
-    poolConnection.connect(function(err){
-      if (err) throw err;
-      console.log("Connected!");
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ message: 'Authorised'}));
-      console.log("Admin login authorised, SQL connected")
-    })
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: 'Authorised'}));
+    console.log("Admin login authorised")
+    // TODO : make the SQL request return what the custom sql query says it does!!!!
+
     // list of formData requests (TODO)
     if (formData['selector'] == 'custom') { // custom sql
       let customQuery = formData['custom-query'];

@@ -3,6 +3,12 @@ window.onload = function(){
     document.getElementById("custom-sql-form").addEventListener("submit", loginForm)
     document.getElementById("optionSelector").addEventListener('change', changeDropdown)
     document.getElementById("uploadResponse-img").addEventListener("change", previewImage)
+    fetch('/sqlLoad', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    })
 }
 
 async function previewImage(){
