@@ -1,27 +1,4 @@
-@font-face {
-    font-family: 'FuturaLight';
-    src : url("fonts/FuturaCyrillicLight.woff");
-}
-@font-face {
-    font-family: 'FuturaBook';
-    src : url("fonts/FuturaCyrillicBook.woff");
-}
-@font-face {
-    font-family: 'FuturaMedium';
-    src : url("fonts/FuturaCyrillicMedium.woff");
-}
-@font-face {
-    font-family: 'FuturaDemi';
-    src : url("fonts/FuturaCyrillicDemi.woff");
-}
-@font-face {
-    font-family: 'FuturaHeavy';
-    src : url("fonts/FuturaCyrillicHeavy.woff");
-}
-@font-face {
-    font-family: 'FuturaBold';
-    src : url("fonts/FuturaCyrillicBold.woff");
-}
+
 
 .f {
 
@@ -37,7 +14,7 @@ title {
 body {
     margin: 0;
     background-color: black;
-    font-family: 'FuturaBook';
+    font-family: 'arial';
     font-weight: lighter;
 }
 
@@ -53,7 +30,7 @@ body {
     box-shadow: 0px 20px 30px #000000C0;
     z-index: 10;
     position: relative;
-    font-family: "FuturaMedium";
+    font-family: "arial";
     color: var(--lightgreen);
 
     justify-content: space-between;
@@ -72,7 +49,7 @@ body {
     z-index: 10;
     position: relative;
 
-    font-family: "FuturaMedium";
+    font-family: "arial";
     color: var(--lightgreen);
 
     justify-content: space-between;
@@ -161,7 +138,7 @@ body {
     padding-bottom: 10px;
     transition: opacity .2s;
     border-radius: 0px 0px 15px 15px;
-    font-family: "FuturaBook";
+    font-family: "arial";
 }
 .dropdownItem{
     width: 100%;
@@ -249,7 +226,7 @@ body {
     width: 40%;
     box-sizing: border-box;
     color: var(--lightgreen);
-    font-family: "FuturaMedium";
+    font-family: "arial";
     font-size: calc(1vw + 40px);
 
     padding-left: 40px;
@@ -258,7 +235,7 @@ body {
     margin-bottom: 0;
 }
 #collectButton p{
-    font-family: "FuturaBold";
+    font-family: "arial";
     margin: 0;
 }
 #c1 {
@@ -308,7 +285,7 @@ body {
     justify-content: center;
     align-items: center;
     font-size: 40px;
-    font-family: "FuturaDemi";
+    font-family: "arial";
 
     display: none;
 }
@@ -324,19 +301,19 @@ body {
 /** ABOUT US **/
 
 h1 {
-    font-family: "FuturaHeavy";
+    font-family: "arial";
     font-size: 55px;
 }
 h2 {
     display: inline;
-    font-family: "FuturaMedium";
+    font-family: "arial";
     font-size: max(16px + 2vw, 18px);
 }
 .block {
     display: block;
 }
 .q {/*question*/
-    font-family:"FuturaBook";
+    font-family:"arial";
 
     text-decoration:underline;
     font-size: max(1vw + 16px, 20px);
@@ -462,7 +439,7 @@ h2 {
 }
 
 .leftPage h3 {
-    font-family: "FuturaMedium";
+    font-family: "arial";
 }
 
 
@@ -542,7 +519,7 @@ h2 {
     #aboutUsLeftPage {
         font-size: 16px;
         padding-top: 5%;
-        font-family: "FuturaLight";
+        font-family: "arial";
         width: 100vw;
     }
     .aboutusHidden {
