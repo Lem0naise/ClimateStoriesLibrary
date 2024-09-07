@@ -349,12 +349,12 @@ h2 {
     color: var(--darkgreen);
     font-size: calc(1vw + 7px);
     font-weight:bold;
-    padding-top: 70px;
     width: 100vw;
+    margin-top: calc(10vw + 80px);
     min-height: 80vh;
 }
 #stories h1 {
-    font-size: calc(2vw + 40px);
+    font-size: calc(2vw + 50px);
 }
 .coverStory {
 
@@ -372,9 +372,13 @@ h2 {
     
 }
 #grass {
-    
+    position: absolute;
+    margin-left: -8vw;
+    margin-top: -4vw;
 }
-
+#grass img {
+    width: 100vw;
+}
 /* GENERAL */
 .bottomPadding {
     padding-bottom: 20vh;
@@ -580,6 +584,19 @@ h2 {
         background-size:contain;
         padding-top: 42%;
         */
+    }
+    #grass {
+        margin-left: -2vw;
+        margin-top: 0;
+    }
+    #grass img {
+        width: 110vw;
+    }
+    #stories {
+        margin-top: calc(10vw + 30px);
+    }
+    #stories h1 {
+        font-size: calc(2vw + 30px);
     }
     
     
