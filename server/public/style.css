@@ -416,6 +416,13 @@ h2 {
     flex-shrink: 0;
     justify-content: space-between;
 }
+.fullPage-two a {
+    color: white;
+    padding :0;
+    display: inline;
+    word-break: break-all;
+    white-space: nowrap;
+}
 .fullPage-two img {
     align-self: center;
 }
