@@ -1,6 +1,6 @@
 // setting up default behaviour of navigation buttons
 window.onload = function(){
-    loadMap();
+    //loadMap();
 }
 
 let MAP = false;
@@ -29,7 +29,7 @@ async function loadMap(){ // loading from leaflet js
         return 1;
     }
     else {
-        document.getElementById("hidden").style.display = "flex";
+        //document.getElementById("hidden").style.display = "flex";
         return 0;
     }
     
@@ -42,8 +42,8 @@ async function loadStories(){
 async function hiddenClick(){
     if (MAP == false){
         MAP = true;
-        loadMap();
-        document.getElementById("hidden").style.display = 'none';
+        //loadMap();
+        //document.getElementById("hidden").style.display = 'none';
     }
 }
 async function share(){
