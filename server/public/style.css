@@ -776,6 +776,158 @@ h2 {
     box-shadow: 0 5px 15px rgba(140, 198, 63, 0.3);
 }
 
+/* ABOUT US STYLES */
+.about-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    color: white;
+}
+
+.about-header {
+    text-align: center;
+    padding: 40px;
+    margin-bottom: 30px;
+}
+
+.about-header h1 {
+    color: var(--lightgreen);
+    margin-bottom: 25px;
+    font-size: clamp(32px, 5vw, 56px);
+}
+
+.about-subtitle {
+    font-size: clamp(16px, 1.8vw, 22px);
+    line-height: 1.6;
+    opacity: 0.9;
+    max-width: 800px;
+    margin: 0 auto 40px auto;
+}
+
+.about-section {
+    padding: 35px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+}
+
+.about-section h2 {
+    color: var(--lightgreen);
+    margin-bottom: 25px;
+    font-size: clamp(24px, 3vw, 40px);
+    display: block;
+}
+
+.about-section h3 {
+    color: var(--lightgreen);
+    margin-bottom: 12px;
+    font-size: clamp(16px, 1.4vw, 20px);
+    display: block;
+    font-weight: 600;
+}
+
+.about-section p {
+    line-height: 1.6;
+    opacity: 0.9;
+    margin-bottom: 15px;
+    font-size: clamp(14px, 1.2vw, 18px);
+}
+
+.aims-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.aim-item, .future-item {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(140, 198, 63, 0.2);
+    transition: all 0.3s ease;
+}
+
+.aim-item:hover, .future-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+}
+
+.future-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.team-intro {
+    text-align: center;
+    font-size: clamp(16px, 1.4vw, 20px);
+    margin-bottom: 40px !important;
+}
+
+.team-grid, .advisors-grid {
+    display: grid;
+    gap: 30px;
+}
+
+.team-member, .advisor-member {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(140, 198, 63, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.team-member img, .advisor-member img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 3px solid var(--lightgreen);
+    flex-shrink: 0;
+}
+
+.member-info h3, .advisor-info h3 {
+    margin-bottom: 8px;
+    font-size: clamp(18px, 1.5vw, 24px);
+}
+
+.advisor-info h4 {
+    color: rgba(140, 198, 63, 0.8);
+    font-size: clamp(14px, 1.1vw, 16px);
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.member-info a, .advisor-info a {
+    color: var(--lightgreen);
+    word-break: break-all;
+}
+
+.advisors-title {
+    font-size: clamp(18px, 1.6vw, 22px) !important;
+    margin-top: 30px;
+    margin-bottom: 25px;
+    color: rgba(140, 198, 63, 0.9) !important;
+}
+
+.contact-section {
+    text-align: center;
+}
+
+.contact-link {
+    color: var(--lightgreen) !important;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: clamp(16px, 1.4vw, 20px);
+}
+
+.contact-link:hover {
+    color: white !important;
+}
+
+
+
 @media (max-width: 1000px)  { /*mobile*/
     .hero-section {
         padding: 20px;
@@ -965,6 +1117,48 @@ h2 {
     .contact-button {
         max-width: 260px;
         justify-content: center;
+    }
+
+    .about-container {
+        padding: 20px 15px;
+    }
+    
+    .about-header {
+        padding: 25px 20px;
+        margin-bottom: 20px;
+    }
+    
+    .about-section {
+        padding: 25px 20px;
+        margin-bottom: 20px;
+    }
+    
+    .aims-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .aim-item, .future-item {
+        padding: 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(140, 198, 63, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .future-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .team-member, .advisor-member {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .team-member img, .advisor-member img {
+        width: 120px;
+        height: 120px;
     }
     
 }
