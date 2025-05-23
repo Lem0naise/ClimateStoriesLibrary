@@ -463,8 +463,8 @@ h2 {
 
 
 
-/* SHARE PAGE STYLES */
-.share-container {
+/* story PAGE STYLES */
+.story-container {
     max-width: 1000px;
     margin: 0 auto;
     padding: 40px 20px;
@@ -476,7 +476,7 @@ h2 {
     backdrop-filter: blur(1px);
     border: 5px solid rgba(140, 198, 63, 0.2);
 }
-.share-header {
+.story-header {
     text-align: center;
     margin-bottom: 50px;
     
@@ -484,13 +484,13 @@ h2 {
 
 }
 
-.share-header h1 {
+.story-header h1 {
     color: var(--lightgreen);
     margin-bottom: 20px;
     font-size: clamp(28px, 4vw, 48px);
 }
 
-.share-subtitle {
+.story-subtitle {
     font-size: clamp(16px, 1.5vw, 20px);
     opacity: 0.9;
     line-height: 1.6;
@@ -498,7 +498,7 @@ h2 {
     margin: 0 auto;
 }
 
-.share-section {
+.story-section {
 
     padding: 35px;
     margin-bottom: 30px;
@@ -506,7 +506,7 @@ h2 {
 
 }
 
-.share-section h2 {
+.story-section h2 {
     color: var(--lightgreen);
     margin-bottom: 25px;
     font-size: clamp(20px, 2.5vw, 32px);
@@ -1085,16 +1085,16 @@ h2 {
     }
     
     
-    .share-container {
+    .story-container {
         padding: 20px 15px;
     }
     
-    .share-header {
+    .story-header {
         padding: 25px 20px;
         margin-bottom: 30px;
     }
     
-    .share-section {
+    .story-section {
         padding: 25px 20px;
         margin-bottom: 20px;
     }
