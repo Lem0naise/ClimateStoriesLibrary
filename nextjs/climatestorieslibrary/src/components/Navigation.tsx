@@ -10,8 +10,8 @@ export default function Navigation() {
             <Image 
               src="/imgs/logo.webp" 
               alt="Climate Stories Library" 
-              width={60} 
-              height={60}
+              width={85} 
+              height={63}
               className="navbar-logo"
             />
           </Link>
