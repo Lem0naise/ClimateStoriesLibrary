@@ -1,15 +1,7 @@
-'use client';
-
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const router = useRouter();
-
-  const handleShareClick = () => {
-    router.push('/share');
-  };
 
   return (
     <div id="main">
@@ -26,7 +18,7 @@ export default function Home() {
                 <h2>Every Voice Matters</h2>
                 <p>Share your story and connect with a global community working together for climate action.</p>
               </div>
-              <div id="collectButton" onClick={handleShareClick}>
+              <Link id="collectButton" href="/share">
                 <div id="c1">
                   SHARE
                   <p>YOUR</p>
@@ -35,7 +27,7 @@ export default function Home() {
                 <div id="c2">
                   <Image src="imgs/plus.svg" alt="Plus icon" width={60} height={60} />
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
