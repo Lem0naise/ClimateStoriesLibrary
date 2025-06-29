@@ -28,7 +28,7 @@ export default function Navigation() {
             <Link href="/about" className="navbar-link">About Us</Link>
           </li>
           <li className="navbar-item">
-            <Link href="/share" className="navbar-link">Your Story</Link>
+            <Link href="/share" className="navbar-link">Share Your Story</Link>
           </li>
         </ul>
       </div>
