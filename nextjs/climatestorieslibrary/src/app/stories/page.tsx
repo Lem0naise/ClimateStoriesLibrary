@@ -2,13 +2,13 @@ import Image from "next/image";
 
 export default function Stories() {
   return (
-    <div id="main" className="white">
-      <div className="flexDiv">
-        <div id="grass">
-          <Image src="/imgs/grass.webp" alt="" width={1200} height={400} />
+    <div className="min-h-fit pb-0 bg-white h-full">
+      <div className="flex flex-row w-[80vw] ml-[10vw] h-[80%]">
+        <div className="absolute ml-[-8vw] mt-[-4vw]">
+          <Image src="/imgs/grass.webp" alt="" width={1200} height={400} className="w-screen" />
         </div>
-        <div id="stories">
-          <h1>Weaving Our Stories</h1>
+        <div className="pl-0 h-fit box-border text-center text-[color:var(--darkgreen)] text-[calc(1vw+7px)] font-bold w-screen mt-[calc(10vw+80px)] min-h-[80vh]">
+          <h1 className="text-[calc(2vw+50px)]">Weaving Our Stories</h1>
           
           <p>Stories will appear shortly.</p>
           <div className="coverStory" id="weAreListening">
