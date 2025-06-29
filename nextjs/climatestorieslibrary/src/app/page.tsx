@@ -10,10 +10,8 @@ import {
   fetchTags, 
   fetchContinents, 
   fetchCountries, 
-  fetchStoriesWithFilters,
   Story, 
   Tag,
-  FilterOptions 
 } from "@/utils/useSupabase";
 
 export default function Home() {
@@ -197,7 +195,7 @@ export default function Home() {
             <div className="bg-[rgba(255,255,255,0.15)] p-4 rounded-xl border-2 border-[rgba(140,198,63,0.3)] mb-6 max-w-4xl mx-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[color:var(--lightgreen)] text-[clamp(16px,1.4vw,18px)] font-semibold">
-                  Filter Stories
+                  {stories.length} Stories {hasActiveFilters && "with filters"}
                 </h3>
                 {hasActiveFilters && (
                   <button
@@ -365,10 +363,10 @@ export default function Home() {
           {/* Desktop Layout - Filters on left, stories on right */}
           <div className="hidden md:flex gap-6">
             {/* Desktop Filter Sidebar */}
-            <div className="w-80 bg-[rgba(255,255,255,0.15)] p-4 rounded-xl border-2 border-[rgba(140,198,63,0.3)] h-fit sticky top-4">
+            <div className="w-80 bg-[rgba(255,255,255,0.15)] p-4 rounded-xl border-2 border-[rgba(140,198,63,0.3)] h-fit sticky top-25">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[color:var(--lightgreen)] text-[clamp(16px,1.4vw,18px)] font-semibold">
-                  Filter Stories
+                  {stories.length} Stories {hasActiveFilters && "with filters"}
                 </h3>
                 {hasActiveFilters && (
                   <button
@@ -553,6 +551,8 @@ export default function Home() {
                       tags={getTagsString(story)}
                       country={story.country}
                       continent={story.continent}
+                      youtubeUrl={story.youtube_url}
+                      storyDate={story.story_date}
                     />
                   ))
                 ) : (
@@ -605,7 +605,7 @@ export default function Home() {
               href="https://www.instagram.com/climatestorieslibrary" 
               className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-4 px-9 rounded-lg no-underline font-semibold text-[clamp(14px,1.2vw,18px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
             >
-              View All Stories
+              View Instagram Page
             </a>
           </div>
         </div>
