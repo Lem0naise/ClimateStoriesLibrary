@@ -3,7 +3,8 @@
 :root {
   --lightgreen: #304e25;
   --darkgreen: #ffffff;
-  --background: #ffffff;
+  --background: #304e25;
+  --boxcolor: #ffffff;
   --foreground: #171717;
   
   /* Theme Colors */

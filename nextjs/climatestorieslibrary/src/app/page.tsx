@@ -181,12 +181,12 @@ export default function Home() {
   return (
     <div className={`min-h-fit pb-[20vh] bg-[color:var(--background)] transition-colors duration-300 ${getTheme()}`}>
       <div className="max-w-full md:max-w-[80vw] mx-auto py-10 px-5 text-green-600">
-        <div className="bg-[rgba(0,0,0,0.2)] rounded-[15px] backdrop-blur-sm border-[5px] border-[rgba(140,198,63,0.2)] text-center p-2 pt-0 pb-10 mb-8 md:p-10 md:pt-2">
-          <h2 className="text-[color:var(--lightgreen)] text-[clamp(24px,3vw,40px)] mb-5 block">
+        <div className="bg-[color:var(--boxcolor)] rounded-[15px] backdrop-blur-sm border-[5px] border-[rgba(140,198,63,0.2)] text-center p-2 pt-0 pb-10 mb-8 md:p-10 md:pt-2">
+          <h2 className="text-[color:var(--lightgreen)] text-[clamp(35px,4vw,50px)] mb-5 block font-bold">
             Explore the Climate Stories Library
           </h2>
-          <p className="text-[clamp(14px,1.3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-10">
-            Discover climate stories from communities around the world. Each story adds to our collective understanding of how climate change affects real people in real places.
+          <p className="text-[color:var(--lightgreen)] text-[clamp(14px,1.3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-10">
+            The Climate Stories Library provides a platform for individuals and grassroots groups to share their experiences of the climate and nature crisis.
           </p>
           
           {/* Mobile Filter Section - Above content */}
@@ -588,6 +588,8 @@ export default function Home() {
                   tags={getTagsString(story)}
                   country={story.country}
                   continent={story.continent}
+                  youtubeUrl={story.youtube_url}
+                  storyDate={story.story_date}
                 />
               ))
             ) : (

@@ -40,7 +40,7 @@ export default function StoryCard({ title, description, tags, youtubeUrl, countr
         {videoId ? (
           <div className="relative w-full h-full">
             <img 
-              src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+              src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
               alt={`${title} video thumbnail`}
               className="w-full h-full object-cover"
             />
@@ -52,7 +52,7 @@ export default function StoryCard({ title, description, tags, youtubeUrl, countr
           </div>
         ) : (
           <div className="w-[50px] h-[50px] bg-[rgba(255,255,255,0.9)] rounded-full flex items-center justify-center text-xl text-[color:var(--lightgreen)] transition-all duration-300 shadow-[0_3px_15px_rgba(0,0,0,0.2)] hover:scale-110 hover:bg-white max-[580px]:w-[40px] max-[580px]:h-[40px] max-[580px]:text-base">
-            ▶
+            ▶!
           </div>
         )}
       </div>
