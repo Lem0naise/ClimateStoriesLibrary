@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --lightgreen: #304e25;
+  --darkgreen: #ffffff;
+  --background: #304e25;
+  --boxcolor: #ffffff;
+  --foreground: #171717;
+  
+  /* Theme Colors */
+  --farmer-primary: #4a7c59;
+  --farmer-bg: #f0f8f0;
+  --drought-primary: #d4a831;
+  --drought-bg: #fefaf0;
+  --fire-primary: #c44536;
+  --fire-bg: #e0aaa0;
+  --flood-primary: #3b82c4;
+  --flood-bg: #8eb3df;
+  --community-primary: #8b5a9c;
+  --community-bg: #d7abe2;
+  --youth-primary: #2d9cdb;
+  --youth-bg: #9bc1e2;
+}
+
+body {
+  margin: 0;
+  background-color: var(--background);
+  font-family: 'SUSE', sans-serif;
+  font-weight: normal;
+  transition: background-color 0.3s ease;
+}
+
+/* Theme Styles */
+.theme-farmer {
+  --lightgreen: var(--farmer-primary);
+  --background: var(--farmer-bg);
+}
+
+.theme-drought {
+  --lightgreen: var(--drought-primary);
+  --background: var(--drought-bg);
+}
+
+.theme-fire {
+  --lightgreen: var(--fire-primary);
+  --background: var(--fire-bg);
+}
+
+.theme-flood {
+  --lightgreen: var(--flood-primary);
+  --background: var(--flood-bg);
+}
+
+.theme-community {
+  --lightgreen: var(--community-primary);
+  --background: var(--community-bg);
+}
+
+.theme-youth {
+  --lightgreen: var(--youth-primary);
+  --background: var(--youth-bg);
+}
