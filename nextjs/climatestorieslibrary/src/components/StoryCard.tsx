@@ -1,4 +1,6 @@
 import { getYouTubeVideoId } from "@/utils/getYoutubeVideoId";
+import { generateSlug } from "@/utils/useSupabase";
+import Link from "next/link";
 
 // Helper function to format date from YYYY-MM-DD to "DD MMM YYYY"
 function formatDate(dateString: string): string {
@@ -11,6 +13,7 @@ function formatDate(dateString: string): string {
 }
 
 interface StoryCardProps {
+  id: string;
   title: string;
   description: string;
   tags: string;
@@ -21,11 +24,13 @@ interface StoryCardProps {
 }
 
 
-export default function StoryCard({ title, description, tags, youtubeUrl, country, continent, storyDate }: StoryCardProps) {
+export default function StoryCard({ id, title, description, tags, youtubeUrl, country, continent, storyDate }: StoryCardProps) {
   const videoId = youtubeUrl ? getYouTubeVideoId(youtubeUrl) : null;
+  const slug = generateSlug(title);
 
   return (
-    <div className="bg-[rgba(255,255,255,0.08)] rounded-xl border border-[rgba(140,198,63,0.2)] transition-all duration-300 overflow-hidden cursor-pointer hover:bg-[rgba(255,255,255,0.12)] hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(140,198,63,0.15)]">
+    <Link href={`/stories/${slug}`} className="block">
+      <div className="bg-[rgba(255,255,255,0.08)] rounded-xl border border-[rgba(140,198,63,0.2)] transition-all duration-300 overflow-hidden cursor-pointer hover:bg-[rgba(255,255,255,0.12)] hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(140,198,63,0.15)]">
       <div className="w-full h-[180px] bg-gradient-to-br from-[rgba(140,198,63,0.3)] to-[rgba(140,198,63,0.1)] flex items-center justify-center relative border-b border-[rgba(140,198,63,0.2)] md:h-[150px] max-[580px]:h-[120px]">
         {/* Location Badge */}
         {(country || continent) && (
@@ -75,5 +80,6 @@ export default function StoryCard({ title, description, tags, youtubeUrl, countr
         </span>
       </div>
     </div>
+    </Link>
   );
 }

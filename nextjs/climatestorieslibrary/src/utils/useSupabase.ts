@@ -10,6 +10,7 @@ export interface Story {
   continent: string;
   country: string;
   classification: string;
+  description?: string;
   tags?: Tag[];
 }
 
@@ -64,6 +65,100 @@ export async function fetchStories(): Promise<Story[]> {
   } catch (error) {
     console.error('Error fetching stories:', error);
     return [];
+  }
+}
+
+// Fetch a single story by ID
+export async function fetchStoryById(id: string): Promise<Story | null> {
+  try {
+    const { data, error } = await supabase
+      .from('stories')
+      .select(`
+        *,
+        story_tags!inner(
+          tags(*)
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching story:', error);
+      return null;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    // Transform the data to include tags array
+    const storyWithTags = {
+      ...data,
+      tags: data.story_tags?.map((st: any) => st.tags).filter(Boolean) || []
+    };
+
+    return storyWithTags;
+  } catch (error) {
+    console.error('Error fetching story:', error);
+    return null;
+  }
+}
+
+// Generate a URL-friendly slug from a title
+export function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+// Fetch a story by slug (title-based) and fallback to ID
+export async function fetchStoryBySlug(slug: string): Promise<Story | null> {
+  try {
+    // First try to fetch by ID directly (for backward compatibility)
+    const storyById = await fetchStoryById(slug);
+    if (storyById) {
+      return storyById;
+    }
+
+    // If not found by ID, try to find by matching the slug generated from title
+    const { data, error } = await supabase
+      .from('stories')
+      .select(`
+        *,
+        story_tags!inner(
+          tags(*)
+        )
+      `);
+
+    if (error) {
+      console.error('Error fetching stories for slug match:', error);
+      return null;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    // Find story with matching slug
+    const matchingStory = data.find(story => 
+      generateSlug(story.title) === slug
+    );
+
+    if (!matchingStory) {
+      return null;
+    }
+
+    // Transform the data to include tags array
+    const storyWithTags = {
+      ...matchingStory,
+      tags: matchingStory.story_tags?.map((st: any) => st.tags).filter(Boolean) || []
+    };
+
+    return storyWithTags;
+  } catch (error) {
+    console.error('Error fetching story by slug:', error);
+    return null;
   }
 }
 

@@ -546,6 +546,7 @@ export default function Home() {
                   stories.map((story) => (
                     <StoryCard
                       key={story.id}
+                      id={story.id}
                       title={story.title}
                       description={getDescription(story)}
                       tags={getTagsString(story)}
@@ -583,6 +584,7 @@ export default function Home() {
               stories.map((story) => (
                 <StoryCard
                   key={story.id}
+                  id={story.id}
                   title={story.title}
                   description={getDescription(story)}
                   tags={getTagsString(story)}
