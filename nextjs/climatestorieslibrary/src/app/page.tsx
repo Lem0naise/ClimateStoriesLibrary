@@ -179,28 +179,31 @@ export default function Home() {
   const hasActiveFilters = selectedTags.length > 0 || selectedContinents.length > 0 || selectedCountries.length > 0;
 
   return (
-    <div className={`min-h-fit pb-[20vh] bg-[color:var(--background)] transition-colors duration-300 ${getTheme()}`}>
-      <div className="max-w-full md:max-w-[80vw] mx-auto py-10 px-5 text-green-600">
-        <div className="bg-[color:var(--boxcolor)] rounded-[15px] backdrop-blur-sm border-[5px] border-[rgba(140,198,63,0.2)] text-center p-2 pt-0 pb-10 mb-8 md:p-10 md:pt-2">
-          <h2 className="text-[color:var(--lightgreen)] text-[clamp(35px,4vw,50px)] mb-5 block font-bold">
+    <div className={`min-h-fit pb-[10vh] bg-[color:var(--background)] transition-colors duration-300 ${getTheme()}`}>
+      <div className="max-w-full md:max-w-[80vw] mx-auto py-4 md:py-10 px-3 md:px-5 text-green-600">
+        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-center p-3 md:p-10 pt-2 md:pt-2 pb-4 md:pb-10 mb-4 md:mb-8">
+          <h2 className="text-[color:var(--lightgreen)] text-[clamp(24px,6vw,50px)] mb-2 md:mb-5 hidden sm:block font-bold">
             Explore the Climate Stories Library
           </h2>
-          <p className="text-[color:var(--lightgreen)] text-[clamp(14px,1.3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-10">
+          <h2 className="text-[color:var(--lightgreen)] text-[clamp(24px,6vw,50px)] mb-2 md:mb-5 block sm:hidden font-bold">
+            Explore the Library
+          </h2>
+          <p className="text-[color:var(--lightgreen)] text-[clamp(12px,3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-4 md:mb-10">
             The Climate Stories Library provides a platform for individuals and grassroots groups to share their experiences of the climate and nature crisis.
           </p>
           
           {/* Mobile Filter Section - Above content */}
-          <div className="md:hidden bg-[rgba(255,255,255,0.15)] p-4 rounded-xl border-2 border-[rgba(140,198,63,0.3)] mb-6">
+          <div className="md:hidden bg-[rgba(255,255,255,0.15)] p-2 rounded-lg border border-[rgba(140,198,63,0.3)] mb-4">
             {/* Compact Filter Section */}
-            <div className="bg-[rgba(255,255,255,0.15)] p-4 rounded-xl border-2 border-[rgba(140,198,63,0.3)] mb-6 max-w-4xl mx-auto">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[color:var(--lightgreen)] text-[clamp(16px,1.4vw,18px)] font-semibold">
-                  {stories.length} Stories {hasActiveFilters && "with filters"}
+            <div className="bg-[rgba(255,255,255,0.15)] p-2 rounded-lg border border-[rgba(140,198,63,0.3)] mb-3 max-w-4xl mx-auto">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-[color:var(--lightgreen)] text-sm font-semibold">
+                    {hasActiveFilters && (<>{stories.length} Stories with filters</>)}
                 </h3>
                 {hasActiveFilters && (
                   <button
                     onClick={clearAllFilters}
-                    className="text-[clamp(12px,1vw,14px)] text-[color:var(--lightgreen)] opacity-70 hover:opacity-100 underline"
+                    className="text-xs text-[color:var(--lightgreen)] opacity-70 hover:opacity-100 underline"
                   >
                     Clear All
                   </button>
@@ -209,8 +212,8 @@ export default function Home() {
 
               {/* Active Filters Summary */}
               {hasActiveFilters && (
-                <div className="mb-4 p-3 bg-[rgba(0,0,0,0.2)] rounded-lg">
-                  <div className="flex flex-wrap gap-2 text-[clamp(11px,0.9vw,13px)]">
+                <div className="mb-2 p-2 bg-[rgba(0,0,0,0.2)] rounded-md">
+                  <div className="flex flex-wrap gap-1 text-xs">
                     {selectedTags.map(tag => (
                       <span key={tag} className="bg-[#304e25] text-white px-2 py-1 rounded-md flex items-center gap-1">
                         {tag}
@@ -234,32 +237,32 @@ export default function Home() {
               )}
 
               {/* Filter Categories */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-1">
                 {/* Tags Filter */}
-                <div className="border border-[rgba(140,198,63,0.3)] rounded-lg">
+                <div className="border border-[rgba(140,198,63,0.3)] rounded">
                   <button
                     onClick={() => toggleFilterExpansion('tags')}
-                    className="w-full p-3 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
+                    className="w-full p-2 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
                   >
-                    <span className="text-[clamp(13px,1.1vw,15px)] font-medium text-[color:var(--lightgreen)]">
-                      Categories ({selectedTags.length})
+                    <span className="text-xs font-medium text-[color:var(--lightgreen)]">
+                      Tags
                     </span>
-                    <span className="text-lg">{expandedFilter === 'tags' ? '−' : '+'}</span>
+                    <span className="text-sm">{expandedFilter === 'tags' ? '−' : '+'}</span>
                   </button>
                   {expandedFilter === 'tags' && (
-                    <div className="p-3 border-t border-[rgba(140,198,63,0.3)]">
+                    <div className="p-2 border-t border-[rgba(140,198,63,0.3)]">
                       <input
                         type="text"
-                        placeholder="Search categories..."
+                        placeholder="Search..."
                         value={searchTerms.tags}
                         onChange={(e) => setSearchTerms(prev => ({ ...prev, tags: e.target.value }))}
-                        className="w-full p-2 mb-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-white placeholder-gray-400 text-sm"
+                        className="w-full p-1 mb-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-white placeholder-gray-400 text-xs"
                       />
-                      <div className="grid grid-cols-2 gap-1 max-h-32 overflow-y-auto">
+                      <div className="grid grid-cols-1 gap-1 max-h-24 overflow-y-auto">
                         {filtersLoading ? (
-                          [...Array(4)].map((_, index) => (
-                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-2 px-2 animate-pulse">
-                              <div className="h-3 bg-[rgba(140,198,63,0.3)] rounded" />
+                          [...Array(3)].map((_, index) => (
+                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-1 px-1 animate-pulse">
+                              <div className="h-2 bg-[rgba(140,198,63,0.3)] rounded" />
                             </div>
                           ))
                         ) : (
@@ -279,23 +282,23 @@ export default function Home() {
                 </div>
 
                 {/* Continents Filter */}
-                <div className="border border-[rgba(140,198,63,0.3)] rounded-lg">
+                <div className="border border-[rgba(140,198,63,0.3)] rounded">
                   <button
                     onClick={() => toggleFilterExpansion('continents')}
-                    className="w-full p-3 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
+                    className="w-full p-2 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
                   >
-                    <span className="text-[clamp(13px,1.1vw,15px)] font-medium text-[color:var(--lightgreen)]">
-                      Continents ({selectedContinents.length})
+                    <span className="text-xs font-medium text-[color:var(--lightgreen)]">
+                      Continents
                     </span>
-                    <span className="text-lg">{expandedFilter === 'continents' ? '−' : '+'}</span>
+                    <span className="text-sm">{expandedFilter === 'continents' ? '−' : '+'}</span>
                   </button>
                   {expandedFilter === 'continents' && (
-                    <div className="p-3 border-t border-[rgba(140,198,63,0.3)]">
-                      <div className="grid grid-cols-1 gap-1 max-h-32 overflow-y-auto">
+                    <div className="p-2 border-t border-[rgba(140,198,63,0.3)]">
+                      <div className="grid grid-cols-1 gap-1 max-h-24 overflow-y-auto">
                         {filtersLoading ? (
-                          [...Array(3)].map((_, index) => (
-                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-2 px-2 animate-pulse">
-                              <div className="h-3 bg-[rgba(140,198,63,0.3)] rounded" />
+                          [...Array(2)].map((_, index) => (
+                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-1 px-1 animate-pulse">
+                              <div className="h-2 bg-[rgba(140,198,63,0.3)] rounded" />
                             </div>
                           ))
                         ) : (
@@ -315,30 +318,30 @@ export default function Home() {
                 </div>
 
                 {/* Countries Filter */}
-                <div className="border border-[rgba(140,198,63,0.3)] rounded-lg">
+                <div className="border border-[rgba(140,198,63,0.3)] rounded">
                   <button
                     onClick={() => toggleFilterExpansion('countries')}
-                    className="w-full p-3 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
+                    className="w-full p-2 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
                   >
-                    <span className="text-[clamp(13px,1.1vw,15px)] font-medium text-[color:var(--lightgreen)]">
-                      Countries ({selectedCountries.length})
+                    <span className="text-xs font-medium text-[color:var(--lightgreen)]">
+                      Countries
                     </span>
-                    <span className="text-lg">{expandedFilter === 'countries' ? '−' : '+'}</span>
+                    <span className="text-sm">{expandedFilter === 'countries' ? '−' : '+'}</span>
                   </button>
                   {expandedFilter === 'countries' && (
-                    <div className="p-3 border-t border-[rgba(140,198,63,0.3)]">
+                    <div className="p-2 border-t border-[rgba(140,198,63,0.3)]">
                       <input
                         type="text"
-                        placeholder="Search countries..."
+                        placeholder="Search..."
                         value={searchTerms.countries}
                         onChange={(e) => setSearchTerms(prev => ({ ...prev, countries: e.target.value }))}
-                        className="w-full p-2 mb-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-white placeholder-gray-400 text-sm"
+                        className="w-full p-1 mb-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-white placeholder-gray-400 text-xs"
                       />
-                      <div className="grid grid-cols-1 gap-1 max-h-40 overflow-y-auto">
+                      <div className="grid grid-cols-1 gap-1 max-h-24 overflow-y-auto">
                         {filtersLoading ? (
-                          [...Array(4)].map((_, index) => (
-                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-2 px-2 animate-pulse">
-                              <div className="h-3 bg-[rgba(140,198,63,0.3)] rounded" />
+                          [...Array(3)].map((_, index) => (
+                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-1 px-1 animate-pulse">
+                              <div className="h-2 bg-[rgba(140,198,63,0.3)] rounded" />
                             </div>
                           ))
                         ) : (
@@ -366,7 +369,7 @@ export default function Home() {
             <div className="w-80 bg-[rgba(255,255,255,0.15)] p-4 rounded-xl border-2 border-[rgba(140,198,63,0.3)] h-fit sticky top-25">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[color:var(--lightgreen)] text-[clamp(16px,1.4vw,18px)] font-semibold">
-                  {stories.length} Stories {hasActiveFilters && "with filters"}
+                  {hasActiveFilters && (<>{stories.length} Stories with filters</>)}
                 </h3>
                 {hasActiveFilters && (
                   <button
@@ -411,7 +414,7 @@ export default function Home() {
                     className="w-full p-3 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
                   >
                     <span className="text-[clamp(13px,1.1vw,15px)] font-medium text-[color:var(--lightgreen)]">
-                      Categories ({selectedTags.length})
+                      Categories
                     </span>
                     <span className="text-lg">{expandedFilter === 'tags' ? '−' : '+'}</span>
                   </button>
@@ -454,7 +457,7 @@ export default function Home() {
                     className="w-full p-3 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
                   >
                     <span className="text-[clamp(13px,1.1vw,15px)] font-medium text-[color:var(--lightgreen)]">
-                      Continents ({selectedContinents.length})
+                      Continents 
                     </span>
                     <span className="text-lg">{expandedFilter === 'continents' ? '−' : '+'}</span>
                   </button>
@@ -490,7 +493,7 @@ export default function Home() {
                     className="w-full p-3 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
                   >
                     <span className="text-[clamp(13px,1.1vw,15px)] font-medium text-[color:var(--lightgreen)]">
-                      Countries ({selectedCountries.length})
+                      Countries
                     </span>
                     <span className="text-lg">{expandedFilter === 'countries' ? '−' : '+'}</span>
                   </button>
@@ -569,7 +572,7 @@ export default function Home() {
           </div>
 
           {/* Mobile Story Cards Grid */}
-          <div className="md:hidden grid grid-cols-1 gap-6">
+          <div className="md:hidden grid grid-cols-1 gap-3">
             {loading ? (
               [...Array(6)].map((_, index) => (
                 <div key={index} className="bg-[rgba(255,255,255,0.08)] rounded-xl border border-[rgba(140,198,63,0.2)] overflow-hidden animate-pulse">
@@ -605,11 +608,11 @@ export default function Home() {
             )}
           </div>
           
-          <div className="mt-9">
+          <div className="mt-4 md:mt-9">
             <a 
               target="_blank" 
               href="https://www.instagram.com/climatestorieslibrary" 
-              className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-4 px-9 rounded-lg no-underline font-semibold text-[clamp(14px,1.2vw,18px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
+              className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 md:py-4 px-6 md:px-9 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,18px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
             >
               View Instagram Page
             </a>
