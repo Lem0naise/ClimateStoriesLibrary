@@ -18,14 +18,14 @@ export default function Footer() {
           <div className="flex flex-col max-[580px]:hidden">
             <Link 
               href="/" 
-              className="text-[color:var(--lightgreen)] text-base font-semibold no-underline transition-colors duration-300 hover:text-white font-[SUSE] md:text-sm"
+              className="text-[color:var(--lightgreen)] text-base font-semibold no-underline transition-colors duration-300 hover:text-black font-[SUSE] md:text-sm"
             >
               Climate Stories Library
             </Link>
           </div>
         </div>
         
-        <div className="text-white text-sm font-medium opacity-90 md:text-xs max-[580px]:text-[11px]">
+        <div className="text-[color:var(--lightgreen)] text-sm font-medium opacity-90 md:text-xs max-[580px]:text-[11px]">
           © 2024 Climate Stories Library
         </div>
       </div>
