@@ -19,12 +19,13 @@ interface StoryCardProps {
   tags: string;
   youtubeUrl?: string;
   country?: string;
+  region?: string;
   continent?: string;
   storyDate?: string;
 }
 
 
-export default function StoryCard({ id, title, description, tags, youtubeUrl, country, continent, storyDate }: StoryCardProps) {
+export default function StoryCard({ id, title, description, tags, youtubeUrl, country, region, continent, storyDate }: StoryCardProps) {
   const videoId = youtubeUrl ? getYouTubeVideoId(youtubeUrl) : null;
   const slug = generateSlug(title);
 
@@ -33,11 +34,13 @@ export default function StoryCard({ id, title, description, tags, youtubeUrl, co
       <div className="bg-[rgba(255,255,255,0.08)] rounded-xl border border-[rgba(140,198,63,0.2)] transition-all duration-300 overflow-hidden cursor-pointer hover:bg-[rgba(255,255,255,0.12)] hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(140,198,63,0.15)]">
       <div className="w-full h-[180px] bg-gradient-to-br from-[rgba(140,198,63,0.3)] to-[rgba(140,198,63,0.1)] flex items-center justify-center relative border-b border-[rgba(140,198,63,0.2)] md:h-[150px] max-[580px]:h-[120px]">
         {/* Location Badge */}
-        {(country || continent) && (
+        {(region || country || continent) && (
           <div className="absolute top-3 left-3 bg-[rgba(0,0,0,0.7)] backdrop-blur-sm rounded-lg px-3 py-1.5 text-white z-10">
             <div className="text-[clamp(11px,1vw,13px)] font-semibold">
+
               {country && <span className="block">{country}</span>}
-              {continent && <span className="block text-[clamp(9px,0.8vw,11px)] opacity-80">{continent}</span>}
+               {region && <span className="block text-[clamp(9px,0.8vw,11px)] opacity-90">{region}</span>}
+              {(!region && continent) && <span className="block text-[clamp(9px,0.8vw,11px)] opacity-90">{continent}</span>}
             </div>
           </div>
         )}

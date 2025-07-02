@@ -551,6 +551,7 @@ export default function Home() {
                       description={getDescription(story)}
                       tags={getTagsString(story)}
                       country={story.country}
+                      region={story.region}
                       continent={story.continent}
                       youtubeUrl={story.youtube_url}
                       storyDate={story.story_date}
@@ -589,6 +590,7 @@ export default function Home() {
                   description={getDescription(story)}
                   tags={getTagsString(story)}
                   country={story.country}
+                  region={story.region}
                   continent={story.continent}
                   youtubeUrl={story.youtube_url}
                   storyDate={story.story_date}
