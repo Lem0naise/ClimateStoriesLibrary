@@ -314,3 +314,93 @@ export async function fetchStoriesWithFilters(filters: FilterOptions): Promise<S
     return [];
   }
 }
+
+// Auth functions
+export async function signInWithEmail(email: string, password: string) {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error('Error signing in:', error);
+      return { user: null, session: null, error: error.message };
+    }
+
+    return { user: data.user, session: data.session, error: null };
+  } catch (error) {
+    console.error('Error signing in:', error);
+    return { user: null, session: null, error: 'An unexpected error occurred' };
+  }
+}
+
+export async function signOut() {
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error signing out:', error);
+      return { error: error.message };
+    }
+    return { error: null };
+  } catch (error) {
+    console.error('Error signing out:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+export async function getCurrentUser() {
+  try {
+    // First get the session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error('Error getting session:', sessionError);
+      return { user: null, session: null, error: sessionError.message };
+    }
+
+    if (!session) {
+      return { user: null, session: null, error: null };
+    }
+
+    // Then get the user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError) {
+      console.error('Error getting user:', userError);
+      return { user: null, session: null, error: userError.message };
+    }
+
+    return { user, session, error: null };
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return { user: null, session: null, error: 'An unexpected error occurred' };
+  }
+}
+
+// Check if user is admin (checks the admin table in database)
+export async function isUserAdmin(user: any) {
+  if (!user) return false;
+  
+  try {
+    const { data, error } = await supabase
+      .from('admin')
+      .select('admin')
+      .eq('userid', user.id)
+      .single();
+
+    if (error) {
+      console.error('Error checking admin status:', error);
+      return false;
+    }
+
+    return data?.admin === true;
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
+}
+
+export function getAuthStateChangeListener() {
+  return supabase.auth.onAuthStateChange;
+}
