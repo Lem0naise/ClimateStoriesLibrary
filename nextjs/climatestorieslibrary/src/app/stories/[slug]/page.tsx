@@ -122,7 +122,6 @@ export default function StoryPage() {
                   <iframe
                     src={youtubeEmbedUrl}
                     title={story.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="strict-origin-when-cross-origin"

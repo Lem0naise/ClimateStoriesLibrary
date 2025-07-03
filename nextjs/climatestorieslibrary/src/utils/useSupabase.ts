@@ -314,3 +314,267 @@ export async function fetchStoriesWithFilters(filters: FilterOptions): Promise<S
     return [];
   }
 }
+
+// Auth functions
+export async function signInWithEmail(email: string, password: string) {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error('Error signing in:', error);
+      return { user: null, session: null, error: error.message };
+    }
+
+    return { user: data.user, session: data.session, error: null };
+  } catch (error) {
+    console.error('Error signing in:', error);
+    return { user: null, session: null, error: 'An unexpected error occurred' };
+  }
+}
+
+export async function signOut() {
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error signing out:', error);
+      return { error: error.message };
+    }
+    return { error: null };
+  } catch (error) {
+    console.error('Error signing out:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+export async function getCurrentUser() {
+  try {
+    // First get the session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error('Error getting session:', sessionError);
+      return { user: null, session: null, error: sessionError.message };
+    }
+
+    if (!session) {
+      return { user: null, session: null, error: null };
+    }
+
+    // Then get the user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError) {
+      console.error('Error getting user:', userError);
+      return { user: null, session: null, error: userError.message };
+    }
+
+    return { user, session, error: null };
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return { user: null, session: null, error: 'An unexpected error occurred' };
+  }
+}
+
+// Check if user is admin (checks the admin table in database)
+export async function isUserAdmin(user: any) {
+  if (!user) return false;
+  
+  try {
+    const { data, error } = await supabase
+      .from('admin')
+      .select('admin')
+      .eq('userid', user.id)
+      .single();
+
+    if (error) {
+      console.error('Error checking admin status:', error);
+      return false;
+    }
+
+    return data?.admin === true;
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
+}
+
+export function getAuthStateChangeListener() {
+  return supabase.auth.onAuthStateChange;
+}
+
+// Story CRUD operations
+
+// Create a new story
+export async function createStory(storyData: Omit<Story, 'id' | 'created_at' | 'tags'>) {
+  try {
+    const { data, error } = await supabase
+      .from('stories')
+      .insert([storyData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating story:', error);
+      return { story: null, error: error.message };
+    }
+
+    return { story: data, error: null };
+  } catch (error) {
+    console.error('Error creating story:', error);
+    return { story: null, error: 'An unexpected error occurred' };
+  }
+}
+
+// Update an existing story
+export async function updateStory(id: string, storyData: Partial<Omit<Story, 'id' | 'created_at' | 'tags'>>) {
+  try {
+    const { data, error } = await supabase
+      .from('stories')
+      .update(storyData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating story:', error);
+      return { story: null, error: error.message };
+    }
+
+    return { story: data, error: null };
+  } catch (error) {
+    console.error('Error updating story:', error);
+    return { story: null, error: 'An unexpected error occurred' };
+  }
+}
+
+// Delete a story
+export async function deleteStory(id: string) {
+  try {
+    // First delete associated story_tags
+    const { error: tagError } = await supabase
+      .from('story_tags')
+      .delete()
+      .eq('story_id', id);
+
+    if (tagError) {
+      console.error('Error deleting story tags:', tagError);
+      return { error: tagError.message };
+    }
+
+    // Then delete the story
+    const { error } = await supabase
+      .from('stories')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting story:', error);
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error('Error deleting story:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+// Get a single story by ID (for editing)
+export async function fetchStoryById(id: string): Promise<Story | null> {
+  try {
+    const { data, error } = await supabase
+      .from('stories')
+      .select(`
+        *,
+        story_tags!inner(
+          tags(*)
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching story by ID:', error);
+      return null;
+    }
+
+    // Transform the data to include tags array
+    const storyWithTags = {
+      ...data,
+      tags: data.story_tags?.map((st: any) => st.tags).filter(Boolean) || []
+    };
+
+    return storyWithTags;
+  } catch (error) {
+    console.error('Error fetching story by ID:', error);
+    return null;
+  }
+}
+
+// Add tags to a story
+export async function addTagsToStory(storyId: string, tagIds: string[]) {
+  try {
+    const storyTags = tagIds.map(tagId => ({
+      story_id: storyId,
+      tag_id: tagId
+    }));
+
+    const { error } = await supabase
+      .from('story_tags')
+      .insert(storyTags);
+
+    if (error) {
+      console.error('Error adding tags to story:', error);
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error('Error adding tags to story:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+// Remove tags from a story
+export async function removeTagsFromStory(storyId: string) {
+  try {
+    const { error } = await supabase
+      .from('story_tags')
+      .delete()
+      .eq('story_id', storyId);
+
+    if (error) {
+      console.error('Error removing tags from story:', error);
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error('Error removing tags from story:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+// Create a new tag
+export async function createTag(name: string) {
+  try {
+    const { data, error } = await supabase
+      .from('tags')
+      .insert([{ name }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating tag:', error);
+      return { tag: null, error: error.message };
+    }
+
+    return { tag: data, error: null };
+  } catch (error) {
+    console.error('Error creating tag:', error);
+    return { tag: null, error: 'An unexpected error occurred' };
+  }
+}
