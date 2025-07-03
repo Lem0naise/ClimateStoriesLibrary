@@ -9,8 +9,7 @@ export default function About() {
             About the Climate Stories Library
           </h1>
           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-4 md:mb-10">
-            We believe every voice matters in the climate conversation. Our mission
-            is to amplify stories from those at the frontlines of the climate and
+            The Climate Stories Library provides a platform for individuals and grassroots groups to share their experiences of the climate and nature crisis. We believe every voice matters in the climate conversation. Our mission is to amplify stories from those at the frontlines of the climate and
             nature crisis.
           </p>
         </div>
