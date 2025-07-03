@@ -274,7 +274,7 @@ export default function Admin() {
         )}
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-8">
+        <div className="hidden sm:block grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-8">
           <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-6">
             <h3 className="text-[color:var(--lightgreen)] text-lg md:text-xl font-semibold mb-2">
               Total Stories
