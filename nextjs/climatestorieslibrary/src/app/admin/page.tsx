@@ -3,7 +3,34 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getCurrentUser, isUserAdmin, signOut, fetchStories, fetchTags, Story, Tag } from '@/utils/useSupabase';
+import { 
+  getCurrentUser, 
+  isUserAdmin, 
+  signOut, 
+  fetchStories, 
+  fetchTags, 
+  createStory, 
+  updateStory, 
+  deleteStory, 
+  fetchStoryById,
+  addTagsToStory,
+  removeTagsFromStory,
+  createTag,
+  Story, 
+  Tag 
+} from '@/utils/useSupabase';
+
+type StoryFormData = {
+  title: string;
+  youtube_url: string;
+  story_date: string;
+  continent: string;
+  country: string;
+  region: string;
+  classification: string;
+  description: string;
+  selectedTags: string[];
+};
 
 export default function Admin() {
   const [user, setUser] = useState<any>(null);
@@ -12,6 +39,21 @@ export default function Admin() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [storiesLoading, setStoriesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showStoryForm, setShowStoryForm] = useState(false);
+  const [editingStory, setEditingStory] = useState<Story | null>(null);
+  const [storyFormData, setStoryFormData] = useState<StoryFormData>({
+    title: '',
+    youtube_url: '',
+    story_date: '',
+    continent: '',
+    country: '',
+    region: '',
+    classification: '',
+    description: '',
+    selectedTags: []
+  });
+  const [formLoading, setFormLoading] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -64,6 +106,119 @@ export default function Admin() {
     } else {
       router.push('/login');
     }
+  };
+
+  const resetForm = () => {
+    setStoryFormData({
+      title: '',
+      youtube_url: '',
+      story_date: '',
+      continent: '',
+      country: '',
+      region: '',
+      classification: '',
+      description: '',
+      selectedTags: []
+    });
+    setEditingStory(null);
+    setShowStoryForm(false);
+  };
+
+  const handleCreateStory = () => {
+    resetForm();
+    setShowStoryForm(true);
+  };
+
+  const handleEditStory = async (storyId: string) => {
+    const story = await fetchStoryById(storyId);
+    if (story) {
+      setStoryFormData({
+        title: story.title,
+        youtube_url: story.youtube_url,
+        story_date: story.story_date,
+        continent: story.continent,
+        country: story.country,
+        region: story.region,
+        classification: story.classification,
+        description: story.description || '',
+        selectedTags: story.tags?.map(tag => tag.id) || []
+      });
+      setEditingStory(story);
+      setShowStoryForm(true);
+    }
+  };
+
+  const handleDeleteStory = async (storyId: string) => {
+    if (deleteConfirm === storyId) {
+      setFormLoading(true);
+      const { error } = await deleteStory(storyId);
+      if (error) {
+        setError(error);
+      } else {
+        await loadAdminData();
+      }
+      setDeleteConfirm(null);
+      setFormLoading(false);
+    } else {
+      setDeleteConfirm(storyId);
+    }
+  };
+
+  const handleSubmitStory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormLoading(true);
+    setError(null);
+
+    try {
+      const storyData = {
+        title: storyFormData.title,
+        youtube_url: storyFormData.youtube_url,
+        story_date: storyFormData.story_date,
+        continent: storyFormData.continent,
+        country: storyFormData.country,
+        region: storyFormData.region,
+        classification: storyFormData.classification,
+        description: storyFormData.description
+      };
+
+      let storyResult;
+      if (editingStory) {
+        storyResult = await updateStory(editingStory.id, storyData);
+      } else {
+        storyResult = await createStory(storyData);
+      }
+
+      if (storyResult.error) {
+        setError(storyResult.error);
+        setFormLoading(false);
+        return;
+      }
+
+      const storyId = storyResult.story?.id;
+      if (storyId) {
+        // Remove existing tags and add new ones
+        await removeTagsFromStory(storyId);
+        if (storyFormData.selectedTags.length > 0) {
+          await addTagsToStory(storyId, storyFormData.selectedTags);
+        }
+      }
+
+      resetForm();
+      await loadAdminData();
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleTagToggle = (tagId: string) => {
+    setStoryFormData(prev => ({
+      ...prev,
+      selectedTags: prev.selectedTags.includes(tagId)
+        ? prev.selectedTags.filter(id => id !== tagId)
+        : [...prev.selectedTags, tagId]
+    }));
   };
 
   if (loading) {
@@ -148,21 +303,195 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* Recent Stories */}
-        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8">
+        {/* Story Form Section */}
+        {showStoryForm && (
+          <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+            <div className="flex items-center justify-between mb-4 md:mb-6">
+              <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
+                {editingStory ? 'Edit Story' : 'Create New Story'}
+              </h2>
+              <button
+                onClick={resetForm}
+                className="text-[color:var(--lightgreen)] hover:opacity-70 text-xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitStory} className="space-y-4">
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Title *
+                </label>
+                <input
+                  type="text"
+                  value={storyFormData.title}
+                  onChange={(e) => setStoryFormData(prev => ({ ...prev, title: e.target.value }))}
+                  required
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                  placeholder="Enter story title"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  YouTube URL *
+                </label>
+                <input
+                  type="url"
+                  value={storyFormData.youtube_url}
+                  onChange={(e) => setStoryFormData(prev => ({ ...prev, youtube_url: e.target.value }))}
+                  required
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                  placeholder="https://youtube.com/watch?v=..."
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                    Story Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={storyFormData.story_date}
+                    onChange={(e) => setStoryFormData(prev => ({ ...prev, story_date: e.target.value }))}
+                    required
+                    className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] focus:border-[color:var(--lightgreen)] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                    Classification
+                  </label>
+                  <input
+                    type="text"
+                    value={storyFormData.classification}
+                    onChange={(e) => setStoryFormData(prev => ({ ...prev, classification: e.target.value }))}
+                    className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                    placeholder="Story classification"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                    Continent
+                  </label>
+                  <input
+                    type="text"
+                    value={storyFormData.continent}
+                    onChange={(e) => setStoryFormData(prev => ({ ...prev, continent: e.target.value }))}
+                    className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                    placeholder="Continent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                    Country
+                  </label>
+                  <input
+                    type="text"
+                    value={storyFormData.country}
+                    onChange={(e) => setStoryFormData(prev => ({ ...prev, country: e.target.value }))}
+                    className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                    placeholder="Country"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                    Region
+                  </label>
+                  <input
+                    type="text"
+                    value={storyFormData.region}
+                    onChange={(e) => setStoryFormData(prev => ({ ...prev, region: e.target.value }))}
+                    className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                    placeholder="Region"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={storyFormData.description}
+                  onChange={(e) => setStoryFormData(prev => ({ ...prev, description: e.target.value }))}
+                  rows={4}
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none resize-vertical"
+                  placeholder="Story description"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Tags
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-32 overflow-y-auto p-2 border border-[rgba(140,198,63,0.3)] rounded-lg bg-[rgba(255,255,255,0.05)]">
+                  {tags.map((tag) => (
+                    <label key={tag.id} className="flex items-center space-x-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={storyFormData.selectedTags.includes(tag.id)}
+                        onChange={() => handleTagToggle(tag.id)}
+                        className="rounded"
+                      />
+                      <span className="text-[color:var(--lightgreen)]">{tag.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={formLoading}
+                  className="flex-1 bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 px-6 rounded-lg font-semibold transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
+                >
+                  {formLoading ? 'Saving...' : editingStory ? 'Update Story' : 'Create Story'}
+                </button>
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-6 py-3 border border-[color:var(--lightgreen)] text-[color:var,--lightgreen] rounded-lg font-semibold hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] transition-all duration-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Story Management Section */}
+        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
-              Recent Stories
+              Story Management
             </h2>
-            <button
-              onClick={loadAdminData}
-              disabled={storiesLoading}
-              className="bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
-            >
-              {storiesLoading ? 'Loading...' : 'Refresh'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleCreateStory}
+                className="bg-green-500 text-white py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-green-600"
+              >
+                Create Story
+              </button>
+              <button
+                onClick={loadAdminData}
+                disabled={storiesLoading}
+                className="bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
+              >
+                {storiesLoading ? 'Loading...' : 'Refresh'}
+              </button>
+            </div>
           </div>
-          
+
+          {/* Stories List */}
           {storiesLoading ? (
             <div className="space-y-3">
               {[...Array(5)].map((_, index) => (
@@ -174,12 +503,12 @@ export default function Admin() {
             </div>
           ) : (
             <div className="space-y-4">
-              {stories.slice(0, 10).map((story) => (
+              {stories.map((story) => (
                 <div 
                   key={story.id} 
                   className="border border-[rgba(140,198,63,0.2)] rounded-lg p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-300"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex-1">
                       <h3 className="text-[color:var(--lightgreen)] font-semibold mb-1">
                         {story.title}
@@ -190,15 +519,46 @@ export default function Admin() {
                       <p className="text-[color:var(--lightgreen)] opacity-60 text-xs mt-1">
                         Added: {new Date(story.created_at).toLocaleDateString()}
                       </p>
+                      {story.tags && story.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {story.tags.slice(0, 3).map((tag) => (
+                            <span key={tag.id} className="text-xs bg-[rgba(140,198,63,0.2)] text-[color:var(--lightgreen)] px-2 py-1 rounded">
+                              {tag.name}
+                            </span>
+                          ))}
+                          {story.tags.length > 3 && (
+                            <span className="text-xs text-[color:var(--lightgreen)] opacity-70">
+                              +{story.tags.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <div className="mt-2 sm:mt-0 sm:ml-4">
+                    <div className="mt-3 lg:mt-0 lg:ml-4 flex gap-2">
                       <Link
                         href={`/stories/${story.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`}
-                        className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-1 px-3 rounded text-sm font-semibold hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] transition-colors duration-300"
+                        className="bg-blue-500 text-white py-1 px-3 rounded text-sm font-semibold hover:bg-blue-600 transition-colors duration-300"
                         target="_blank"
                       >
-                        View Story
+                        View
                       </Link>
+                      <button
+                        onClick={() => handleEditStory(story.id)}
+                        className="bg-yellow-500 text-white py-1 px-3 rounded text-sm font-semibold hover:bg-yellow-600 transition-colors duration-300"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteStory(story.id)}
+                        disabled={formLoading}
+                        className={`py-1 px-3 rounded text-sm font-semibold transition-colors duration-300 ${
+                          deleteConfirm === story.id 
+                            ? 'bg-red-600 text-white hover:bg-red-700' 
+                            : 'bg-red-500 text-white hover:bg-red-600'
+                        } disabled:opacity-50`}
+                      >
+                        {deleteConfirm === story.id ? 'Confirm?' : 'Delete'}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -216,3 +576,4 @@ export default function Admin() {
     </div>
   );
 }
+ 
