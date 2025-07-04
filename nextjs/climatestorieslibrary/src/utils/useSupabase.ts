@@ -17,7 +17,6 @@ export interface Story {
 
 export interface Tag {
   id: string;
-  created_at: string;
   name: string;
 }
 
@@ -45,7 +44,7 @@ export async function fetchStories(): Promise<Story[]> {
       .from('stories')
       .select(`
         *,
-        story_tags!inner(
+        story_tags(
           tags(*)
         )
       `)
@@ -86,7 +85,7 @@ export async function fetchStoryBySlug(slug: string): Promise<Story | null> {
       .from('stories')
       .select(`
         *,
-        story_tags!inner(
+        story_tags(
           tags(*)
         )
       `);
@@ -489,7 +488,7 @@ export async function fetchStoryById(id: string): Promise<Story | null> {
       .from('stories')
       .select(`
         *,
-        story_tags!inner(
+        story_tags(
           tags(*)
         )
       `)

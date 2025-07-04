@@ -40,10 +40,6 @@ export default function Home() {
     return story.classification || '';
   };
 
-  // Helper function to generate description from story data
-  const getDescription = (story: Story): string => {
-    return `A climate story sharing experiences and insights from this region`;
-  };
 
   // Load all filter options on component mount
   useEffect(() => {
