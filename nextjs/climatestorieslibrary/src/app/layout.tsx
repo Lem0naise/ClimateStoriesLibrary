@@ -11,7 +11,7 @@ const suseFont = SUSE({
 
 export const metadata: Metadata = {
   title: "Climate Stories Library",
-  description: "A platform for individuals and grassroots groups to share their experiences of, and responses to, the climate and nature crisis.",
+  description: "The Climate Stories Library provides a platform for individuals and grassroots groups to share their experiences of, and responses to, the climate and nature crisis.",
 };
 
 export default function RootLayout({
