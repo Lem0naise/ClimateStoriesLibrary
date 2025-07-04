@@ -1,4 +1,23 @@
+import { Metadata } from 'next';
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  title: 'About Us - Climate Stories Library',
+  description: 'Learn about the Climate Stories Library, a platform amplifying voices from the frontlines of the climate and nature crisis. Meet our team and discover our mission.',
+  keywords: 'climate stories, climate crisis, environmental justice, storytelling, grassroots movements',
+  openGraph: {
+    title: 'About Us - Climate Stories Library',
+    description: 'Learn about the Climate Stories Library - a platform amplifying voices from the frontlines of the climate crisis.',
+    type: 'website',
+    url: 'https://www.climatestorieslibrary.com/aboutus',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Us - Climate Stories Library',
+    description: 'Learn about the Climate Stories Library - a platform amplifying voices from the frontlines of the climate crisis.',
+  }
+};
+
 
 export default function About() {
   return (

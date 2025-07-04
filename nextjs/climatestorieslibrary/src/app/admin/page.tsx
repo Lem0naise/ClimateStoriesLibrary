@@ -16,6 +16,8 @@ import {
   addTagsToStory,
   removeTagsFromStory,
   createTag,
+  updateTag,
+  deleteTag,
   Story, 
   Tag 
 } from '@/utils/useSupabase';
@@ -54,6 +56,9 @@ export default function Admin() {
   });
   const [formLoading, setFormLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleteTagConfirm, setDeleteTagConfirm] = useState<string | null>(null);
+  const [inlineEditingTag, setInlineEditingTag] = useState<string | null>(null);
+  const [inlineTagName, setInlineTagName] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -221,6 +226,66 @@ export default function Admin() {
     }));
   };
 
+  const handleCreateTag = () => {
+    setInlineEditingTag('new');
+    setInlineTagName('');
+  };
+
+  const handleEditTag = (tag: Tag) => {
+    setInlineEditingTag(tag.id);
+    setInlineTagName(tag.name);
+  };
+
+  const handleCancelInlineEdit = () => {
+    setInlineEditingTag(null);
+    setInlineTagName('');
+  };
+
+  const handleSaveInlineEdit = async (tagId: string) => {
+    setFormLoading(true);
+    setError(null);
+
+    try {
+      let result;
+      if (tagId === 'new') {
+        result = await createTag(inlineTagName);
+      } else {
+        result = await updateTag(tagId, inlineTagName);
+      }
+
+      if (result.error) {
+        setError(result.error);
+        setFormLoading(false);
+        return;
+      }
+
+      setInlineEditingTag(null);
+      setInlineTagName('');
+      await loadAdminData();
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleDeleteTag = async (tagId: string) => {
+    if (deleteTagConfirm === tagId) {
+      setFormLoading(true);
+      const { error } = await deleteTag(tagId);
+      if (error) {
+        setError(error);
+      } else {
+        await loadAdminData();
+      }
+      setDeleteTagConfirm(null);
+      setFormLoading(false);
+    } else {
+      setDeleteTagConfirm(tagId);
+    }
+  };
+
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[color:var(--background)] flex items-center justify-center py-4 md:py-10">
@@ -253,7 +318,7 @@ export default function Admin() {
             <div className="mt-4 sm:mt-0 flex gap-3">
               <Link
                 href="/"
-                className="bg-transparent text-[color:var(--lightgreen)] border-2 border-[color:var(--lightgreen)] py-2 md:py-3 px-4 md:px-6 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)]"
+                className="bg-transparent text-[color:var(--lightgreen)] border-2 border-[color:var(--lightgreen)] py-2 md:py-3 px-4 md:px-6 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 hover:bg-[color:var(--lightgreen)] "
               >
                 View Site
               </Link>
@@ -265,6 +330,9 @@ export default function Admin() {
               </button>
             </div>
           </div>
+          <h3 className="text-[color:var(--lightgreen)] text-xl md:text-3xl font-semibold mt-5">
+              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries
+            </h3>
         </div>
 
         {error && (
@@ -273,35 +341,7 @@ export default function Admin() {
           </div>
         )}
 
-        {/* Stats Grid */}
-        <div className="hidden sm:block grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-8">
-          <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-6">
-            <h3 className="text-[color:var(--lightgreen)] text-lg md:text-xl font-semibold mb-2">
-              Total Stories
-            </h3>
-            <p className="text-[color:var(--lightgreen)] text-2xl md:text-3xl font-bold">
-              {storiesLoading ? '...' : stories.length}
-            </p>
-          </div>
-          
-          <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-6">
-            <h3 className="text-[color:var(--lightgreen)] text-lg md:text-xl font-semibold mb-2">
-              Total Tags
-            </h3>
-            <p className="text-[color:var(--lightgreen)] text-2xl md:text-3xl font-bold">
-              {storiesLoading ? '...' : tags.length}
-            </p>
-          </div>
-          
-          <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-6">
-            <h3 className="text-[color:var(--lightgreen)] text-lg md:text-xl font-semibold mb-2">
-              Countries
-            </h3>
-            <p className="text-[color:var(--lightgreen)] text-2xl md:text-3xl font-bold">
-              {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length}
-            </p>
-          </div>
-        </div>
+
 
         {/* Story Form Section */}
         {showStoryForm && (
@@ -452,14 +492,14 @@ export default function Admin() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="flex-1 bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 px-6 rounded-lg font-semibold transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
+                  className="flex-1 bg-[color:var(--lightgreen)] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
                 >
                   {formLoading ? 'Saving...' : editingStory ? 'Update Story' : 'Create Story'}
                 </button>
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-6 py-3 border border-[color:var(--lightgreen)] text-[color:var,--lightgreen] rounded-lg font-semibold hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] transition-all duration-300"
+                  className="px-6 py-3 border border-[color:var(--lightgreen)] text-[color:var(--lightgreen)] rounded-lg font-semibold hover:bg-[color:var(--lightgreen)] transition-all duration-300"
                 >
                   Cancel
                 </button>
@@ -467,6 +507,8 @@ export default function Admin() {
             </form>
           </div>
         )}
+
+      
 
         {/* Story Management Section */}
         <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
@@ -484,7 +526,7 @@ export default function Admin() {
               <button
                 onClick={loadAdminData}
                 disabled={storiesLoading}
-                className="bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
+                className="bg-[color:var(--lightgreen)] text-white py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-[color:var(--darkgreen)] disabled:opacity-50"
               >
                 {storiesLoading ? 'Loading...' : 'Refresh'}
               </button>
@@ -571,9 +613,142 @@ export default function Admin() {
               )}
             </div>
           )}
+
+          
+        </div>
+
+  {/* Tag Management Section */}
+        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
+              Tag Management
+            </h2>
+            <button
+              onClick={handleCreateTag}
+              className="bg-green-500 text-white py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-green-600"
+            >
+              Create Tag
+            </button>
+          </div>
+
+          {/* Tags List */}
+          {storiesLoading ? (
+            <div className="space-y-3">
+              {[...Array(5)].map((_, index) => (
+                <div key={index} className="animate-pulse">
+                  <div className="h-4 bg-[rgba(140,198,63,0.3)] rounded mb-2"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* New tag creation row */}
+              {inlineEditingTag === 'new' && (
+                <div className="border border-[rgba(140,198,63,0.2)] rounded-lg p-3 bg-[rgba(255,255,255,0.05)]">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={inlineTagName}
+                      onChange={(e) => setInlineTagName(e.target.value)}
+                      className="flex-1 p-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none text-sm"
+                      placeholder="Enter tag name"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => handleSaveInlineEdit('new')}
+                      disabled={formLoading || !inlineTagName.trim()}
+                      className="bg-green-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-green-600 transition-colors duration-300 disabled:opacity-50"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={handleCancelInlineEdit}
+                      disabled={formLoading}
+                      className="bg-gray-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-gray-600 transition-colors duration-300 disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {tags.map((tag) => (
+                <div 
+                  key={tag.id} 
+                  className="border border-[rgba(140,198,63,0.2)] rounded-lg p-3 hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-300"
+                >
+                  <div className="flex items-center gap-2">
+                    {inlineEditingTag === tag.id ? (
+                      <input
+                        type="text"
+                        value={inlineTagName}
+                        onChange={(e) => setInlineTagName(e.target.value)}
+                        className="flex-1 p-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none text-sm"
+                        autoFocus
+                      />
+                    ) : (
+                      <h3 className="flex-1 text-[color:var(--lightgreen)] font-semibold text-sm">
+                        {tag.name}
+                      </h3>
+                    )}
+                    
+                    <div className="flex gap-1">
+                      {inlineEditingTag === tag.id ? (
+                        <>
+                          <button
+                            onClick={() => handleSaveInlineEdit(tag.id)}
+                            disabled={formLoading}
+                            className="bg-green-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-green-600 transition-colors duration-300 disabled:opacity-50"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelInlineEdit}
+                            disabled={formLoading}
+                            className="bg-gray-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-gray-600 transition-colors duration-300 disabled:opacity-50"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleEditTag(tag)}
+                            className="bg-yellow-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-yellow-600 transition-colors duration-300"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteTag(tag.id)}
+                            disabled={formLoading}
+                            className={`py-1 px-2 rounded text-xs font-semibold transition-colors duration-300 ${
+                              deleteTagConfirm === tag.id 
+                                ? 'bg-red-600 text-white hover:bg-red-700' 
+                                : 'bg-red-500 text-white hover:bg-red-600'
+                            } disabled:opacity-50`}
+                          >
+                            {deleteTagConfirm === tag.id ? 'Confirm?' : 'Delete'}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {tags.length === 0 && (
+                <div className="col-span-full">
+                  <p className="text-[color:var(--lightgreen)] opacity-70 text-center py-8">
+                    No tags found.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
- 
+               
+                           

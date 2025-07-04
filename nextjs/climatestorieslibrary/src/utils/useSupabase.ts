@@ -11,7 +11,7 @@ export interface Story {
   country: string;
   region: string;
   classification: string;
-  description?: string;
+  description: string;
   tags?: Tag[];
 }
 
@@ -576,5 +576,59 @@ export async function createTag(name: string) {
   } catch (error) {
     console.error('Error creating tag:', error);
     return { tag: null, error: 'An unexpected error occurred' };
+  }
+}
+
+// Update an existing tag
+export async function updateTag(id: string, name: string) {
+  try {
+    const { data, error } = await supabase
+      .from('tags')
+      .update({ name })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating tag:', error);
+      return { tag: null, error: error.message };
+    }
+
+    return { tag: data, error: null };
+  } catch (error) {
+    console.error('Error updating tag:', error);
+    return { tag: null, error: 'An unexpected error occurred' };
+  }
+}
+
+// Delete a tag
+export async function deleteTag(id: string) {
+  try {
+    // First delete associated story_tags
+    const { error: storyTagError } = await supabase
+      .from('story_tags')
+      .delete()
+      .eq('tag_id', id);
+
+    if (storyTagError) {
+      console.error('Error deleting story tags:', storyTagError);
+      return { error: storyTagError.message };
+    }
+
+    // Then delete the tag
+    const { error } = await supabase
+      .from('tags')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting tag:', error);
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error('Error deleting tag:', error);
+    return { error: 'An unexpected error occurred' };
   }
 }

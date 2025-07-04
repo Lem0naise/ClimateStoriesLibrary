@@ -75,7 +75,7 @@ export default function StoryCard({ id, title, description, tags, youtubeUrl, co
             </div>
           )}
         </div>
-        <p className="text-[clamp(12px,1vw,14px)] leading-snug opacity-85 mb-3">
+        <p className="text-[clamp(12px,1vw,14px)] leading-snug opacity-85 mb-3 line-clamp-3 overflow-hidden">
           {description}
         </p>
         <span className="inline-block bg-[rgba(140,198,63,0.2)] text-[color:var(--lightgreen)] py-1 px-2 rounded-md text-[clamp(10px,0.9vw,12px)] font-medium">

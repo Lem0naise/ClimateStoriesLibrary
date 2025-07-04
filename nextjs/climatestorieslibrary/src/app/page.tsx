@@ -366,7 +366,7 @@ export default function Home() {
           {/* Desktop Layout - Filters on left, stories on right */}
           <div className="hidden md:flex gap-6">
             {/* Desktop Filter Sidebar */}
-            <div className="w-80 bg-[rgba(255,255,255,0.15)] p-4 rounded-xl border-2 border-[rgba(140,198,63,0.3)] h-fit sticky top-25">
+            <div className="w-50 bg-[rgba(255,255,255,0.15)] p-4 rounded-xl border-2 border-[rgba(140,198,63,0.3)] h-fit sticky top-25">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[color:var(--lightgreen)] text-[clamp(16px,1.4vw,18px)] font-semibold">
                   {hasActiveFilters && (<>{stories.length} Stories with filters</>)}
@@ -551,7 +551,7 @@ export default function Home() {
                       key={story.id}
                       id={story.id}
                       title={story.title}
-                      description={getDescription(story)}
+                      description={story.description}
                       tags={getTagsString(story)}
                       country={story.country}
                       region={story.region}
@@ -590,7 +590,7 @@ export default function Home() {
                   key={story.id}
                   id={story.id}
                   title={story.title}
-                  description={getDescription(story)}
+                  description={story.description}
                   tags={getTagsString(story)}
                   country={story.country}
                   region={story.region}
