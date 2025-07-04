@@ -341,146 +341,6 @@ export default function Admin() {
           </div>
         )}
 
-  {/* Tag Management Section */}
-        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
-          <div className="flex items-center justify-between mb-4 md:mb-6">
-            <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
-              Tag Management
-            </h2>
-            <button
-              onClick={handleCreateTag}
-              className="bg-green-500 text-white py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-green-600"
-            >
-              Create Tag
-            </button>
-          </div>
-
-          {/* Tags List */}
-          {storiesLoading ? (
-            <div className="space-y-3">
-              {[...Array(5)].map((_, index) => (
-                <div key={index} className="animate-pulse">
-                  <div className="h-4 bg-[rgba(140,198,63,0.3)] rounded mb-2"></div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* New tag creation row */}
-              {inlineEditingTag === 'new' && (
-                <div className="border border-[rgba(140,198,63,0.2)] rounded-lg p-4 bg-[rgba(255,255,255,0.05)]">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <input
-                        type="text"
-                        value={inlineTagName}
-                        onChange={(e) => setInlineTagName(e.target.value)}
-                        className="w-full p-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none mb-1"
-                        placeholder="Enter tag name"
-                        autoFocus
-                      />
-                      <p className="text-[color:var(--lightgreen)] opacity-60 text-xs">
-                        New tag
-                      </p>
-                    </div>
-                    <div className="ml-4 flex gap-2">
-                      <button
-                        onClick={() => handleSaveInlineEdit('new')}
-                        disabled={formLoading || !inlineTagName.trim()}
-                        className="bg-green-500 text-white py-1 px-3 rounded text-sm font-semibold hover:bg-green-600 transition-colors duration-300 disabled:opacity-50"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={handleCancelInlineEdit}
-                        disabled={formLoading}
-                        className="bg-gray-500 text-white py-1 px-3 rounded text-sm font-semibold hover:bg-gray-600 transition-colors duration-300 disabled:opacity-50"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {tags.map((tag) => (
-                <div 
-                  key={tag.id} 
-                  className="border border-[rgba(140,198,63,0.2)] rounded-lg p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-300"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      {inlineEditingTag === tag.id ? (
-                        <input
-                          type="text"
-                          value={inlineTagName}
-                          onChange={(e) => setInlineTagName(e.target.value)}
-                          className="w-full p-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none mb-1"
-                          autoFocus
-                        />
-                      ) : (
-                        <h3 className="text-[color:var(--lightgreen)] font-semibold mb-1">
-                          {tag.name}
-                        </h3>
-                      )}
-                      <p className="text-[color:var(--lightgreen)] opacity-60 text-xs">
-                        Created: {new Date(tag.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="ml-4 flex gap-2">
-                      {inlineEditingTag === tag.id ? (
-                        <>
-                          <button
-                            onClick={() => handleSaveInlineEdit(tag.id)}
-                            disabled={formLoading}
-                            className="bg-green-500 text-white py-1 px-3 rounded text-sm font-semibold hover:bg-green-600 transition-colors duration-300 disabled:opacity-50"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={handleCancelInlineEdit}
-                            disabled={formLoading}
-                            className="bg-gray-500 text-white py-1 px-3 rounded text-sm font-semibold hover:bg-gray-600 transition-colors duration-300 disabled:opacity-50"
-                          >
-                            Cancel
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => handleEditTag(tag)}
-                            className="bg-yellow-500 text-white py-1 px-3 rounded text-sm font-semibold hover:bg-yellow-600 transition-colors duration-300"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteTag(tag.id)}
-                            disabled={formLoading}
-                            className={`py-1 px-3 rounded text-sm font-semibold transition-colors duration-300 ${
-                              deleteTagConfirm === tag.id 
-                                ? 'bg-red-600 text-white hover:bg-red-700' 
-                                : 'bg-red-500 text-white hover:bg-red-600'
-                            } disabled:opacity-50`}
-                          >
-                            {deleteTagConfirm === tag.id ? 'Confirm?' : 'Delete'}
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {tags.length === 0 && (
-                <div className="col-span-full">
-                  <p className="text-[color:var(--lightgreen)] opacity-70 text-center py-8">
-                    No tags found.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
 
 
         {/* Story Form Section */}
@@ -753,9 +613,142 @@ export default function Admin() {
               )}
             </div>
           )}
+
+          
+        </div>
+
+  {/* Tag Management Section */}
+        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
+              Tag Management
+            </h2>
+            <button
+              onClick={handleCreateTag}
+              className="bg-green-500 text-white py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-green-600"
+            >
+              Create Tag
+            </button>
+          </div>
+
+          {/* Tags List */}
+          {storiesLoading ? (
+            <div className="space-y-3">
+              {[...Array(5)].map((_, index) => (
+                <div key={index} className="animate-pulse">
+                  <div className="h-4 bg-[rgba(140,198,63,0.3)] rounded mb-2"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* New tag creation row */}
+              {inlineEditingTag === 'new' && (
+                <div className="border border-[rgba(140,198,63,0.2)] rounded-lg p-3 bg-[rgba(255,255,255,0.05)]">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={inlineTagName}
+                      onChange={(e) => setInlineTagName(e.target.value)}
+                      className="flex-1 p-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none text-sm"
+                      placeholder="Enter tag name"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => handleSaveInlineEdit('new')}
+                      disabled={formLoading || !inlineTagName.trim()}
+                      className="bg-green-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-green-600 transition-colors duration-300 disabled:opacity-50"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={handleCancelInlineEdit}
+                      disabled={formLoading}
+                      className="bg-gray-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-gray-600 transition-colors duration-300 disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {tags.map((tag) => (
+                <div 
+                  key={tag.id} 
+                  className="border border-[rgba(140,198,63,0.2)] rounded-lg p-3 hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-300"
+                >
+                  <div className="flex items-center gap-2">
+                    {inlineEditingTag === tag.id ? (
+                      <input
+                        type="text"
+                        value={inlineTagName}
+                        onChange={(e) => setInlineTagName(e.target.value)}
+                        className="flex-1 p-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none text-sm"
+                        autoFocus
+                      />
+                    ) : (
+                      <h3 className="flex-1 text-[color:var(--lightgreen)] font-semibold text-sm">
+                        {tag.name}
+                      </h3>
+                    )}
+                    
+                    <div className="flex gap-1">
+                      {inlineEditingTag === tag.id ? (
+                        <>
+                          <button
+                            onClick={() => handleSaveInlineEdit(tag.id)}
+                            disabled={formLoading}
+                            className="bg-green-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-green-600 transition-colors duration-300 disabled:opacity-50"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelInlineEdit}
+                            disabled={formLoading}
+                            className="bg-gray-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-gray-600 transition-colors duration-300 disabled:opacity-50"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleEditTag(tag)}
+                            className="bg-yellow-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-yellow-600 transition-colors duration-300"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteTag(tag.id)}
+                            disabled={formLoading}
+                            className={`py-1 px-2 rounded text-xs font-semibold transition-colors duration-300 ${
+                              deleteTagConfirm === tag.id 
+                                ? 'bg-red-600 text-white hover:bg-red-700' 
+                                : 'bg-red-500 text-white hover:bg-red-600'
+                            } disabled:opacity-50`}
+                          >
+                            {deleteTagConfirm === tag.id ? 'Confirm?' : 'Delete'}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {tags.length === 0 && (
+                <div className="col-span-full">
+                  <p className="text-[color:var(--lightgreen)] opacity-70 text-center py-8">
+                    No tags found.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
+               
                            
