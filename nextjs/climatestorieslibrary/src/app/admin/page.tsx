@@ -265,6 +265,9 @@ export default function Admin() {
               </button>
             </div>
           </div>
+          <h3 className="text-[color:var(--lightgreen)] text-xl md:text-3xl font-semibold mt-5">
+              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries
+            </h3>
         </div>
 
         {error && (
@@ -272,36 +275,6 @@ export default function Admin() {
             <p className="text-red-700">{error}</p>
           </div>
         )}
-
-        {/* Stats Grid */}
-        <div className="hidden sm:block grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-8">
-          <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-6">
-            <h3 className="text-[color:var(--lightgreen)] text-lg md:text-xl font-semibold mb-2">
-              Total Stories
-            </h3>
-            <p className="text-[color:var(--lightgreen)] text-2xl md:text-3xl font-bold">
-              {storiesLoading ? '...' : stories.length}
-            </p>
-          </div>
-          
-          <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-6">
-            <h3 className="text-[color:var(--lightgreen)] text-lg md:text-xl font-semibold mb-2">
-              Total Tags
-            </h3>
-            <p className="text-[color:var(--lightgreen)] text-2xl md:text-3xl font-bold">
-              {storiesLoading ? '...' : tags.length}
-            </p>
-          </div>
-          
-          <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-6">
-            <h3 className="text-[color:var(--lightgreen)] text-lg md:text-xl font-semibold mb-2">
-              Countries
-            </h3>
-            <p className="text-[color:var(--lightgreen)] text-2xl md:text-3xl font-bold">
-              {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length}
-            </p>
-          </div>
-        </div>
 
         {/* Story Form Section */}
         {showStoryForm && (
