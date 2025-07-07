@@ -2,12 +2,12 @@ export default function Share() {
   return (
     <div className="min-h-fit pb-[10vh] bg-[color:var(--background)] transition-colors duration-300">
       <div className="max-w-full md:max-w-[80vw] mx-auto py-4 md:py-10 px-3 md:px-5 text-green-600">
-        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-center p-3 md:p-10 pt-2 md:pt-2 pb-4 md:pb-10 mb-4 md:mb-8">
+        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-center p-3 md:p-10 pt-2 md:pt-2 pb-4 md:pb-10 mb-4 md:mb-4">
           <h1 className="text-[color:var(--lightgreen)] text-[clamp(24px,6vw,50px)] mb-2 md:mb-5 font-bold">
             Share Your Climate Story
           </h1>
-          <p className="text-[color:var(--lightgreen)] text-[clamp(12px,3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-4 md:mb-10">
-            Your voice matters. Every story helps build understanding and connection across our global community.
+          <p className="text-[color:var(--lightgreen)] text-[clamp(12px,3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-2">
+            Your voice matters. Every story helps build understanding and connection across our global community. Your story might be the one that really impacts one particular listener and inspires them to act. 
           </p>
         </div>
 
@@ -18,9 +18,10 @@ export default function Share() {
             </h2>
             <div className="grid gap-4 md:gap-6">
               {[
-                { num: "1", title: "Record Your Video", desc: "Use any device like your phone. Keep it concise - around 2 minutes maximum. You can always upload more videos if you have more to share!" },
-                { num: "2", title: "Introduce Yourself", desc: "Start by saying your name, where you're from, and what aspect of climate change you're discussing." },
-                { num: "3", title: "Keep It Clear", desc: "Try to limit background noise and speak clearly. Good audio helps your story reach more people." }
+                 { num: "1", title: "Plan What You Will Say", desc: "Keep it simple - no need to explain in detail the underlying causes, but say how you have been impacted." },
+                { num: "2", title: "Record Your Video", desc: "Use any device, such as your phone. Keep the video short - approximately 2 minutes. The shorter the better! You can always upload several videos if you have more to share!" },
+                { num: "3", title: "Introduce Yourself", desc: "Some people like to start with their name - others prefer to use their occupation: e.g, 'I am a farmer from...' or 'I am a grandmother from...'." },
+                { num: "4", title: "Keep It Clear", desc: "Try to limit background noise and speak clearly. Good audio helps your story reach more people." }
               ].map((step, index) => (
                 <div key={index} className="flex items-start gap-3 md:gap-5 p-3 md:p-5 bg-[rgba(255,255,255,0.08)] rounded-lg border border-[rgba(140,198,63,0.2)]">
                   <div className="bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-sm md:text-lg flex-shrink-0">
@@ -46,8 +47,8 @@ export default function Share() {
             <div className="space-y-3 md:space-y-4">
               {[
                 { question: "Which language should my story be in?", answer: "Use your own language! If you're able to, you can also provide translations in English, Spanish, or French to make your story accessible to more people." },
-                { question: "Will my story be used for other purposes?", answer: "We'll always ask for your permission first. If schools or organizations want to use your story for art or events, or if we feature it in our 'Contact a Politician' series, we'll contact you beforehand." },
-                { question: "My story seems small compared to major disasters!", answer: "Every story matters. We aim to collect everything from small local observations in someone's garden over decades, to major changes in livelihoods at the frontlines of the climate crisis. No story is too small." }
+                { question: "My story seems small compared to major disasters!", answer: "Every story matters. We aim to collect everything from small local observations in someone's garden over decades, to major changes in livelihoods at the frontlines of the climate crisis. No story is too small." },
+                { question: "Should my video be portrait or landscape?", answer: "Whichever format works best for you!" }
               ].map((faq, index) => (
                 <div key={index} className="p-3 md:p-5 bg-[rgba(255,255,255,0.08)] rounded-lg border border-[rgba(140,198,63,0.2)]">
                   <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 font-semibold">
@@ -73,14 +74,20 @@ export default function Share() {
                 href="mailto:juliet@climatestorieslibrary.com" 
                 className="inline-flex items-center gap-2.5 py-3 md:py-4 px-6 md:px-8 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,16px)] transition-all duration-300 bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
               >
-                📧 Email Your Story
+                📧 Email
+              </a>
+              <a 
+                className="
+                inline-flex items-center gap-2.5 py-3 md:py-4 px-6 md:px-8 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,16px)] transition-all duration-300 bg-transparent text-[color:var(--lightgreen)] border-2 border-[color:var(--lightgreen)] hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] hover:-translate-y-0.5"
+              >
+                📧 WhatsApp: +44 7584 324473
               </a>
               <a 
                 target="_blank" 
                 href="https://www.instagram.com/climatestorieslibrary" 
-                className="inline-flex items-center gap-2.5 py-3 md:py-4 px-6 md:px-8 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,16px)] transition-all duration-300 bg-transparent text-[color:var(--lightgreen)] border-2 border-[color:var(--lightgreen)] hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2.5 py-3 md:py-4 px-6 md:px-8 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,16px)] transition-all duration-300 bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
               >
-                📱 Message on Instagram
+                📱 Contact on Instagram
               </a>
             </div>
           </section>

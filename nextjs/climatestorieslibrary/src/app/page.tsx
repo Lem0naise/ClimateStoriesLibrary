@@ -185,7 +185,7 @@ export default function Home() {
             Explore the Library
           </h2>
           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-4 md:mb-10">
-            The Climate Stories Library provides a platform for individuals and grassroots groups to share their experiences of the climate and nature crisis.
+            The Climate Stories Library provides a platform for individuals and grassroots groups to share their experiences of the climate and nature crisis, and other intersecting injustices.
           </p>
           
           {/* Mobile Filter Section - Above content */}

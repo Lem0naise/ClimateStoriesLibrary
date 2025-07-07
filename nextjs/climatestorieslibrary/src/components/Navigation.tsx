@@ -31,7 +31,7 @@ export default function Navigation() {
               href="/" 
               className="text-[color:var(--lightgreen)] no-underline text-sm font-semibold py-2 px-3 rounded-md transition-all duration-300 relative hover:text-white hover:bg-[rgba(140,198,63,0.1)] after:content-[''] after:absolute after:-bottom-1 after:left-1/2 after:w-0 after:h-0.5 after:bg-[color:var(--lightgreen)] after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-4/5 sm:text-base sm:px-4"
             >
-              Home
+              Browse Stories
             </Link>
           </li>
           <li className="relative">

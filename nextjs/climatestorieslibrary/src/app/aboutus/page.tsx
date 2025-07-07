@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Link from "next/link";
 import Image from "next/image";
 
 export const metadata: Metadata = {
@@ -28,9 +29,16 @@ export default function About() {
             About the Climate Stories Library
           </h1>
           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-4 md:mb-10">
-            The Climate Stories Library provides a platform for individuals and grassroots groups to share their experiences of the climate and nature crisis. We believe every voice matters in the climate conversation. Our mission is to amplify stories from those at the frontlines of the climate and
-            nature crisis.
+            The Climate Stories Library provides a platform for individuals and grassroots groups to share their experiences of the climate and nature crisis, and other intersecting injustices. We believe every voice matters in the climate conversation.
           </p>
+
+          <Link  
+              href="../" 
+              className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 md:py-4 px-6 md:px-9 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,18px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
+            >
+              View All Stories
+            </Link>
+          
         </div>
 
         <section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-9 mb-4 md:mb-8">
@@ -88,11 +96,27 @@ export default function About() {
             </div>
             <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
               <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
+                Grassroots Address Book
+              </h3>
+              <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
+                A platform to connect grassroots climate and activist organisations with each other.
+              </p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
+              <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
                 Research & Activism
               </h3>
               <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
                 Lead to the co-creation of research and activism surrounding issues
                 of local justice.
+              </p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
+              <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
+                Contact A Politician
+              </h3>
+              <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
+                Videos could be curated so that they can be send to politicians so that they can raise awareness of issues.
               </p>
             </div>
           </div>
