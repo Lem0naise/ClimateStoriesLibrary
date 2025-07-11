@@ -24,6 +24,10 @@ export default function Footer() {
             </Link>
           </div>
         </div>
+
+        <div>
+          <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+        </div>
         
         <div className="text-[color:var(--lightgreen)] text-sm font-medium opacity-90 md:text-xs max-[580px]:text-[11px]">
           © 2024 Climate Stories Library
