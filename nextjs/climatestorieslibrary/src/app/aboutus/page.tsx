@@ -116,7 +116,7 @@ export default function About() {
                 Contact A Politician
               </h3>
               <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
-                Videos could be curated so that they can be send to politicians so that they can raise awareness of issues.
+                Videos could be curated into a format ready to send to politicians and businesses to raise awareness.
               </p>
             </div>
           </div>
