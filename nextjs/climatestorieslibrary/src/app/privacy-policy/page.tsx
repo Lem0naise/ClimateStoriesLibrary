@@ -151,7 +151,7 @@ export default function PrivacyPolicy() {
 
               <div className="border-t border-[rgba(140,198,63,0.2)] pt-6">
                 <p className="text-[clamp(12px,2.5vw,14px)] opacity-70 text-center">
-                  Last updated: 11-07-2025
+                  Last updated: 11-07-2025, v1.0
                 </p>
               </div>
             </div>

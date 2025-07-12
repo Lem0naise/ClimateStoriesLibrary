@@ -25,6 +25,19 @@ export interface StoryTag {
   tag_id: string;
 }
 
+export interface Submission {
+  id?: string;
+  created_at?: string;
+  email?: string | null;
+  tel?: string | null;
+  name?: string | null;
+  location: string;
+  occupation?: string | null;
+  more_about?: string | null;
+  agreed_policy_version: string;
+  approved: boolean;
+}
+
 export interface FilterOptions {
   tags: string[];
   continents: string[];
@@ -629,5 +642,24 @@ export async function deleteTag(id: string) {
   } catch (error) {
     console.error('Error deleting tag:', error);
     return { error: 'An unexpected error occurred' };
+  }
+}
+
+// Create a new submission
+export async function createSubmission(submissionData: Omit<Submission, 'id' | 'created_at'>) {
+  try {
+    const { error } = await supabase
+      .from('submissions')
+      .insert([submissionData])
+
+    if (error) {
+      console.error('Error creating submission:', error);
+      return { submission: null, error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error('Error creating submission:', error);
+    return { submission: null, error: 'An unexpected error occurred' };
   }
 }
