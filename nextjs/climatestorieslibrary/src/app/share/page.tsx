@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createSubmission } from '@/utils/useSupabase';
 
 export default function Share() {
   const [isConsentExpanded, setIsConsentExpanded] = useState(false);
@@ -18,9 +19,52 @@ export default function Share() {
     details: ''
   });
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionComplete, setSubmissionComplete] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const allConsentsChecked = Object.values(consentChecks).every(checked => checked);
-  const requiredDetailsComplete = userDetails.location && (isAnonymous || userDetails.name);
+  const hasContactMethod = userDetails.email || userDetails.tel;
+  const requiredDetailsComplete = userDetails.location && (isAnonymous || userDetails.name) && hasContactMethod;
+
+  const handleSubmitAndUpload = async () => {
+    setIsSubmitting(true);
+    setSubmissionError(null);
+
+    try {
+      const submissionData = {
+        email: userDetails.email || null,
+        tel: userDetails.tel || null,
+        name: isAnonymous ? null : userDetails.name,
+        location: userDetails.location,
+        occupation: userDetails.occupation || null,
+        more_about: userDetails.details || null,
+        approved: false,
+        agreed_policy_version: 'v1.0' // Manually update this when privacy policy changes
+      };
+
+      const { error } = await createSubmission(submissionData);
+
+      if (error) {
+        setSubmissionError(error);
+        setIsSubmitting(false);
+        return;
+      }
+
+      setSubmissionComplete(true);
+      setIsSubmitting(false);
+
+      // Wait a moment to show success message, then open Dropbox
+      setTimeout(() => {
+        window.open('https://www.dropbox.com/request/cjsyirAt7qn6jMBq4Vqm', '_blank');
+      }, 1500);
+
+    } catch (error) {
+      console.error('Error submitting data:', error);
+      setSubmissionError('Failed to save your information. Please try again.');
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-fit pb-[10vh] bg-[color:var(--background)] transition-colors duration-300">
@@ -188,7 +232,7 @@ export default function Share() {
                           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] opacity-70 mt-2 ml-7">
                             {isAnonymous 
                               ? "Your story will be attributed only by location and/or occupation" 
-                              : "If not, your story will be attributed with your name and location"
+                              : "If not, your story will be attributed with your preferred name and location"
                             }
                           </p>
                         </div>
@@ -197,7 +241,7 @@ export default function Share() {
                           {!isAnonymous && (
                             <div>
                               <label className="block text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] mb-2 font-medium">
-                                Your Name *
+                                Preferred Introduction *
                               </label>
                               <input
                                 type="text"
@@ -220,35 +264,60 @@ export default function Share() {
                               placeholder="City, Country"
                             />
                           </div>
-                          <div>
-                            <label className="block text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] mb-2 font-medium">
-                              Email (optional)
-                            </label>
-                            <input
-                              type="email"
-                              value={userDetails.email}
-                              onChange={(e) => setUserDetails(prev => ({...prev, email: e.target.value}))}
-                              className="w-full p-3 rounded-lg bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] focus:outline-none focus:border-[color:var(--lightgreen)]"
-                              placeholder="your.email@example.com"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] mb-2 font-medium">
-                              Phone Number (optional)
-                            </label>
-                            <input
-                              type="tel"
-                              value={userDetails.tel}
-                              onChange={(e) => setUserDetails(prev => ({...prev, tel: e.target.value}))}
-                              className="w-full p-3 rounded-lg bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] focus:outline-none focus:border-[color:var(--lightgreen)]"
-                              placeholder="+63 ..."
-                            />
-                          </div>
-                          
                         </div>
+
+                        {/* Contact Information Section */}
+                        <div className="mt-4 p-4 bg-[rgba(255,255,255,0.05)] rounded-lg border border-[rgba(140,198,63,0.2)]">
+                          <h4 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,18px)] font-semibold mb-3">
+                            Contact Information *
+                          </h4>
+                          <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] opacity-80 mb-4">
+                            Please provide at least one way for us to contact you:
+                          </p>
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                              <label className={`block text-[clamp(12px,2.5vw,14px)] mb-2 font-medium ${
+                                !hasContactMethod ? 'text-orange-300' : 'text-[color:var(--lightgreen)]'
+                              }`}>
+                                Email {!userDetails.tel && '(required if no phone)'}
+                              </label>
+                              <input
+                                type="email"
+                                value={userDetails.email}
+                                onChange={(e) => setUserDetails(prev => ({...prev, email: e.target.value}))}
+                                className={`w-full p-3 rounded-lg bg-[rgba(255,255,255,0.1)] border text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] focus:outline-none focus:border-[color:var(--lightgreen)] ${
+                                  !hasContactMethod ? 'border-orange-400' : 'border-[rgba(140,198,63,0.3)]'
+                                }`}
+                                placeholder="your.email@example.com"
+                              />
+                            </div>
+                            <div>
+                              <label className={`block text-[clamp(12px,2.5vw,14px)] mb-2 font-medium ${
+                                !hasContactMethod ? 'text-orange-300' : 'text-[color:var(--lightgreen)]'
+                              }`}>
+                                Phone Number {!userDetails.email && '(required if no email)'}
+                              </label>
+                              <input
+                                type="tel"
+                                value={userDetails.tel}
+                                onChange={(e) => setUserDetails(prev => ({...prev, tel: e.target.value}))}
+                                className={`w-full p-3 rounded-lg bg-[rgba(255,255,255,0.1)] border text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] focus:outline-none focus:border-[color:var(--lightgreen)] ${
+                                  !hasContactMethod ? 'border-orange-400' : 'border-[rgba(140,198,63,0.3)]'
+                                }`}
+                                placeholder="+44 ..."
+                              />
+                            </div>
+                          </div>
+                          {!hasContactMethod && (
+                            <p className="text-orange-300 text-[clamp(11px,2vw,13px)] mt-2 opacity-90">
+                              ⚠️ Please provide at least one contact method
+                            </p>
+                          )}
+                        </div>
+
                         <div>
                             <label className="block text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] mb-2 font-medium mt-2">
-                              Occupation (Optional)
+                              Occupation (optional)
                             </label>
                             <input
                               type="text"
@@ -260,14 +329,14 @@ export default function Share() {
                           </div>
                         <div>
                             <label className="block text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] mb-2 font-medium mt-2">
-                              About My Story
+                              More About My Story (optional)
                             </label>
                             <input
                               type="textarea"
                               value={userDetails.details}
                               onChange={(e) => setUserDetails(prev => ({...prev, details: e.target.value}))}
                               className="w-full p-3 rounded-lg bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] focus:outline-none focus:border-[color:var(--lightgreen)]"
-                              placeholder="Any other information you would like to mention - how long has this been happening?"
+                              placeholder="Anything you forgot to say in your video?"
                             />
                           </div>
                       </div>
@@ -280,18 +349,59 @@ export default function Share() {
                         Waiting for your consent and details to finish...
                         </div>
                     )}
-                    {allConsentsChecked && requiredDetailsComplete && (
+                    {allConsentsChecked && requiredDetailsComplete && !submissionComplete && (
                       <div className="text-center p-4 bg-[rgba(140,198,63,0.1)] rounded-lg border border-[rgba(140,198,63,0.3)]">
+                        {submissionError && (
+                          <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
+                            <p className="text-red-300 text-[clamp(12px,2.5vw,14px)]">
+                              {submissionError}
+                            </p>
+                          </div>
+                        )}
                         <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] mb-4 opacity-90">
-                          Thank you! You can now upload your video file using the link below:
+                          Ready to submit your information and upload your video?
+                        </p>
+                        <button
+                          onClick={handleSubmitAndUpload}
+                          disabled={isSubmitting}
+                          className={`inline-flex items-center gap-2.5 py-3 md:py-4 px-6 md:px-8 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,16px)] transition-all duration-300 ${
+                            isSubmitting 
+                              ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                              : 'bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]'
+                          }`}
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <span className="animate-spin">⏳</span>
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              📤 Submit & Upload Video
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
+
+                    {submissionComplete && (
+                      <div className="text-center p-4 bg-green-500/20 border border-green-500/30 rounded-lg">
+                        <div className="mb-4">
+                          <span className="text-4xl">✅</span>
+                        </div>
+                        <p className="text-black text-[clamp(14px,3vw,18px)] font-semibold mb-2">
+                          Information Saved Successfully!
+                        </p>
+                        <p className="text-black text-[clamp(12px,2.5vw,14px)] opacity-90 mb-4">
+                          Opening Dropbox upload page...
                         </p>
                         <a
                           href="https://www.dropbox.com/request/cjsyirAt7qn6jMBq4Vqm"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2.5 py-3 md:py-4 px-6 md:px-8 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,16px)] transition-all duration-300 bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
+                          className="inline-flex items-center gap-2.5 py-2 md:py-3 px-4 md:px-6 rounded-lg no-underline font-medium text-[clamp(12px,2.5vw,14px)] transition-all duration-300 bg-green-600 text-white hover:bg-green-700"
                         >
-                          📤 Upload Your Video
+                          📤 Open Dropbox Upload (if not opened automatically)
                         </a>
                       </div>
                     )}
