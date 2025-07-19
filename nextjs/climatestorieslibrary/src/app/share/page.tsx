@@ -272,7 +272,7 @@ export default function Share() {
                             Contact Information *
                           </h4>
                           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] opacity-80 mb-4">
-                            Please provide at least one way for us to contact you:
+                            Please provide at least one way for us to contact you. This is only for consent verification and story-related questions - we will never use your details for marketing or spam.
                           </p>
                           <div className="grid gap-4 md:grid-cols-2">
                             <div>
@@ -342,18 +342,11 @@ export default function Share() {
                       </div>
         
 
-                    {/* Upload Link */}
-                    {(!allConsentsChecked || !requiredDetailsComplete) && (
-                      <div 
-                      className="text-[color:var(--lightgreen)] text-[clamp(16px,3vw,20px)] font-semibold mb-4">
-                        Waiting for your consent and details to finish...
-                        </div>
-                    )}
-                    {allConsentsChecked && requiredDetailsComplete && !submissionComplete && (
+                    {!submissionComplete && (
                       <div className="text-center p-4 bg-[rgba(140,198,63,0.1)] rounded-lg border border-[rgba(140,198,63,0.3)]">
                         {submissionError && (
                           <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
-                            <p className="text-red-300 text-[clamp(12px,2.5vw,14px)]">
+                            <p className="text-red-300 text-[clamp(12px,2.5vw,14px]">
                               {submissionError}
                             </p>
                           </div>
@@ -363,11 +356,13 @@ export default function Share() {
                         </p>
                         <button
                           onClick={handleSubmitAndUpload}
-                          disabled={isSubmitting}
+                          disabled={isSubmitting || (!allConsentsChecked || !requiredDetailsComplete)}
                           className={`inline-flex items-center gap-2.5 py-3 md:py-4 px-6 md:px-8 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,16px)] transition-all duration-300 ${
                             isSubmitting 
                               ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                              : 'bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]'
+                              : (!allConsentsChecked || !requiredDetailsComplete)
+                                ? 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
+                                : 'bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]'
                           }`}
                         >
                           {isSubmitting ? (
