@@ -272,7 +272,7 @@ export default function Share() {
                             Contact Information *
                           </h4>
                           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,14px)] opacity-80 mb-4">
-                            Please provide at least one way for us to contact you:
+                            Please provide at least one way for us to contact you. This is only for consent verification and story-related questions - we will never use your details for marketing or spam.
                           </p>
                           <div className="grid gap-4 md:grid-cols-2">
                             <div>
