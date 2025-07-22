@@ -308,6 +308,20 @@ export default function About() {
             </a>
           </p>
         </section>
+
+        <section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-center p-4 md:p-6">
+          <p className="text-[color:var(--lightgreen)] text-[clamp(11px,2.2vw,14px)] leading-relaxed opacity-70">
+            Website developed by{" "}
+            <a
+              href="https://indigonolan.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[color:var(--lightgreen)] underline hover:opacity-90 transition-opacity"
+            >
+              Indigo Nolan
+            </a>
+          </p>
+        </section>
       </div>
     </div>
   );
