@@ -18,8 +18,12 @@ import {
   createTag,
   updateTag,
   deleteTag,
+  fetchSubmissions,
+  approveSubmission,
+  deleteSubmission,
   Story, 
-  Tag 
+  Tag,
+  Submission 
 } from '@/utils/useSupabase';
 
 type StoryFormData = {
@@ -39,6 +43,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [stories, setStories] = useState<Story[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [storiesLoading, setStoriesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showStoryForm, setShowStoryForm] = useState(false);
@@ -57,6 +62,9 @@ export default function Admin() {
   const [formLoading, setFormLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [deleteTagConfirm, setDeleteTagConfirm] = useState<string | null>(null);
+  const [deleteSubmissionConfirm, setDeleteSubmissionConfirm] = useState<string | null>(null);
+  const [deleteSubmissionStep, setDeleteSubmissionStep] = useState<number>(0);
+  const [deleteSubmissionText, setDeleteSubmissionText] = useState<string>('');
   const [inlineEditingTag, setInlineEditingTag] = useState<string | null>(null);
   const [inlineTagName, setInlineTagName] = useState('');
   const router = useRouter();
@@ -89,13 +97,15 @@ export default function Admin() {
   const loadAdminData = async () => {
     setStoriesLoading(true);
     try {
-      const [fetchedStories, fetchedTags] = await Promise.all([
+      const [fetchedStories, fetchedTags, fetchedSubmissions] = await Promise.all([
         fetchStories(),
-        fetchTags()
+        fetchTags(),
+        fetchSubmissions()
       ]);
       
       setStories(fetchedStories);
       setTags(fetchedTags);
+      setSubmissions(fetchedSubmissions);
     } catch (error) {
       console.error('Error loading admin data:', error);
       setError('Failed to load admin data');
@@ -285,6 +295,79 @@ export default function Admin() {
     }
   };
 
+  const handleApproveSubmission = async (submissionId: string) => {
+    setFormLoading(true);
+    setError(null);
+
+    try {
+      const { error } = await approveSubmission(submissionId);
+      if (error) {
+        setError(error);
+      } else {
+        await loadAdminData();
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleDeleteSubmission = async (submissionId: string) => {
+    // Step 0: Initial click - show first warning
+    if (deleteSubmissionConfirm !== submissionId) {
+      setDeleteSubmissionConfirm(submissionId);
+      setDeleteSubmissionStep(1);
+      setDeleteSubmissionText('');
+      return;
+    }
+
+    // Step 1: First confirmation - show serious warning
+    if (deleteSubmissionStep === 1) {
+      setDeleteSubmissionStep(2);
+      return;
+    }
+
+    // Step 2: Second confirmation - require typing confirmation
+    if (deleteSubmissionStep === 2) {
+      setDeleteSubmissionStep(3);
+      return;
+    }
+
+    // Step 3: Final confirmation - check typed text and delete
+    if (deleteSubmissionStep === 3) {
+      if (deleteSubmissionText.toLowerCase().trim() !== 'delete consent records') {
+        setError('You must type "DELETE CONSENT RECORDS" exactly to confirm deletion');
+        return;
+      }
+
+      setFormLoading(true);
+      setError(null);
+
+      try {
+        const { error } = await deleteSubmission(submissionId);
+        if (error) {
+          setError(error);
+        } else {
+          await loadAdminData();
+        }
+      } catch (err) {
+        setError('An unexpected error occurred');
+      } finally {
+        setDeleteSubmissionConfirm(null);
+        setDeleteSubmissionStep(0);
+        setDeleteSubmissionText('');
+        setFormLoading(false);
+      }
+    }
+  };
+
+  const handleCancelSubmissionDeletion = () => {
+    setDeleteSubmissionConfirm(null);
+    setDeleteSubmissionStep(0);
+    setDeleteSubmissionText('');
+  };
+
 
   if (loading) {
     return (
@@ -331,13 +414,155 @@ export default function Admin() {
             </div>
           </div>
           <h3 className="text-[color:var(--lightgreen)] text-xl md:text-3xl font-semibold mt-5">
-              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries
+              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries, {storiesLoading ? '...' : submissions.length} Submissions
             </h3>
         </div>
+
+        {/* New Submissions Alert */}
+        {submissions.filter(s => !s.approved).length > 0 && (
+          <div className="mb-4 md:mb-8 p-4 md:p-6 bg-gradient-to-r from-orange-500 to-red-500 border border-orange-300 rounded-lg shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-white text-lg md:text-xl font-bold mb-2 flex items-center">
+                  🚨 New Submissions Available!
+                </h3>
+                <p className="text-white text-sm md:text-base opacity-90">
+                  {submissions.filter(s => !s.approved).length} submission{submissions.filter(s => !s.approved).length === 1 ? '' : 's'} awaiting approval
+                </p>
+              </div>
+              <button
+                onClick={() => document.getElementById('submissions-section')?.scrollIntoView({ behavior: 'smooth' })}
+                className="bg-white text-orange-600 py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-100 flex items-center gap-2"
+              >
+                Review Now →
+              </button>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 md:mb-8 p-4 bg-red-100 border border-red-300 rounded-lg">
             <p className="text-red-700">{error}</p>
+          </div>
+        )}
+
+        {/* Deletion Warning Modal */}
+        {deleteSubmissionConfirm && deleteSubmissionStep > 0 && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              {deleteSubmissionStep === 1 && (
+                <>
+                  <div className="flex items-center mb-4">
+                    <span className="text-red-500 text-2xl mr-2">⚠️</span>
+                    <h3 className="text-lg font-bold text-red-700">Warning: Data Deletion</h3>
+                  </div>
+                  <p className="text-gray-700 mb-4">
+                    You are about to <strong>permanently delete</strong> a submission record. This action cannot be undone.
+                  </p>
+                  <p className="text-gray-700 mb-6">
+                    Are you sure you want to continue?
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => handleDeleteSubmission(deleteSubmissionConfirm)}
+                      className="bg-red-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-600"
+                    >
+                      Yes, Continue
+                    </button>
+                    <button
+                      onClick={handleCancelSubmissionDeletion}
+                      className="bg-gray-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {deleteSubmissionStep === 2 && (
+                <>
+                  <div className="flex items-center mb-4">
+                    <span className="text-red-600 text-3xl mr-2">🚨</span>
+                    <h3 className="text-lg font-bold text-red-800">CRITICAL WARNING</h3>
+                  </div>
+                  <div className="bg-red-50 border border-red-200 rounded p-4 mb-4">
+                    <p className="text-red-800 font-semibold mb-2">
+                      ⚠️ You are about to DELETE CONSENT RECORDS ⚠️
+                    </p>
+                    <p className="text-red-700 text-sm mb-2">
+                      This submission contains personal data and consent information that the user provided voluntarily.
+                    </p>
+                    <p className="text-red-700 text-sm">
+                      Deleting this record will permanently remove their consent documentation and personal information.
+                    </p>
+                  </div>
+                  <p className="text-gray-700 mb-4 font-semibold">
+                    Are you absolutely certain you need to delete this consent record?
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => handleDeleteSubmission(deleteSubmissionConfirm)}
+                      className="bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700"
+                    >
+                      Yes, I Understand
+                    </button>
+                    <button
+                      onClick={handleCancelSubmissionDeletion}
+                      className="bg-gray-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-600"
+                    >
+                      Cancel Deletion
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {deleteSubmissionStep === 3 && (
+                <>
+                  <div className="flex items-center mb-4">
+                    <span className="text-red-700 text-3xl mr-2">💀</span>
+                    <h3 className="text-lg font-bold text-red-900">FINAL CONFIRMATION</h3>
+                  </div>
+                  <div className="bg-red-100 border-2 border-red-300 rounded p-4 mb-4">
+                    <p className="text-red-900 font-bold mb-3">
+                      ⛔ PERMANENT DELETION OF CONSENT RECORDS ⛔
+                    </p>
+                    <ul className="text-red-800 text-sm space-y-1 mb-3">
+                      <li>• Personal information will be permanently deleted</li>
+                      <li>• Consent documentation will be permanently deleted</li>
+                      <li>• This action CANNOT be reversed</li>
+                      <li>• You may be violating data protection obligations</li>
+                    </ul>
+                    <p className="text-red-900 font-semibold">
+                      Type "DELETE CONSENT RECORDS" to confirm:
+                    </p>
+                  </div>
+                  <input
+                    type="text"
+                    value={deleteSubmissionText}
+                    onChange={(e) => setDeleteSubmissionText(e.target.value)}
+                    className="w-full p-3 border-2 border-red-300 rounded-lg mb-4 focus:border-red-500 focus:outline-none"
+                    placeholder="Type the confirmation text here..."
+                    autoFocus
+                  />
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => handleDeleteSubmission(deleteSubmissionConfirm)}
+                      disabled={deleteSubmissionText.toLowerCase().trim() !== 'delete consent records' || formLoading}
+                      className="bg-red-700 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {formLoading ? 'Deleting...' : 'PERMANENTLY DELETE'}
+                    </button>
+                    <button
+                      onClick={handleCancelSubmissionDeletion}
+                      disabled={formLoading}
+                      className="bg-gray-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         )}
 
@@ -743,6 +968,155 @@ export default function Admin() {
                   </p>
                 </div>
               )}
+            </div>
+          )}
+        </div>
+
+        {/* Submissions Management Section */}
+        <div id="submissions-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
+              Submissions Management
+            </h2>
+            <div className="flex gap-2 text-sm">
+              <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full font-semibold">
+                {submissions.filter(s => !s.approved).length} Pending
+              </span>
+              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full font-semibold">
+                {submissions.filter(s => s.approved).length} Approved
+              </span>
+            </div>
+          </div>
+
+          {/* Pending Submissions */}
+          {submissions.filter(s => !s.approved).length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-[color:var(--lightgreen)] text-lg font-semibold mb-4">
+                📋 Pending Approval ({submissions.filter(s => !s.approved).length})
+              </h3>
+              <div className="space-y-4">
+                {submissions.filter(s => !s.approved).map((submission) => (
+                  <div 
+                    key={submission.id} 
+                    className="border border-orange-300 bg-orange-50 rounded-lg p-4 hover:bg-orange-100 transition-colors duration-300"
+                  >
+                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                          <div>
+                            <span className="text-sm font-semibold text-gray-700">Name:</span>
+                            <p className="text-gray-900">{submission.name || 'Not provided'}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm font-semibold text-gray-700">Email:</span>
+                            <p className="text-gray-900">{submission.email || 'Not provided'}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm font-semibold text-gray-700">Location:</span>
+                            <p className="text-gray-900">{submission.location}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm font-semibold text-gray-700">Occupation:</span>
+                            <p className="text-gray-900">{submission.occupation || 'Not provided'}</p>
+                          </div>
+                        </div>
+                        {submission.tel && (
+                          <div className="mb-3">
+                            <span className="text-sm font-semibold text-gray-700">Phone:</span>
+                            <p className="text-gray-900">{submission.tel}</p>
+                          </div>
+                        )}
+                        {submission.more_about && (
+                          <div className="mb-3">
+                            <span className="text-sm font-semibold text-gray-700">More About:</span>
+                            <p className="text-gray-900 text-sm">{submission.more_about}</p>
+                          </div>
+                        )}
+                        <div className="text-xs text-gray-600">
+                          Submitted: {new Date(submission.created_at || '').toLocaleDateString()} | 
+                          Policy Version: {submission.agreed_policy_version}
+                        </div>
+                      </div>
+                      <div className="lg:ml-4 flex flex-col sm:flex-row gap-2">
+                        <button
+                          onClick={() => handleApproveSubmission(submission.id!)}
+                          disabled={formLoading}
+                          className="bg-green-500 text-white py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-green-600 disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                          ✓ Approve
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSubmission(submission.id!)}
+                          disabled={formLoading}
+                          className="bg-red-500 text-white py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-600 disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                          {deleteSubmissionConfirm === submission.id ? '⚠️ Deleting...' : '🗑️ Delete Submission'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Approved Submissions */}
+          {submissions.filter(s => s.approved).length > 0 && (
+            <div>
+              <h3 className="text-[color:var(--lightgreen)] text-lg font-semibold mb-4">
+                ✅ Approved Submissions ({submissions.filter(s => s.approved).length})
+              </h3>
+              <div className="space-y-3">
+                {submissions.filter(s => s.approved).map((submission) => (
+                  <div 
+                    key={submission.id} 
+                    className="border border-[rgba(140,198,63,0.2)] rounded-lg p-3 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] transition-colors duration-300"
+                  >
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                      <div className="flex-1">
+                        <div className="flex flex-wrap gap-4 text-sm">
+                          <span><strong>Name:</strong> {submission.name || 'N/A'}</span>
+                          <span><strong>Location:</strong> {submission.location}</span>
+                          <span><strong>Email:</strong> {submission.email || 'N/A'}</span>
+                        </div>
+                        <div className="text-xs text-[color:var(--lightgreen)] opacity-70 mt-1">
+                          Approved on: {new Date(submission.created_at || '').toLocaleDateString()}
+                        </div>
+                      </div>
+                      <div className="mt-2 lg:mt-0 flex items-center gap-2">
+                        <span className="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">
+                          Approved
+                        </span>
+                        <button
+                          onClick={() => handleDeleteSubmission(submission.id!)}
+                          disabled={formLoading}
+                          className="bg-red-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-red-600 transition-colors duration-300 disabled:opacity-50"
+                        >
+                          {deleteSubmissionConfirm === submission.id ? '⚠️' : 'Delete'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* No Submissions */}
+          {submissions.length === 0 && !storiesLoading && (
+            <p className="text-[color:var(--lightgreen)] opacity-70 text-center py-8">
+              No submissions found.
+            </p>
+          )}
+
+          {/* Loading State */}
+          {storiesLoading && (
+            <div className="space-y-3">
+              {[...Array(3)].map((_, index) => (
+                <div key={index} className="animate-pulse">
+                  <div className="h-20 bg-[rgba(140,198,63,0.3)] rounded mb-2"></div>
+                </div>
+              ))}
             </div>
           )}
         </div>

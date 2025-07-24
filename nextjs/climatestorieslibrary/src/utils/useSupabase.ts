@@ -663,3 +663,63 @@ export async function createSubmission(submissionData: Omit<Submission, 'id' | '
     return { submission: null, error: 'An unexpected error occurred' };
   }
 }
+
+// Fetch all submissions
+export async function fetchSubmissions(): Promise<Submission[]> {
+  try {
+    const { data, error } = await supabase
+      .from('submissions')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching submissions:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching submissions:', error);
+    return [];
+  }
+}
+
+// Approve a submission
+export async function approveSubmission(submissionId: string) {
+  try {
+    const { error } = await supabase
+      .from('submissions')
+      .update({ approved: true })
+      .eq('id', submissionId);
+
+    if (error) {
+      console.error('Error approving submission:', error);
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error('Error approving submission:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+// Delete a submission
+export async function deleteSubmission(submissionId: string) {
+  try {
+    const { error } = await supabase
+      .from('submissions')
+      .delete()
+      .eq('id', submissionId);
+
+    if (error) {
+      console.error('Error deleting submission:', error);
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error('Error deleting submission:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
