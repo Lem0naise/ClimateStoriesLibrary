@@ -5,7 +5,7 @@ import Image from "next/image";
 export const metadata: Metadata = {
   title: 'About Us - Climate Stories Library',
   description: 'Learn about the Climate Stories Library, a platform amplifying voices from the frontlines of the climate and nature crisis. Meet our team and discover our mission.',
-  keywords: 'climate stories, climate crisis, environmental justice, storytelling, grassroots movements',
+  keywords: 'climate stories, climate crisis, environmental justice, social justice, storytelling, grassroots movements',
   openGraph: {
     title: 'About Us - Climate Stories Library',
     description: 'Learn about the Climate Stories Library - a platform amplifying voices from the frontlines of the climate crisis.',
@@ -108,12 +108,12 @@ export default function About() {
               </h3>
               <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
                 Lead to the co-creation of research and activism surrounding issues
-                of local justice.
+                of social and environmental justice.
               </p>
             </div>
             <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
               <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
-                Contact A Politician
+                Contact a Politician
               </h3>
               <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
                 Videos could be curated into a format ready to send to politicians and businesses to raise awareness.
@@ -129,7 +129,7 @@ export default function About() {
           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90 mb-4">
             We see the climate crisis as just one of many symptoms of a current way
             of being, particularly by a global minority. A way of being in the
-            world that has also caused, and is causing, other forms of social
+            world that has also caused, and is causing, other forms of social and environmental
             injustice.
           </p>
           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">

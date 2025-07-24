@@ -519,12 +519,11 @@ export default function Admin() {
               {deleteSubmissionStep === 3 && (
                 <>
                   <div className="flex items-center mb-4">
-                    <span className="text-red-700 text-3xl mr-2">💀</span>
                     <h3 className="text-lg font-bold text-red-900">FINAL CONFIRMATION</h3>
                   </div>
                   <div className="bg-red-100 border-2 border-red-300 rounded p-4 mb-4">
                     <p className="text-red-900 font-bold mb-3">
-                      ⛔ PERMANENT DELETION OF CONSENT RECORDS ⛔
+                      PERMANENT DELETION OF CONSENT RECORDS
                     </p>
                     <ul className="text-red-800 text-sm space-y-1 mb-3">
                       <li>• Personal information will be permanently deleted</li>
