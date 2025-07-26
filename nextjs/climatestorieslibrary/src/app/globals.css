@@ -60,3 +60,8 @@ body {
   --lightgreen: var(--youth-primary);
   --background: var(--youth-bg);
 }
+@media screen and (max-width : 330px) {
+  .hide-at-tiny {
+    display: none !important;
+  }
+}
