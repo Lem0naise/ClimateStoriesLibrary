@@ -242,10 +242,6 @@ export default function About() {
             Global Advisor, please contact us at the email address below.
           </p>
 
-          <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90 mb-4">
-            We also maintain a list of Grassroots Groups we are either affiliated
-          </p>
-
 
           <h3 className="text-[color:var(--lightgreen)] text-[clamp(16px,3.5vw,24px)] mb-4 font-semibold">
             Global Advisors include:
@@ -301,6 +297,16 @@ export default function About() {
               </div>
             </div>
           </div>
+
+          <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90 mb-4 mt-4">
+            We also maintain a list of Grassroots Groups:
+          </p>
+          <Link  
+                href="../connect" 
+                className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 md:py-4 px-6 md:px-9 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,18px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)] mb-4"
+              >
+                View Grassroots Groups
+          </Link>
         </div>
 
         <section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-left p-4 md:p-9 mb-4 md:mb-8">
