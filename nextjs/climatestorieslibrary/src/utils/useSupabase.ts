@@ -44,6 +44,18 @@ export interface FilterOptions {
   countries: string[];
 }
 
+export interface Organisation {
+  id: string;
+  created_at: string;
+  name: string | null;
+  description: string | null;
+  email: string | null;
+  tel: string | null;
+  url: string | null;
+  location: string | null;
+  logo_url: string | null;
+}
+
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -721,5 +733,24 @@ export async function deleteSubmission(submissionId: string) {
   } catch (error) {
     console.error('Error deleting submission:', error);
     return { error: 'An unexpected error occurred' };
+  }
+}
+
+// Fetch all organisations
+export async function fetchOrganisations(): Promise<Organisation[]> {
+  try {
+    const { data, error } = await supabase
+      .from('organisations')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching organisations:', error);
+      return [];
+    }
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching organisations:', error);
+    return [];
   }
 }
