@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function Navigation() {
   return (
-    <nav className="w-full bg-white sticky top-0 z-[1000] shadow-[0px_20px_30px_rgba(0,0,0,0.06)]">
+    <nav className="w-full bg-white sticky top-0 z-[1000] shadow-[0px_20px_30px_rgba(0,0,0,0.06)] border-b-2 border-[color:var(--lightgreen)]">
       <div className="max-w-[1200px] mx-auto px-4 flex items-center justify-between h-[60px] sm:px-6 sm:h-[65px]">
         <div className="flex items-center gap-3 sm:gap-4 hide-at-tiny">
           <Link href="/" className="flex-shrink-0">
