@@ -99,7 +99,10 @@ export default function Admin() {
   const [orgFormSuccess, setOrgFormSuccess] = useState<string | null>(null);
   const [editingOrgId, setEditingOrgId] = useState<string | null>(null);
   const [deleteOrgConfirm, setDeleteOrgConfirm] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'story' | 'tag' | 'submission' | 'organisation'>('story');
   const router = useRouter();
+
+  const deletingSubmission = submissions.find(s => s.id === deleteSubmissionConfirm);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -588,6 +591,14 @@ new Compressor(file, {
     }
   };
 
+  // Helper to map section to tab key
+  const sectionToTab: Record<string, typeof activeTab> = {
+    'story-management-section': 'story',
+    'tag-management-section': 'tag',
+    'submissions-section': 'submission',
+    'organisation-management-section': 'organisation',
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[color:var(--background)] flex items-center justify-center py-4 md:py-10">
@@ -610,26 +621,46 @@ new Compressor(file, {
         <div className="sticky top-15 z-30 bg-[color:var(--background)] pt-4 pb-2 mb-4">
           <div className="flex flex-wrap gap-3 justify-center">
             <button
-              onClick={() => document.getElementById('story-management-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] cursor-pointer"
+              onClick={() => setActiveTab('story')}
+              className={`hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg transition-all duration-300 ${
+                activeTab === 'story'
+                  ? 'bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] text-xl font-bold'
+                  : 'bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] text-sm font-semibold'
+              } cursor-pointer`}
+              id="story-management-tab"
             >
               Story Management
             </button>
             <button
-              onClick={() => document.getElementById('tag-management-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] cursor-pointer"
+              onClick={() => setActiveTab('tag')}
+              className={`hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg transition-all duration-300 ${
+                activeTab === 'tag'
+                  ? 'bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] text-xl font-bold'
+                  : 'bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] text-sm font-semibold'
+              } cursor-pointer`}
+              id="tag-management-tab"
             >
               Tag Management
             </button>
             <button
-              onClick={() => document.getElementById('submissions-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] cursor-pointer"
+              onClick={() => setActiveTab('submission')}
+              className={`hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg transition-all duration-300 ${
+                activeTab === 'submission'
+                  ? 'bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] text-xl font-bold'
+                  : 'bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] text-sm font-semibold'
+              } cursor-pointer`}
+              id="submissions-tab"
             >
               Submissions
             </button>
             <button
-              onClick={() => document.getElementById('organisation-management-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] cursor-pointer"
+              onClick={() => setActiveTab('organisation')}
+              className={`hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg  transition-all duration-300 ${
+                activeTab === 'organisation'
+                  ? 'bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] text-xl font-bold'
+                  : 'bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] text-sm font-semibold'
+              } cursor-pointer`}
+              id="organisation-management-tab"
             >
               Organisations
             </button>
@@ -682,7 +713,7 @@ new Compressor(file, {
                 </p>
               </div>
               <button
-                onClick={() => document.getElementById('submissions-section')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => setActiveTab('submission')}
                 className="bg-white text-orange-600 py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-gray-100 flex items-center gap-2"
               >
                 Review Now →
@@ -738,13 +769,19 @@ new Compressor(file, {
                   </div>
                   <div className="bg-red-50 border border-red-200 rounded p-4 mb-4">
                     <p className="text-red-800 font-semibold mb-2">
-                      ⚠️ You are about to DELETE CONSENT RECORDS ⚠️
+                      You are about to DELETE CONSENT RECORDS
                     </p>
                     <p className="text-red-700 text-sm mb-2">
                       This submission contains personal data and consent information that the user provided voluntarily.
                     </p>
                     <p className="text-red-700 text-sm">
-                      Deleting this record will permanently remove their consent documentation and personal information.
+                      Deleting this record will permanently remove the consent documentation and personal information for:
+                    </p>
+                    <p className="text-black text-md font-bold mt-2">
+                      {deletingSubmission && (<>
+                        {deletingSubmission.email} {`  `}
+                        {deletingSubmission.name} {`  `}
+                        {deletingSubmission.location} </>)}
                     </p>
                   </div>
                   <p className="text-gray-700 mb-4 font-semibold">
@@ -986,7 +1023,8 @@ new Compressor(file, {
       
 
         {/* Story Management Section */}
-        <div id="story-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+        {activeTab === 'story' && (
+          <div id="story-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
               Story Management
@@ -1073,7 +1111,7 @@ new Compressor(file, {
                             ? 'bg-red-600 text-white hover:bg-red-700' 
                             : 'bg-red-500 text-white hover:bg-red-600'
                         } disabled:opacity-50`}
-                      >
+                        >
                         {deleteConfirm === story.id ? 'Confirm?' : 'Delete'}
                       </button>
                     </div>
@@ -1090,10 +1128,11 @@ new Compressor(file, {
           )}
 
           
-        </div>
+        </div>)}
 
-  {/* Tag Management Section */}
-        <div id="tag-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+        {/* Tag Management Section */}
+        {activeTab === 'tag' && (
+          <div id="tag-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
               Tag Management
@@ -1220,10 +1259,11 @@ new Compressor(file, {
               )}
             </div>
           )}
-        </div>
+        </div>)}
 
         {/* Submissions Management Section */}
-        <div id="submissions-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+        {activeTab === 'submission' && (
+          <div id="submissions-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
               Submissions Management
@@ -1371,10 +1411,11 @@ new Compressor(file, {
               ))}
             </div>
           )}
-        </div>
+        </div>)}
 
         {/* Organisation Management Section */}
-        <div id="organisation-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+        {activeTab === 'organisation' && (
+          <div id="organisation-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
           <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold mb-4">
             Organisation Management
           </h2>
@@ -1572,9 +1613,7 @@ new Compressor(file, {
               </div>
             )}
           </div>
-        </div>
-
-        {/* ...existing sections... */}
+        </div>)}
       </div>
     </div>
   );
