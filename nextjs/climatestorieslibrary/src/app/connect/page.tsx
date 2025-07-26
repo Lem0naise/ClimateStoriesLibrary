@@ -39,9 +39,9 @@ export default function Connect() {
               organisations.map((org) => (
                 <div
                   key={org.id}
-                  className="bg-[rgba(255,255,255,0.08)] rounded-xl border border-[rgba(140,198,63,0.2)] overflow-hidden flex flex-col items-center p-6 text-center"
+                  className="bg-[rgba(255,255,255,0.08)] rounded-xl border border-[rgba(140,198,63,0.2)] overflow-hidden flex flex-col items-left p-6 text-left"
                 >
-                  <div className="w-20 h-20 mb-4 flex items-center justify-center">
+                  <div className="w-full h-20 mb-8 flex items-center justify-center text-left">
                     {org.logo_url ? (
                       <Image
                         src={org.logo_url}
@@ -55,16 +55,22 @@ export default function Connect() {
                         {org.name?.[0] ?? "?"}
                       </div>
                     )}
-                  </div>
-                  <h2 className="text-[color:var(--lightgreen)] text-2xl font-semibold mb-2">
+                    <h2 className="text-[color:var(--lightgreen)] text-2xl font-semibold">
                     {org.name}
                   </h2>
-                  <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,15px)] opacity-90 mb-3">
+                  </div>
+                  
+                  <p className="text-[color:var(--lightgreen)] text-sm opacity-90 mb-3 text-left">
                     {org.description}
                   </p>
                   {org.url && (
                     <a
-                      href={`${org.url}`}
+                      href={
+                        org.url.startsWith("http://") || org.url.startsWith("https://")
+                            ? org.url
+                            : `https://${org.url}`
+                        }
+                      target='_blank'
                       className="inline-block mb-2 text-[color:var(--lightgreen)] underline hover:opacity-80 transition-opacity text-[clamp(12px,2vw,15px)]"
                     >
                       {org.url}
@@ -78,19 +84,9 @@ export default function Connect() {
                     </p>
                   )}
                   {org.location && (
-                    <div className="text-[color:var(--lightgreen)] opacity-70 text-[clamp(12px,2vw,15px)] mb-2">
+                    <p className="text-[color:var(--lightgreen)] text-left opacity-70 text-[clamp(12px,2vw,15px)] mb-2">
                       {org.location}
-                    </div>
-                  )}
-                  {org.logo_url && org.logo_url.startsWith("http") && (
-                    <a
-                      href={org.logo_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hidden"
-                    >
-                      Logo
-                    </a>
+                    </p>
                   )}
                 </div>
               ))
