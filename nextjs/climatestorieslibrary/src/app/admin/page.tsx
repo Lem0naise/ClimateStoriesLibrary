@@ -23,7 +23,10 @@ import {
   deleteSubmission,
   Story, 
   Tag,
-  Submission 
+  Submission,
+  fetchOrganisations,
+  Organisation,
+  supabase
 } from '@/utils/useSupabase';
 
 type StoryFormData = {
@@ -38,12 +41,24 @@ type StoryFormData = {
   selectedTags: string[];
 };
 
+type OrganisationFormData = {
+  name: string;
+  description: string;
+  email: string;
+  tel: string;
+  url: string;
+  location: string;
+  logoFile: File | null;
+  logoUrl: string;
+};
+
 export default function Admin() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [stories, setStories] = useState<Story[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [organisations, setOrganisations] = useState<Organisation[]>([]);
   const [storiesLoading, setStoriesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showStoryForm, setShowStoryForm] = useState(false);
@@ -67,6 +82,21 @@ export default function Admin() {
   const [deleteSubmissionText, setDeleteSubmissionText] = useState<string>('');
   const [inlineEditingTag, setInlineEditingTag] = useState<string | null>(null);
   const [inlineTagName, setInlineTagName] = useState('');
+  const [orgFormData, setOrgFormData] = useState<OrganisationFormData>({
+    name: '',
+    description: '',
+    email: '',
+    tel: '',
+    url: '',
+    location: '',
+    logoFile: null,
+    logoUrl: '',
+  });
+  const [orgFormLoading, setOrgFormLoading] = useState(false);
+  const [orgFormError, setOrgFormError] = useState<string | null>(null);
+  const [orgFormSuccess, setOrgFormSuccess] = useState<string | null>(null);
+  const [editingOrgId, setEditingOrgId] = useState<string | null>(null);
+  const [deleteOrgConfirm, setDeleteOrgConfirm] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -89,6 +119,7 @@ export default function Admin() {
       
       // Load admin data
       loadAdminData();
+      loadOrganisations();
     };
 
     checkAuth();
@@ -111,6 +142,15 @@ export default function Admin() {
       setError('Failed to load admin data');
     } finally {
       setStoriesLoading(false);
+    }
+  };
+
+  const loadOrganisations = async () => {
+    try {
+      const data = await fetchOrganisations();
+      setOrganisations(data);
+    } catch (e) {
+      setOrganisations([]);
     }
   };
 
@@ -368,6 +408,163 @@ export default function Admin() {
     setDeleteSubmissionText('');
   };
 
+  // Organisation form handlers
+  const handleOrgInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setOrgFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleOrgLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setOrgFormData(prev => ({ ...prev, logoFile: file }));
+  };
+
+  const handleOrgLogoDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0] || null;
+    setOrgFormData(prev => ({ ...prev, logoFile: file }));
+  };
+
+  const handleOrgLogoDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  // Populate form for editing
+  const handleEditOrganisation = (org: Organisation) => {
+    setOrgFormData({
+      name: org.name || '',
+      description: org.description || '',
+      email: org.email || '',
+      tel: org.tel || '',
+      location: org.location || '',
+      url: org.url || '',
+      logoFile: null,
+      logoUrl: org.logo_url || '',
+    });
+    setEditingOrgId(org.id);
+    setOrgFormError(null);
+    setOrgFormSuccess(null);
+  };
+
+  // Delete organisation
+  const handleDeleteOrganisation = async (orgId: string) => {
+    if (deleteOrgConfirm === orgId) {
+      setOrgFormLoading(true);
+      setOrgFormError(null);
+      try {
+        const { error } = await supabase.from('organisations').delete().eq('id', orgId);
+        if (error) {
+          setOrgFormError('Failed to delete organisation: ' + error.message);
+        } else {
+          setOrgFormSuccess('Organisation deleted.');
+          await loadOrganisations();
+        }
+      } catch (err: any) {
+        setOrgFormError('Unexpected error: ' + (err?.message || err));
+      } finally {
+        setOrgFormLoading(false);
+        setDeleteOrgConfirm(null);
+      }
+    } else {
+      setDeleteOrgConfirm(orgId);
+    }
+  };
+
+  // Reset org form
+  const resetOrgForm = () => {
+    setOrgFormData({
+      name: '',
+      description: '',
+      email: '',
+      tel: '',
+      url: '',
+      location: '',
+      logoFile: null,
+      logoUrl: '',
+    });
+    setEditingOrgId(null);
+    setOrgFormError(null);
+    setOrgFormSuccess(null);
+  };
+
+  // Create or update organisation
+  const handleCreateOrganisation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOrgFormLoading(true);
+    setOrgFormError(null);
+    setOrgFormSuccess(null);
+
+    try {
+      let logoUrl = orgFormData.logoUrl;
+      if (orgFormData.logoFile) {
+        // Upload logo to Supabase storage
+        const fileExt = orgFormData.logoFile.name.split('.').pop();
+        const fileName = `${Date.now()}_${orgFormData.logoFile.name.replace(/\s+/g, '_')}`;
+        const filePath = `${fileName}`;
+        const { error: uploadError } = await supabase.storage
+          .from('logos')
+          .upload(filePath, orgFormData.logoFile, {
+            cacheControl: '3600',
+            upsert: false,
+          });
+        if (uploadError) {
+          setOrgFormError('Failed to upload logo: ' + uploadError.message);
+          setOrgFormLoading(false);
+          return;
+        }
+        // Get public URL
+        const { data } = supabase.storage.from('logos').getPublicUrl(filePath);
+        logoUrl = data.publicUrl;
+      }
+
+      if (editingOrgId) {
+        // Update
+        const { error } = await supabase
+          .from('organisations')
+          .update({
+            name: orgFormData.name,
+            description: orgFormData.description,
+            email: orgFormData.email,
+            url: orgFormData.url,
+            tel: orgFormData.tel,
+            location: orgFormData.location,
+            logo_url: logoUrl || null,
+          })
+          .eq('id', editingOrgId);
+        if (error) {
+          setOrgFormError('Failed to update organisation: ' + error.message);
+          setOrgFormLoading(false);
+          return;
+        }
+        setOrgFormSuccess('Organisation updated!');
+      } else {
+        // Insert
+        const { error } = await supabase
+          .from('organisations')
+          .insert([{
+            name: orgFormData.name,
+            description: orgFormData.description,
+            email: orgFormData.email,
+            tel: orgFormData.tel,
+            location: orgFormData.location,
+            logo_url: logoUrl || null,
+          }]);
+        if (error) {
+          setOrgFormError('Failed to create organisation: ' + error.message);
+          setOrgFormLoading(false);
+          return;
+        }
+        setOrgFormSuccess('Organisation created!');
+      }
+
+      resetOrgForm();
+      await loadOrganisations();
+    } catch (err: any) {
+      setOrgFormError('Unexpected error: ' + (err?.message || err));
+    } finally {
+      setOrgFormLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -387,8 +584,40 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-[color:var(--background)] py-4 md:py-10">
       <div className="max-w-6xl mx-auto px-3 md:px-6">
+        {/* --- Sticky Jump Links --- */}
+        <div className="sticky top-15 z-30 bg-[color:var(--background)] pt-4 pb-2 mb-4">
+          <div className="flex flex-wrap gap-3 justify-center">
+            <button
+              onClick={() => document.getElementById('story-management-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] cursor-pointer"
+            >
+              Story Management
+            </button>
+            <button
+              onClick={() => document.getElementById('tag-management-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] cursor-pointer"
+            >
+              Tag Management
+            </button>
+            <button
+              onClick={() => document.getElementById('submissions-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] cursor-pointer"
+            >
+              Submissions
+            </button>
+            <button
+              onClick={() => document.getElementById('organisation-management-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] cursor-pointer"
+            >
+              Organisations
+            </button>
+          </div>
+        </div>
+        {/* --- End Sticky Jump Links --- */}
+
         {/* Header */}
         <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+          
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-[color:var(--lightgreen)] text-[clamp(24px,6vw,36px)] mb-2 font-bold">
@@ -414,7 +643,7 @@ export default function Admin() {
             </div>
           </div>
           <h3 className="text-[color:var(--lightgreen)] text-xl md:text-3xl font-semibold mt-5">
-              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries, {storiesLoading ? '...' : submissions.length} Submissions
+              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries, {storiesLoading ? '...' : submissions.length} Submissions, {storiesLoading ? '...' : organisations.length} Organisations
             </h3>
         </div>
 
@@ -547,7 +776,7 @@ export default function Admin() {
                     <button
                       onClick={() => handleDeleteSubmission(deleteSubmissionConfirm)}
                       disabled={deleteSubmissionText.toLowerCase().trim() !== 'delete consent records' || formLoading}
-                      className="bg-red-700 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-red-700 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-800 disabled:opacity-50"
                     >
                       {formLoading ? 'Deleting...' : 'PERMANENTLY DELETE'}
                     </button>
@@ -735,7 +964,7 @@ export default function Admin() {
       
 
         {/* Story Management Section */}
-        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+        <div id="story-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
               Story Management
@@ -842,7 +1071,7 @@ export default function Admin() {
         </div>
 
   {/* Tag Management Section */}
-        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+        <div id="tag-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
               Tag Management
@@ -1089,9 +1318,11 @@ export default function Admin() {
                         <button
                           onClick={() => handleDeleteSubmission(submission.id!)}
                           disabled={formLoading}
-                          className="bg-red-500 text-white py-1 px-2 rounded text-xs font-semibold hover:bg-red-600 transition-colors duration-300 disabled:opacity-50"
+                          className={`bg-red-500 text-white py-1 px-2 rounded text-xs font-semibold transition-colors duration-300 ${
+                            deleteSubmissionConfirm === submission.id ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-500 text-white hover:bg-red-600'
+                          } disabled:opacity-50`}
                         >
-                          {deleteSubmissionConfirm === submission.id ? '⚠️' : 'Delete'}
+                          {deleteSubmissionConfirm === submission.id ? 'Confirm?' : 'Delete'}
                         </button>
                       </div>
                     </div>
@@ -1119,9 +1350,211 @@ export default function Admin() {
             </div>
           )}
         </div>
+
+        {/* Organisation Management Section */}
+        <div id="organisation-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+          <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold mb-4">
+            Organisation Management
+          </h2>
+          <form onSubmit={handleCreateOrganisation} className="space-y-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={orgFormData.name}
+                  onChange={handleOrgInputChange}
+                  required
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                  placeholder="Organisation name"
+                />
+              </div>
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={orgFormData.email}
+                  onChange={handleOrgInputChange}
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                  placeholder="contact@example.org"
+                />
+              </div>
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Telephone
+                </label>
+                <input
+                  type="text"
+                  name="tel"
+                  value={orgFormData.tel}
+                  onChange={handleOrgInputChange}
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                  placeholder="+44 ..."
+                />
+              </div>
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Location
+                </label>
+                <input
+                  type="text"
+                  name="location"
+                  value={orgFormData.location}
+                  onChange={handleOrgInputChange}
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                  placeholder="City, Country"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                Website
+              </label>
+              <input
+                name="url"
+                type='text'
+                value={orgFormData.url}
+                onChange={handleOrgInputChange}
+                className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                placeholder="https://climatestorieslibrary.com"
+              />
+            </div>
+            <div>
+              <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={orgFormData.description}
+                onChange={handleOrgInputChange}
+                rows={3}
+                className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none resize-vertical"
+                placeholder="Short description"
+              />
+            </div>
+            <div>
+              <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                Logo
+              </label>
+              <div
+                className="w-full flex flex-col items-center justify-center border-2 border-dashed border-[rgba(140,198,63,0.3)] rounded-lg p-6 bg-[rgba(255,255,255,0.05)] cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition"
+                onDrop={handleOrgLogoDrop}
+                onDragOver={handleOrgLogoDragOver}
+                tabIndex={0}
+                role="button"
+                aria-label="Drop logo file here"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleOrgLogoChange}
+                  className="hidden"
+                  id="org-logo-input"
+                />
+                <label htmlFor="org-logo-input" className="cursor-pointer flex flex-col items-center">
+                  {orgFormData.logoFile ? (
+                    <>
+                      <span className="text-[color:var(--lightgreen)] mb-2">
+                        Selected: {orgFormData.logoFile.name}
+                      </span>
+                      <img
+                        src={URL.createObjectURL(orgFormData.logoFile)}
+                        alt="Logo preview"
+                        className="w-20 h-20 object-contain rounded-full border border-[rgba(140,198,63,0.3)]"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-[color:var(--lightgreen)] mb-2">
+                        Drag & drop logo here, or click to select
+                      </span>
+                      <span className="text-3xl">🖼️</span>
+                    </>
+                  )}
+                </label>
+              </div>
+            </div>
+            {orgFormError && (
+              <div className="text-red-500 bg-red-100 border border-red-300 rounded p-2">{orgFormError}</div>
+            )}
+            {orgFormSuccess && (
+              <div className="text-green-700 bg-green-100 border border-green-300 rounded p-2">{orgFormSuccess}</div>
+            )}
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={orgFormLoading}
+                className="bg-[color:var(--lightgreen)] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
+              >
+                {orgFormLoading
+                  ? 'Saving...'
+                  : editingOrgId
+                    ? 'Update Organisation'
+                    : 'Create Organisation'}
+              </button>
+              {(editingOrgId || orgFormData.name || orgFormData.description || orgFormData.email || orgFormData.tel || orgFormData.location || orgFormData.logoFile) && (
+                <button
+                  type="button"
+                  onClick={resetOrgForm}
+                  disabled={orgFormLoading}
+                  className="px-6 py-3 border border-[color:var(--lightgreen)] text-[color:var(--lightgreen)] rounded-lg font-semibold hover:bg-[color:var(--lightgreen)] transition-all duration-300"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </form>
+          <h3 className="text-[color:var(--lightgreen)] text-lg font-semibold mb-2">Existing Organisations</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {organisations.map(org => (
+              <div key={org.id} className="border border-[rgba(140,198,63,0.2)] rounded-lg p-4 bg-[rgba(255,255,255,0.05)] flex flex-col items-center">
+                {org.logo_url && (
+                  <img src={org.logo_url} alt={org.name || 'Logo'} className="w-16 h-16 object-contain rounded-full mb-2" />
+                )}
+                <h4 className="text-[color:var(--lightgreen)] font-semibold">{org.name}</h4>
+                <p className="text-[color:var(--lightgreen)] opacity-80 text-sm mb-1">{org.description}</p>
+                {org.url && <div className="text-[color:var(--lightgreen)] text-xs">{org.url}</div>}
+                {org.email && <div className="text-[color:var(--lightgreen)] text-xs">{org.email}</div>}
+                {org.tel && <div className="text-[color:var(--lightgreen)] text-xs">{org.tel}</div>}
+                {org.location && <div className="text-[color:var(--lightgreen)] text-xs">{org.location}</div>}
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => handleEditOrganisation(org)}
+                    className="bg-yellow-500 text-white py-1 px-3 rounded text-xs font-semibold hover:bg-yellow-600 transition-colors duration-300"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteOrganisation(org.id)}
+                    disabled={orgFormLoading}
+                    className={`py-1 px-3 rounded text-xs font-semibold transition-colors duration-300 ${
+                      deleteOrgConfirm === org.id
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-red-500 text-white hover:bg-red-600'
+                    } disabled:opacity-50`}
+                  >
+                    {deleteOrgConfirm === org.id ? 'Confirm?' : 'Delete'}
+                  </button>
+                </div>
+              </div>
+            ))}
+            {organisations.length === 0 && (
+              <div className="col-span-full text-[color:var(--lightgreen)] opacity-70 text-center py-8">
+                No organisations found.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ...existing sections... */}
       </div>
     </div>
   );
 }
-               
-                           
+
