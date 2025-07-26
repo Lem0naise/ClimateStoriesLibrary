@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Compressor from 'compressorjs';
+
 import { 
   getCurrentUser, 
   isUserAdmin, 
@@ -414,9 +416,29 @@ export default function Admin() {
     setOrgFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleOrgLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+  const handleOrgLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    
+const file = e.target.files?.[0] || null;
+  if (!file) return;
+
+  // compress if file size is over 200kb
+  if (file.size > 200 * 1024) {
+new Compressor(file, {
+    quality: 0.7, // Adjust quality as needed (0.6-0.8 is typical)
+    maxWidth: 800,
+    maxHeight: 800,
+    success(result: File) {
+      setOrgFormData(prev => ({ ...prev, logoFile: result }));
+    },
+    error(err: Error) {
+      setOrgFormError('Logo compression failed: ' + err.message);
+    },
+  });
+  }
+  else {
     setOrgFormData(prev => ({ ...prev, logoFile: file }));
+  }
+  
   };
 
   const handleOrgLogoDrop = (e: React.DragEvent<HTMLDivElement>) => {
