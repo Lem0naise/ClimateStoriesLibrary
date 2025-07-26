@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import StoryCard from "@/components/StoryCard";
 import FilterButton from "@/components/TagFilterer";
+import StoriesMap from "@/components/StoriesMap";
 import { 
   fetchStories, 
   fetchTags, 
@@ -529,6 +530,7 @@ export default function Home() {
 
             {/* Desktop Story Cards Grid */}
             <div className="flex-1">
+              <StoriesMap stories={allStories} />
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {loading ? (
                   [...Array(6)].map((_, index) => (

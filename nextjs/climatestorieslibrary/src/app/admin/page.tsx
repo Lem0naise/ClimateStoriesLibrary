@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from "next/dynamic";
 import { 
   getCurrentUser, 
   isUserAdmin, 
@@ -25,6 +26,7 @@ import {
   Tag,
   Submission 
 } from '@/utils/useSupabase';
+const LocationPicker = dynamic(() => import("@/components/LocationPickerClient"), { ssr: false });
 
 type StoryFormData = {
   title: string;
@@ -36,6 +38,8 @@ type StoryFormData = {
   classification: string;
   description: string;
   selectedTags: string[];
+  latitude: number | null;
+  longitude: number | null;
 };
 
 export default function Admin() {
@@ -57,7 +61,9 @@ export default function Admin() {
     region: '',
     classification: '',
     description: '',
-    selectedTags: []
+    selectedTags: [],
+    latitude: null,
+    longitude: null,
   });
   const [formLoading, setFormLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -133,7 +139,9 @@ export default function Admin() {
       region: '',
       classification: '',
       description: '',
-      selectedTags: []
+      selectedTags: [],
+      latitude: null,
+      longitude: null,
     });
     setEditingStory(null);
     setShowStoryForm(false);
@@ -156,12 +164,28 @@ export default function Admin() {
         region: story.region,
         classification: story.classification,
         description: story.description || '',
-        selectedTags: story.tags?.map(tag => tag.id) || []
+        selectedTags: story.tags?.map(tag => tag.id) || [],
+        latitude: (story as any).latitude ?? null,
+        longitude: (story as any).longitude ?? null,
       });
       setEditingStory(story);
       setShowStoryForm(true);
     }
   };
+
+  // Geocode helper
+  async function geocodeLocation(location: string): Promise<{ lat: number, lon: number } | null> {
+    if (!location) return null;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+      }
+    } catch (e) {}
+    return null;
+  }
 
   const handleDeleteStory = async (storyId: string) => {
     if (deleteConfirm === storyId) {
@@ -185,6 +209,22 @@ export default function Admin() {
     setError(null);
 
     try {
+      let latitude = storyFormData.latitude;
+      let longitude = storyFormData.longitude;
+
+      // If no coordinates picked, try to geocode
+      if (
+        (latitude === null || longitude === null) &&
+        (storyFormData.region || storyFormData.country || storyFormData.continent)
+      ) {
+        const loc = storyFormData.region || storyFormData.country || storyFormData.continent;
+        const geo = await geocodeLocation(loc);
+        if (geo) {
+          latitude = geo.lat;
+          longitude = geo.lon;
+        }
+      }
+
       const storyData = {
         title: storyFormData.title,
         youtube_url: storyFormData.youtube_url,
@@ -193,7 +233,9 @@ export default function Admin() {
         country: storyFormData.country,
         region: storyFormData.region,
         classification: storyFormData.classification,
-        description: storyFormData.description
+        description: storyFormData.description,
+        latitude,
+        longitude,
       };
 
       let storyResult;
@@ -680,6 +722,32 @@ export default function Admin() {
                 </div>
               </div>
 
+              {/* Location Picker */}
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Location (optional: pick on map)
+                </label>
+                <LocationPicker
+                  lat={storyFormData.latitude}
+                  lng={storyFormData.longitude}
+                  onChange={(lat, lng) =>
+                    setStoryFormData(prev => ({
+                      ...prev,
+                      latitude: lat,
+                      longitude: lng,
+                    }))
+                  }
+                />
+                <div className="text-xs text-[color:var(--lightgreen)] opacity-70">
+                  If you don't pick a location, the system will use the region/country for map placement.
+                </div>
+                {storyFormData.latitude && storyFormData.longitude && (
+                  <div className="text-xs text-[color:var(--lightgreen)] mt-1">
+                    Selected: {storyFormData.latitude.toFixed(5)}, {storyFormData.longitude.toFixed(5)}
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
                   Description
@@ -1123,5 +1191,4 @@ export default function Admin() {
     </div>
   );
 }
-               
-                           
+
