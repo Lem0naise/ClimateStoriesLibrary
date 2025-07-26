@@ -24,103 +24,64 @@ export default function About() {
   return (
     <div className="min-h-fit pb-[10vh] bg-[color:var(--background)] transition-colors duration-300">
       <div className="max-w-full md:max-w-[80vw] mx-auto py-4 md:py-10 px-3 md:px-5 text-green-600">
-        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-center p-3 md:p-10 pt-2 md:pt-2 pb-4 md:pb-10 mb-4 md:mb-8">
-          <h1 className="text-[color:var(--lightgreen)] text-[clamp(24px,6vw,50px)] mb-2 md:mb-5 font-bold">
-            About the Climate Stories Library
-          </h1>
-          <p className="text-[color:var(--lightgreen)] text-[clamp(12px,3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-4 md:mb-10">
-            The Climate Stories Library provides a platform for individuals and grassroots groups to share their experiences of the climate and nature crisis, and other intersecting injustices. We believe every voice matters in the climate conversation.
-          </p>
-
-          <Link  
-              href="../" 
-              className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 md:py-4 px-6 md:px-9 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,18px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
-            >
-              View All Stories
-            </Link>
-          
+        {/* Merged About + Aims */}
+        <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-center md:text-left p-4 md:p-10 mb-4 md:mb-8">
+          <div className="md:flex md:items-center md:gap-10">
+            <div className="flex-1">
+              <h1 className="text-[color:var(--lightgreen)] text-[clamp(24px,6vw,50px)] mb-2 md:mb-5 font-bold text-center md:text-left">
+                About the Climate Stories Library
+              </h1>
+              <p className="text-[color:var(--lightgreen)] text-[clamp(12px,3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mb-4 md:mb-6 mx-auto md:mx-0 text-center md:text-left">
+                The Climate Stories Library provides a platform for individuals and grassroots groups to share their experiences of the climate and nature crisis, and other intersecting injustices. We believe every voice matters in the climate conversation.
+              </p>
+              <Link  
+                href="../" 
+                className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 md:py-4 px-6 md:px-9 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,18px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)] mb-4 md:mb-0"
+              >
+                View All Stories
+              </Link>
+            </div>
+            <div className="flex-1 mt-8 md:mt-0">
+              <h2 className="md:hidden text-[color:var(--lightgreen)] text-[clamp(18px,5vw,40px)] mb-4 md:mb-6 font-bold text-center md:text-left">
+                Our Aims
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                {[
+                  {
+                    title: "Direct Storytelling",
+                    desc: "To enable those at the frontlines of the climate and nature crisis to tell their story directly and easily to a global audience.",
+                  },
+                  {
+                    title: "Amplify Voices",
+                    desc: "To amplify the voices of those who are often less heard, or not heard at all.",
+                  },
+                  {
+                    title: "Build Connections",
+                    desc: "To build solidarity and connections between individuals and grassroots movements and to encourage seeing the world through the lenses of others.",
+                  },
+                  {
+                    title: "Global Collaboration",
+                    desc: "We aim to develop a network of collaborators around the world with whom we can co-create this project.",
+                  },
+                ].map((aim, index) => (
+                  <div
+                    key={index}
+                    className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]"
+                  >
+                    <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
+                      {aim.title}
+                    </h3>
+                    <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
+                      {aim.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-9 mb-4 md:mb-8">
-          <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,32px)] mb-4 md:mb-6 font-bold">
-            Our Aims
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            {[
-              {
-                title: "Direct Storytelling",
-                desc: "To enable those at the frontlines of the climate and nature crisis to tell their story directly and easily to a global audience.",
-              },
-              {
-                title: "Amplify Voices",
-                desc: "To amplify the voices of those who are often less heard, or not heard at all.",
-              },
-              {
-                title: "Build Connections",
-                desc: "To build solidarity and connections between individuals and grassroots movements and to encourage seeing the world through the lenses of others.",
-              },
-              {
-                title: "Global Collaboration",
-                desc: "We aim to develop a network of collaborators around the world with whom we can co-create this project.",
-              },
-            ].map((aim, index) => (
-              <div
-                key={index}
-                className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]"
-              >
-                <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
-                  {aim.title}
-                </h3>
-                <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
-                  {aim.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-9 mb-4 md:mb-8">
-          <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,32px)] mb-4 md:mb-6 font-bold">
-            Future Developments
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
-              <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
-                Artistic Responses
-              </h3>
-              <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
-                Create a platform of artistic responses to the stories, making art
-                which in itself further raises awareness of the reality of how the
-                climate crisis is interwoven with other social inequities.
-              </p>
-            </div>
-            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
-              <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
-                Grassroots Address Book
-              </h3>
-              <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
-                A platform to connect grassroots climate and activist organisations with each other.
-              </p>
-            </div>
-            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
-              <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
-                Research & Activism
-              </h3>
-              <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
-                Lead to the co-creation of research and activism surrounding issues
-                of social and environmental justice.
-              </p>
-            </div>
-            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
-              <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
-                Contact a Politician
-              </h3>
-              <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
-                Videos could be curated into a format ready to send to politicians and businesses to raise awareness.
-              </p>
-            </div>
-          </div>
-        </section>
+        
 
         <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-9 mb-4 md:mb-8">
           <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,32px)] mb-4 md:mb-6 font-bold">
@@ -225,6 +186,49 @@ export default function About() {
           </div>
         </div>
 
+<section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-9 mb-4 md:mb-8">
+          <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,32px)] mb-4 md:mb-6 font-bold">
+            Future Developments
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
+              <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
+                Artistic Responses
+              </h3>
+              <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
+                Create a platform of artistic responses to the stories, making art
+                which in itself further raises awareness of the reality of how the
+                climate crisis is interwoven with other social inequities.
+              </p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
+              <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
+                Grassroots Address Book
+              </h3>
+              <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
+                A platform to connect grassroots climate and activist organisations with each other.
+              </p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
+              <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
+                Research & Activism
+              </h3>
+              <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
+                Lead to the co-creation of research and activism surrounding issues
+                of social and environmental justice.
+              </p>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
+              <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 md:mb-3 font-semibold">
+                Contact a Politician
+              </h3>
+              <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90">
+                Videos could be curated into a format ready to send to politicians and businesses to raise awareness.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-9 mb-4 md:mb-8">
           <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,32px)] mb-4 md:mb-6 font-bold">
             Advisory Group
@@ -237,6 +241,11 @@ export default function About() {
             between countries and activism. If you are interested in becoming a
             Global Advisor, please contact us at the email address below.
           </p>
+
+          <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90 mb-4">
+            We also maintain a list of Grassroots Groups we are either affiliated
+          </p>
+
 
           <h3 className="text-[color:var(--lightgreen)] text-[clamp(16px,3.5vw,24px)] mb-4 font-semibold">
             Global Advisors include:
@@ -294,7 +303,7 @@ export default function About() {
           </div>
         </div>
 
-        <section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-center p-4 md:p-9 mb-4 md:mb-8">
+        <section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-left p-4 md:p-9 mb-4 md:mb-8">
           <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,32px)] mb-4 md:mb-6 font-bold">
             Contact Us
           </h2>
@@ -309,9 +318,9 @@ export default function About() {
           </p>
         </section>
 
-        <section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-center p-4 md:p-6">
+        <section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-left p-4 md:p-6">
           <p className="text-[color:var(--lightgreen)] text-[clamp(11px,2.2vw,14px)] leading-relaxed opacity-70">
-            Website developed by{" "}
+            This website is the work of {" "}
             <a
               href="https://indigonolan.com"
               target="_blank"
@@ -319,7 +328,7 @@ export default function About() {
               className="text-[color:var(--lightgreen)] underline hover:opacity-90 transition-opacity"
             >
               Indigo Nolan
-            </a>
+            </a>. If you like it, get in contact with Indigo!
           </p>
         </section>
       </div>
