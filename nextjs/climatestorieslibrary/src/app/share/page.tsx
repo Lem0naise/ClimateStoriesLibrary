@@ -40,7 +40,7 @@ export default function Share() {
         occupation: userDetails.occupation || null,
         more_about: userDetails.details || null,
         approved: false,
-        agreed_policy_version: 'v1.0' // Manually update this when privacy policy changes
+        agreed_policy_version: 'v1.1' // Manually update this when privacy policy changes
       };
 
       const { error } = await createSubmission(submissionData);
