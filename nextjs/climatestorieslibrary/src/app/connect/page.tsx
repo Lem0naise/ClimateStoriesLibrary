@@ -24,7 +24,7 @@ export default function Connect() {
           </h1>
           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-4 md:mb-8">
             Find and contact organisations working on climate, nature, and social
-            justice. Reach out to collaborate, share your story, or get support.
+            justice.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
             {loading ? (

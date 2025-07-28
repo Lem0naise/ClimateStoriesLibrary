@@ -127,15 +127,26 @@ export default function PrivacyPolicy() {
                 </div>
               </div>
 
+            <div>
+                <h2 className="text-[clamp(18px,4vw,28px)] mb-4 font-bold">9. Ownership of Content</h2>
+                <div className="text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90 space-y-3">
+                  <p>You retain all ownership rights, including copyright, of the video content you upload to the Climate Stories Library. By submitting your video, you grant Climate Stories Library a worldwide, royalty-free, perpetual, non-exclusive, sublicensable, and transferable license to use, modify, and distribute the video in connection with the Climate Stories Library project through any media channels. We endeavour to attribute you using the information you provide us in your submission.</p>
+                  <p>
+                    This license remains valid for the duration your video is publicly displayed. If you withdraw your consent later, this license will terminate for all future uses, and we will endeavor to remove your story from public display on our platforms. Please note that we cannot control or retrieve copies of your video that may have been downloaded, shared, or otherwise captured by third parties while it was publicly available. Your right to withdraw consent for the processing of your personal data, as outlined in Section 6, remains paramount.
+                  </p>
+                </div>
+              </div>
+
+
               <div>
-                <h2 className="text-[clamp(18px,4vw,28px)] mb-4 font-bold">9. Changes to This Policy</h2>
+                <h2 className="text-[clamp(18px,4vw,28px)] mb-4 font-bold">10. Changes to This Policy</h2>
                 <div className="text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90 space-y-3">
                   <p>We may update this privacy policy from time to time. We will notify you of any significant changes through our website.</p>
                 </div>
               </div>
 
               <div>
-                <h2 className="text-[clamp(18px,4vw,28px)] mb-4 font-bold">10. Contact Information</h2>
+                <h2 className="text-[clamp(18px,4vw,28px)] mb-4 font-bold">11. Contact Information</h2>
                 <div className="text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90 space-y-3">
                   <p>If you have any questions about this privacy policy or how we handle your data, please contact us:</p>
                   <div className="bg-[rgba(255,255,255,0.05)] p-4 rounded-lg border border-[rgba(140,198,63,0.2)] mt-4">
@@ -151,7 +162,7 @@ export default function PrivacyPolicy() {
 
               <div className="border-t border-[rgba(140,198,63,0.2)] pt-6">
                 <p className="text-[clamp(12px,2.5vw,14px)] opacity-70 text-center">
-                  Last updated: 11-07-2025, v1.0
+                  Last updated: 28-07-2025, v1.1
                 </p>
               </div>
             </div>
