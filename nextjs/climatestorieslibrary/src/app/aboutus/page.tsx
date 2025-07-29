@@ -298,6 +298,29 @@ export default function About() {
             </div>
           </div>
 
+          <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start mb-4">
+                <Image
+                  src="/imgs/yesua.jpeg"
+                  alt="Yesua Aliki"
+                  width={100}
+                  height={100}
+                  className="rounded-full mb-3 sm:mb-0 sm:mr-4 flex-shrink-0"
+                />
+                <div className="text-center sm:text-left">
+                  <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 font-semibold">
+                    Yesua Aliki
+                  </h3>
+                  <h4 className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] mb-2 opacity-80">
+                    Founder/Director of Reliable Refugee Storytellers Association
+                  </h4>
+                  <p className="text-[color:var(--lightgreen)] text-[clamp(11px,2.2vw,14px)] leading-relaxed opacity-90">
+                    Yesua is a documentary photojournalist and Uganda gender equality award winner of 2022, a South Sudanese refugee and founder/director of the Reliable Refugee Storytellers Association. The Association is a youth-led media and citizen-journalism initiative based in Uganda's Bidibidi settlement empowering refugees to access information, tell their own stories, and advocate for refugee rights.
+                  </p>
+                </div>
+              </div>
+            </div>
+
           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90 mb-4 mt-4">
             We also maintain a list of Grassroots Groups:
           </p>
