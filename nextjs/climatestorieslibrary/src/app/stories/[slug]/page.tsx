@@ -49,6 +49,18 @@ export default function StoryPage() {
     });
   };
 
+  function linkify(text: string) {
+    // Regex for URLs (http(s):// or www.)
+    const urlRegex = /(\bhttps?:\/\/[^\s<]+|\bwww\.[^\s<]+)/gi;
+    return text.replace(urlRegex, (url) => {
+      let href = url;
+      if (!href.startsWith('http')) {
+        href = 'https://' + href;
+      }
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="text-decoration:underline; font-weight: bold;)">${url}</a>`;
+  });
+}
+
   const getYoutubeEmbedUrl = (url: string) => {
     const videoId = getYouTubeVideoId(url);
     if (!videoId) return null;
@@ -190,9 +202,8 @@ export default function StoryPage() {
           {/* Story Description */}
           <div className="prose prose-lg max-w-none">
             <div className="text-[color:var(--lightgreen)] leading-relaxed text-[clamp(14px,1.2vw,18px)] opacity-90">
-              {story.description && (<p className="mb-3 sm:mb-4">
-                {story.description}
-              </p>)}
+              {story.description && (<p className="mb-3 sm:mb-4" dangerouslySetInnerHTML={{__html: linkify(story.description)}}/>
+              )}
             
               
               <p className="text-xs sm:text-sm opacity-75">
