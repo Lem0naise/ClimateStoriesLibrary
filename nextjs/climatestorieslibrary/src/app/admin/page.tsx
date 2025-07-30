@@ -1368,6 +1368,9 @@ new Compressor(file, {
                           <span><strong>Name:</strong> {submission.name || 'N/A'}</span>
                           <span><strong>Location:</strong> {submission.location}</span>
                           <span><strong>Email:</strong> {submission.email || 'N/A'}</span>
+                          <span><strong>Tel:</strong> {submission.tel || 'N/A'}</span>
+                          <span><strong>Description:</strong> {submission.more_about || 'N/A'}</span>
+                          <span><strong>Occupation:</strong> {submission.occupation || 'N/A'}</span>
                         </div>
                         <div className="text-xs text-[color:var(--lightgreen)] opacity-70 mt-1">
                           Approved on: {new Date(submission.created_at || '').toLocaleDateString()}
