@@ -272,6 +272,8 @@ export default function About() {
               </div>
             </div>
 
+            
+
             <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
               <div className="flex flex-col sm:flex-row items-center sm:items-start mb-4">
                 <Image
@@ -296,9 +298,8 @@ export default function About() {
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
+            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
               <div className="flex flex-col sm:flex-row items-center sm:items-start mb-4">
                 <Image
                   src="/imgs/yesua.jpeg"
@@ -320,6 +321,33 @@ export default function About() {
                 </div>
               </div>
             </div>
+
+
+            <div className="bg-[rgba(255,255,255,0.08)] p-4 md:p-6 rounded-lg border border-[rgba(140,198,63,0.2)]">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start mb-4">
+                  <Image
+                    src="/imgs/Rosaline.jpg"
+                    alt="Rosaline Parker"
+                    width={100}
+                    height={100}
+                    className="rounded-full mb-3 sm:mb-0 sm:mr-4 flex-shrink-0"
+                  />
+                  <div className="text-center sm:text-left">
+                    <h3 className="text-[color:var(--lightgreen)] text-[clamp(14px,3vw,20px)] mb-2 font-semibold">
+                      Rosaline Parker
+                    </h3>
+                    <h4 className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] mb-2 opacity-80">
+                      Advocate for Pacific cultures and climate justice
+                    </h4>
+                    <p className="text-[color:var(--lightgreen)] text-[clamp(11px,2.2vw,14px)] leading-relaxed opacity-90">
+                      Rosaline Parker is a passionate advocate for Pacific cultures and climate justice. Her work is grounded in the strength of Indigenous knowledge systems, with a focus on empowering communities to lead climate solutions rooted in culture, connection, and resilience.
+                    </p>
+                  </div>
+                </div>
+              </div>
+          </div>
+
+          
 
           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90 mb-4 mt-4">
             We also maintain a list of Grassroots Groups:
