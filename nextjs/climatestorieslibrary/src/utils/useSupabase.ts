@@ -56,6 +56,15 @@ export interface Organisation {
   logo_url: string | null;
 }
 
+export interface GlobalAdvisor {
+  id: string;
+  created_at: string;
+  name: string | null;
+  title: string | null;
+  description: string | null;
+  logo_url: string | null;
+}
+
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;

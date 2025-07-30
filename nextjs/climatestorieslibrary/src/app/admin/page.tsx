@@ -54,6 +54,14 @@ type OrganisationFormData = {
   logoUrl: string;
 };
 
+type GlobalAdvisorFormData = {
+  name: string;
+  title: string;
+  description: string;
+  logoFile: File | null;
+  logoUrl: string;
+};
+
 export default function Admin() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -84,6 +92,8 @@ export default function Admin() {
   const [deleteSubmissionText, setDeleteSubmissionText] = useState<string>('');
   const [inlineEditingTag, setInlineEditingTag] = useState<string | null>(null);
   const [inlineTagName, setInlineTagName] = useState('');
+
+  /* Organisations */
   const [orgFormData, setOrgFormData] = useState<OrganisationFormData>({
     name: '',
     description: '',
@@ -99,7 +109,23 @@ export default function Admin() {
   const [orgFormSuccess, setOrgFormSuccess] = useState<string | null>(null);
   const [editingOrgId, setEditingOrgId] = useState<string | null>(null);
   const [deleteOrgConfirm, setDeleteOrgConfirm] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'story' | 'tag' | 'submission' | 'organisation'>('story');
+
+
+    /* Global Advisors */
+  const [globAdvFormData, setGlobAdvFormData] = useState<GlobalAdvisorFormData>({
+    name: '',
+    title: '',
+    description: '',
+    logoFile: null,
+    logoUrl: '',
+  });
+  const [globAdvFormLoading, setGlobAdvFormLoading] = useState(false);
+  const [globAdvFormError, setGlobAdvFormError] = useState<string | null>(null);
+  const [globAdvFormSuccess, setGlobAdvFormSuccess] = useState<string | null>(null);
+  const [editingGlobAdvId, setEditingGlobAdvId] = useState<string | null>(null);
+  const [deleteGlobAdvConfirm, setDeleteGlobAdvConfirm] = useState<string | null>(null);
+
+  const [activeTab, setActiveTab] = useState<'story' | 'tag' | 'submission' | 'organisation' | 'global-advisor'>('story');
   const router = useRouter();
 
   const deletingSubmission = submissions.find(s => s.id === deleteSubmissionConfirm);
@@ -591,13 +617,6 @@ new Compressor(file, {
     }
   };
 
-  // Helper to map section to tab key
-  const sectionToTab: Record<string, typeof activeTab> = {
-    'story-management-section': 'story',
-    'tag-management-section': 'tag',
-    'submissions-section': 'submission',
-    'organisation-management-section': 'organisation',
-  };
 
   if (loading) {
     return (
@@ -629,7 +648,7 @@ new Compressor(file, {
               } cursor-pointer`}
               id="story-management-tab"
             >
-              Story Management
+              Stories
             </button>
             <button
               onClick={() => setActiveTab('tag')}
@@ -640,7 +659,7 @@ new Compressor(file, {
               } cursor-pointer`}
               id="tag-management-tab"
             >
-              Tag Management
+              Tags
             </button>
             <button
               onClick={() => setActiveTab('submission')}
@@ -663,6 +682,17 @@ new Compressor(file, {
               id="organisation-management-tab"
             >
               Organisations
+            </button>
+            <button
+              onClick={() => setActiveTab('global-advisor')}
+              className={`hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg  transition-all duration-300 ${
+                activeTab === 'global-advisor'
+                  ? 'bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] text-xl font-bold'
+                  : 'bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] text-sm font-semibold'
+              } cursor-pointer`}
+              id="global-advisor-tab"
+            >
+              Global Advisors
             </button>
           </div>
         </div>
@@ -1539,6 +1569,168 @@ new Compressor(file, {
                     <>
                       <span className="text-[color:var(--lightgreen)] mb-2">
                         Drag & drop logo here, or click to select
+                      </span>
+                      <span className="text-3xl">🖼️</span>
+                    </>
+                  )}
+                </label>
+              </div>
+            </div>
+            {orgFormError && (
+              <div className="text-red-500 bg-red-100 border border-red-300 rounded p-2">{orgFormError}</div>
+            )}
+            {orgFormSuccess && (
+              <div className="text-green-700 bg-green-100 border border-green-300 rounded p-2">{orgFormSuccess}</div>
+            )}
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={orgFormLoading}
+                className="bg-[color:var(--lightgreen)] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
+              >
+                {orgFormLoading
+                  ? 'Saving...'
+                  : editingOrgId
+                    ? 'Update Organisation'
+                    : 'Create Organisation'}
+              </button>
+              {(editingOrgId || orgFormData.name || orgFormData.description || orgFormData.email || orgFormData.tel || orgFormData.location || orgFormData.logoFile) && (
+                <button
+                  type="button"
+                  onClick={resetOrgForm}
+                  disabled={orgFormLoading}
+                  className="px-6 py-3 border border-[color:var(--lightgreen)] text-[color:var(--lightgreen)] rounded-lg font-semibold hover:bg-[color:var(--lightgreen)] transition-all duration-300"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </form>
+          <h3 className="text-[color:var(--lightgreen)] text-lg font-semibold mb-2">Existing Organisations</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {organisations.map(org => (
+              <div key={org.id} className="border border-[rgba(140,198,63,0.2)] rounded-lg p-4 bg-[rgba(255,255,255,0.05)] flex flex-col items-center">
+                {org.logo_url && (
+                  <img src={org.logo_url} alt={org.name || 'Logo'} className="w-16 h-16 object-contain rounded-full mb-2" />
+                )}
+                <h4 className="text-[color:var(--lightgreen)] font-semibold">{org.name}</h4>
+                <p className="text-[color:var(--lightgreen)] opacity-80 text-sm mb-1">{org.description}</p>
+                {org.url && <div className="text-[color:var(--lightgreen)] text-xs">{org.url}</div>}
+                {org.email && <div className="text-[color:var(--lightgreen)] text-xs">{org.email}</div>}
+                {org.tel && <div className="text-[color:var(--lightgreen)] text-xs">{org.tel}</div>}
+                {org.location && <div className="text-[color:var(--lightgreen)] text-xs">{org.location}</div>}
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => handleEditOrganisation(org)}
+                    className="bg-yellow-500 text-white py-1 px-3 rounded text-xs font-semibold hover:bg-yellow-600 transition-colors duration-300"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteOrganisation(org.id)}
+                    disabled={orgFormLoading}
+                    className={`py-1 px-3 rounded text-xs font-semibold transition-colors duration-300 ${
+                      deleteOrgConfirm === org.id
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-red-500 text-white hover:bg-red-600'
+                    } disabled:opacity-50`}
+                  >
+                    {deleteOrgConfirm === org.id ? 'Confirm?' : 'Delete'}
+                  </button>
+                </div>
+              </div>
+            ))}
+            {organisations.length === 0 && (
+              <div className="col-span-full text-[color:var(--lightgreen)] opacity-70 text-center py-8">
+                No organisations found.
+              </div>
+            )}
+          </div>
+        </div>)}
+
+
+        {/* Global Advisor Management Section */}
+        {activeTab === 'global-advisor' && (
+          <div id="organisation-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+          <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold mb-4">
+            Global Advisors Management
+          </h2>
+          <form onSubmit={handleCreateGlobalAdvisor} className="space-y-4 mb-8">
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={globAdvFormData.name}
+                  onChange={handleGlobAdvInputChange}
+                  required
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                  placeholder="Advisor name"
+                />
+              </div>
+              <div>
+              <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                Title
+              </label>
+              <textarea
+                name="description"
+                value={globAdvFormData.title}
+                onChange={handleGlobAdvInputChange}
+                rows={3}
+                className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none resize-vertical"
+                placeholder="Job title or short description"
+              />
+            </div>
+            <div>
+              <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={globAdvFormData.description}
+                onChange={handleGlobAdvInputChange}
+                rows={3}
+                className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none resize-vertical"
+                placeholder="Short description"
+              />
+            </div>
+            <div>
+              <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                Image
+              </label>
+              <div
+                className="w-full flex flex-col items-center justify-center border-2 border-dashed border-[rgba(140,198,63,0.3)] rounded-lg p-6 bg-[rgba(255,255,255,0.05)] cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition"
+                onDrop={handleOrgLogoDrop}
+                onDragOver={handleGlobAdvPictureDrop}
+                tabIndex={0}
+                role="button"
+                aria-label="Drop logo file here"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleGlobAdvPictureChange}
+                  className="hidden"
+                  id="glob-logo-input"
+                />
+                <label htmlFor="glob-logo-input" className="cursor-pointer flex flex-col items-center">
+                  {globAdvFormData.logoFile ? (
+                    <>
+                      <span className="text-[color:var(--lightgreen)] mb-2">
+                        Selected: {globAdvFormData.logoFile.name}
+                      </span>
+                      <img
+                        src={URL.createObjectURL(globAdvFormData.logoFile)}
+                        alt="Logo preview"
+                        className="w-20 h-20 object-contain rounded-full border border-[rgba(140,198,63,0.3)]"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-[color:var(--lightgreen)] mb-2">
+                        Drag & drop image here, or click to select
                       </span>
                       <span className="text-3xl">🖼️</span>
                     </>
