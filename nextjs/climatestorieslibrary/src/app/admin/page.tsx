@@ -54,6 +54,16 @@ type OrganisationFormData = {
   logoUrl: string;
 };
 
+type GlobalAdvisor = {
+  id: string;
+  created_at: string;
+  name: string | null;
+  title: string | null;
+  description: string | null;
+  img_url?: string | null;
+  logo_url?: string | null; // for compatibility
+};
+
 type GlobalAdvisorFormData = {
   name: string;
   title: string;
@@ -69,6 +79,7 @@ export default function Admin() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [organisations, setOrganisations] = useState<Organisation[]>([]);
+  const [globalAdvisors, setGlobalAdvisors] = useState<GlobalAdvisor[]>([]);
   const [storiesLoading, setStoriesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showStoryForm, setShowStoryForm] = useState(false);
@@ -111,7 +122,7 @@ export default function Admin() {
   const [deleteOrgConfirm, setDeleteOrgConfirm] = useState<string | null>(null);
 
 
-    /* Global Advisors */
+  /* Global Advisors */
   const [globAdvFormData, setGlobAdvFormData] = useState<GlobalAdvisorFormData>({
     name: '',
     title: '',
@@ -151,6 +162,7 @@ export default function Admin() {
       // Load admin data
       loadAdminData();
       loadOrganisations();
+      loadGlobalAdvisors();
     };
 
     checkAuth();
@@ -182,6 +194,19 @@ export default function Admin() {
       setOrganisations(data);
     } catch (e) {
       setOrganisations([]);
+    }
+  };
+
+  const loadGlobalAdvisors = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('global-advisors')
+        .select('*')
+        .order('name', { ascending: true });
+      if (error) throw error;
+      setGlobalAdvisors(data || []);
+    } catch (e) {
+      setGlobalAdvisors([]);
     }
   };
 
@@ -617,6 +642,163 @@ new Compressor(file, {
     }
   };
 
+  const handleGlobAdvInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setGlobAdvFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleGlobAdvPictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (!file) return;
+
+    // compress if file size is over 200kb
+    if (file.size > 200 * 1024) {
+      new Compressor(file, {
+        quality: 0.7, // Adjust quality as needed (0.6-0.8 is typical)
+        maxWidth: 800,
+        maxHeight: 800,
+        success(result: File) {
+          setGlobAdvFormData(prev => ({ ...prev, logoFile: result }));
+        },
+        error(err: Error) {
+          setGlobAdvFormError('Image compression failed: ' + err.message);
+        },
+      });
+    } else {
+      setGlobAdvFormData(prev => ({ ...prev, logoFile: file }));
+    }
+  };
+
+  const handleGlobAdvPictureDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0] || null;
+    setGlobAdvFormData(prev => ({ ...prev, logoFile: file }));
+  };
+
+  const handleGlobAdvPictureDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const resetGlobAdvForm = () => {
+    setGlobAdvFormData({
+      name: '',
+      title: '',
+      description: '',
+      logoFile: null,
+      logoUrl: '',
+    });
+    setEditingGlobAdvId(null);
+    setGlobAdvFormError(null);
+    setGlobAdvFormSuccess(null);
+  };
+
+  const handleEditGlobalAdvisor = (adv: GlobalAdvisor) => {
+    setGlobAdvFormData({
+      name: adv.name || '',
+      title: adv.title || '',
+      description: adv.description || '',
+      logoFile: null,
+      logoUrl: adv.img_url || adv.logo_url || '',
+    });
+    setEditingGlobAdvId(adv.id);
+    setGlobAdvFormError(null);
+    setGlobAdvFormSuccess(null);
+  };
+
+  const handleDeleteGlobalAdvisor = async (advId: string) => {
+    if (deleteGlobAdvConfirm === advId) {
+      setGlobAdvFormLoading(true);
+      setGlobAdvFormError(null);
+      try {
+        const { error } = await supabase.from('global-advisors').delete().eq('id', advId);
+        if (error) {
+          setGlobAdvFormError('Failed to delete advisor: ' + error.message);
+        } else {
+          setGlobAdvFormSuccess('Advisor deleted.');
+          await loadGlobalAdvisors();
+        }
+      } catch (err: any) {
+        setGlobAdvFormError('Unexpected error: ' + (err?.message || err));
+      } finally {
+        setGlobAdvFormLoading(false);
+        setDeleteGlobAdvConfirm(null);
+      }
+    } else {
+      setDeleteGlobAdvConfirm(advId);
+    }
+  };
+
+  const handleCreateGlobalAdvisor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGlobAdvFormLoading(true);
+    setGlobAdvFormError(null);
+    setGlobAdvFormSuccess(null);
+
+    try {
+      let imgUrl = globAdvFormData.logoUrl;
+      if (globAdvFormData.logoFile) {
+        // Upload logo to Supabase storage
+        const fileName = `${Date.now()}_${globAdvFormData.logoFile.name.replace(/\s+/g, '_')}`;
+        const filePath = `${fileName}`;
+        const { error: uploadError } = await supabase.storage
+          .from('logos')
+          .upload(filePath, globAdvFormData.logoFile, {
+            cacheControl: '3600',
+            upsert: false,
+          });
+        if (uploadError) {
+          setGlobAdvFormError('Failed to upload image: ' + uploadError.message);
+          setGlobAdvFormLoading(false);
+          return;
+        }
+        // Get public URL
+        const { data } = supabase.storage.from('logos').getPublicUrl(filePath);
+        imgUrl = data.publicUrl;
+      }
+
+      if (editingGlobAdvId) {
+        // Update
+        const { error } = await supabase
+          .from('global-advisors')
+          .update({
+            name: globAdvFormData.name,
+            title: globAdvFormData.title,
+            description: globAdvFormData.description,
+            img_url: imgUrl || null,
+          })
+          .eq('id', editingGlobAdvId);
+        if (error) {
+          setGlobAdvFormError('Failed to update advisor: ' + error.message);
+          setGlobAdvFormLoading(false);
+          return;
+        }
+        setGlobAdvFormSuccess('Advisor updated!');
+      } else {
+        // Insert
+        const { error } = await supabase
+          .from('global-advisors')
+          .insert([{
+            name: globAdvFormData.name,
+            title: globAdvFormData.title,
+            description: globAdvFormData.description,
+            img_url: imgUrl || null,
+          }]);
+        if (error) {
+          setGlobAdvFormError('Failed to create advisor: ' + error.message);
+          setGlobAdvFormLoading(false);
+          return;
+        }
+        setGlobAdvFormSuccess('Advisor created!');
+      }
+
+      resetGlobAdvForm();
+      await loadGlobalAdvisors();
+    } catch (err: any) {
+      setGlobAdvFormError('Unexpected error: ' + (err?.message || err));
+    } finally {
+      setGlobAdvFormLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -726,7 +908,7 @@ new Compressor(file, {
             </div>
           </div>
           <h3 className="text-[color:var(--lightgreen)] text-xl md:text-3xl font-semibold mt-5">
-              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries, {storiesLoading ? '...' : submissions.length} Submissions, {storiesLoading ? '...' : organisations.length} Organisations
+              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries, {storiesLoading ? '...' : submissions.length} Submissions, {storiesLoading ? '...' : organisations.length} Organisations, {storiesLoading ? '...' : globalAdvisors.length} Global Advisors
             </h3>
         </div>
 
@@ -1049,8 +1231,6 @@ new Compressor(file, {
             </form>
           </div>
         )}
-
-      
 
         {/* Story Management Section */}
         {activeTab === 'story' && (
@@ -1651,11 +1831,11 @@ new Compressor(file, {
 
         {/* Global Advisor Management Section */}
         {activeTab === 'global-advisor' && (
-          <div id="organisation-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
-          <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold mb-4">
-            Global Advisors Management
-          </h2>
-          <form onSubmit={handleCreateGlobalAdvisor} className="space-y-4 mb-8">
+          <div id="global-advisor-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+            <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold mb-4">
+              Global Advisors Management
+            </h2>
+            <form onSubmit={handleCreateGlobalAdvisor} className="space-y-4 mb-8">
               <div>
                 <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
                   Name *
@@ -1671,144 +1851,154 @@ new Compressor(file, {
                 />
               </div>
               <div>
-              <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
-                Title
-              </label>
-              <textarea
-                name="description"
-                value={globAdvFormData.title}
-                onChange={handleGlobAdvInputChange}
-                rows={3}
-                className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none resize-vertical"
-                placeholder="Job title or short description"
-              />
-            </div>
-            <div>
-              <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={globAdvFormData.description}
-                onChange={handleGlobAdvInputChange}
-                rows={3}
-                className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none resize-vertical"
-                placeholder="Short description"
-              />
-            </div>
-            <div>
-              <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
-                Image
-              </label>
-              <div
-                className="w-full flex flex-col items-center justify-center border-2 border-dashed border-[rgba(140,198,63,0.3)] rounded-lg p-6 bg-[rgba(255,255,255,0.05)] cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition"
-                onDrop={handleOrgLogoDrop}
-                onDragOver={handleGlobAdvPictureDrop}
-                tabIndex={0}
-                role="button"
-                aria-label="Drop logo file here"
-              >
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleGlobAdvPictureChange}
-                  className="hidden"
-                  id="glob-logo-input"
-                />
-                <label htmlFor="glob-logo-input" className="cursor-pointer flex flex-col items-center">
-                  {globAdvFormData.logoFile ? (
-                    <>
-                      <span className="text-[color:var(--lightgreen)] mb-2">
-                        Selected: {globAdvFormData.logoFile.name}
-                      </span>
-                      <img
-                        src={URL.createObjectURL(globAdvFormData.logoFile)}
-                        alt="Logo preview"
-                        className="w-20 h-20 object-contain rounded-full border border-[rgba(140,198,63,0.3)]"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-[color:var(--lightgreen)] mb-2">
-                        Drag & drop image here, or click to select
-                      </span>
-                      <span className="text-3xl">🖼️</span>
-                    </>
-                  )}
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Title
                 </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={globAdvFormData.title}
+                  onChange={handleGlobAdvInputChange}
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                  placeholder="Job title or short description"
+                />
               </div>
-            </div>
-            {orgFormError && (
-              <div className="text-red-500 bg-red-100 border border-red-300 rounded p-2">{orgFormError}</div>
-            )}
-            {orgFormSuccess && (
-              <div className="text-green-700 bg-green-100 border border-green-300 rounded p-2">{orgFormSuccess}</div>
-            )}
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                disabled={orgFormLoading}
-                className="bg-[color:var(--lightgreen)] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
-              >
-                {orgFormLoading
-                  ? 'Saving...'
-                  : editingOrgId
-                    ? 'Update Organisation'
-                    : 'Create Organisation'}
-              </button>
-              {(editingOrgId || orgFormData.name || orgFormData.description || orgFormData.email || orgFormData.tel || orgFormData.location || orgFormData.logoFile) && (
-                <button
-                  type="button"
-                  onClick={resetOrgForm}
-                  disabled={orgFormLoading}
-                  className="px-6 py-3 border border-[color:var(--lightgreen)] text-[color:var(--lightgreen)] rounded-lg font-semibold hover:bg-[color:var(--lightgreen)] transition-all duration-300"
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={globAdvFormData.description}
+                  onChange={handleGlobAdvInputChange}
+                  rows={3}
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none resize-vertical"
+                  placeholder="Short description"
+                />
+              </div>
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Image
+                </label>
+                <div
+                  className="w-full flex flex-col items-center justify-center border-2 border-dashed border-[rgba(140,198,63,0.3)] rounded-lg p-6 bg-[rgba(255,255,255,0.05)] cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition"
+                  onDrop={handleGlobAdvPictureDrop}
+                  onDragOver={handleGlobAdvPictureDragOver}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Drop image file here"
                 >
-                  Cancel
-                </button>
-              )}
-            </div>
-          </form>
-          <h3 className="text-[color:var(--lightgreen)] text-lg font-semibold mb-2">Existing Organisations</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {organisations.map(org => (
-              <div key={org.id} className="border border-[rgba(140,198,63,0.2)] rounded-lg p-4 bg-[rgba(255,255,255,0.05)] flex flex-col items-center">
-                {org.logo_url && (
-                  <img src={org.logo_url} alt={org.name || 'Logo'} className="w-16 h-16 object-contain rounded-full mb-2" />
-                )}
-                <h4 className="text-[color:var(--lightgreen)] font-semibold">{org.name}</h4>
-                <p className="text-[color:var(--lightgreen)] opacity-80 text-sm mb-1">{org.description}</p>
-                {org.url && <div className="text-[color:var(--lightgreen)] text-xs">{org.url}</div>}
-                {org.email && <div className="text-[color:var(--lightgreen)] text-xs">{org.email}</div>}
-                {org.tel && <div className="text-[color:var(--lightgreen)] text-xs">{org.tel}</div>}
-                {org.location && <div className="text-[color:var(--lightgreen)] text-xs">{org.location}</div>}
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => handleEditOrganisation(org)}
-                    className="bg-yellow-500 text-white py-1 px-3 rounded text-xs font-semibold hover:bg-yellow-600 transition-colors duration-300"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteOrganisation(org.id)}
-                    disabled={orgFormLoading}
-                    className={`py-1 px-3 rounded text-xs font-semibold transition-colors duration-300 ${
-                      deleteOrgConfirm === org.id
-                        ? 'bg-red-600 text-white hover:bg-red-700'
-                        : 'bg-red-500 text-white hover:bg-red-600'
-                    } disabled:opacity-50`}
-                  >
-                    {deleteOrgConfirm === org.id ? 'Confirm?' : 'Delete'}
-                  </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleGlobAdvPictureChange}
+                    className="hidden"
+                    id="glob-logo-input"
+                  />
+                  <label htmlFor="glob-logo-input" className="cursor-pointer flex flex-col items-center">
+                    {globAdvFormData.logoFile ? (
+                      <>
+                        <span className="text-[color:var(--lightgreen)] mb-2">
+                          Selected: {globAdvFormData.logoFile.name}
+                        </span>
+                        <img
+                          src={URL.createObjectURL(globAdvFormData.logoFile)}
+                          alt="Image preview"
+                          className="w-20 h-20 object-contain rounded-full border border-[rgba(140,198,63,0.3)]"
+                        />
+                      </>
+                    ) : globAdvFormData.logoUrl ? (
+                      <>
+                        <span className="text-[color:var(--lightgreen)] mb-2">
+                          Current image
+                        </span>
+                        <img
+                          src={globAdvFormData.logoUrl}
+                          alt="Current image"
+                          className="w-20 h-20 object-contain rounded-full border border-[rgba(140,198,63,0.3)]"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-[color:var(--lightgreen)] mb-2">
+                          Drag & drop image here, or click to select
+                        </span>
+                        <span className="text-3xl">🖼️</span>
+                      </>
+                    )}
+                  </label>
                 </div>
               </div>
-            ))}
-            {organisations.length === 0 && (
-              <div className="col-span-full text-[color:var(--lightgreen)] opacity-70 text-center py-8">
-                No organisations found.
+              {globAdvFormError && (
+                <div className="text-red-500 bg-red-100 border border-red-300 rounded p-2">{globAdvFormError}</div>
+              )}
+              {globAdvFormSuccess && (
+                <div className="text-green-700 bg-green-100 border border-green-300 rounded p-2">{globAdvFormSuccess}</div>
+              )}
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={globAdvFormLoading}
+                  className="bg-[color:var(--lightgreen)] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
+                >
+                  {globAdvFormLoading
+                    ? 'Saving...'
+                    : editingGlobAdvId
+                      ? 'Update Advisor'
+                      : 'Create Advisor'}
+                </button>
+                {(editingGlobAdvId || globAdvFormData.name || globAdvFormData.title || globAdvFormData.description || globAdvFormData.logoFile) && (
+                  <button
+                    type="button"
+                    onClick={resetGlobAdvForm}
+                    disabled={globAdvFormLoading}
+                    className="px-6 py-3 border border-[color:var(--lightgreen)] text-[color:var(--lightgreen)] rounded-lg font-semibold hover:bg-[color:var(--lightgreen)] transition-all duration-300"
+                  >
+                    Cancel
+                  </button>
+                )}
               </div>
-            )}
+            </form>
+            <h3 className="text-[color:var(--lightgreen)] text-lg font-semibold mb-2">Existing Global Advisors</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {globalAdvisors.map(adv => (
+                <div key={adv.id} className="border border-[rgba(140,198,63,0.2)] rounded-lg p-4 bg-[rgba(255,255,255,0.05)] flex flex-col items-center">
+                  {adv.img_url && (
+                    <img src={adv.img_url} alt={adv.name || 'Advisor'} className="w-16 h-16 object-contain rounded-full mb-2" />
+                  )}
+                  <h4 className="text-[color:var(--lightgreen)] font-semibold">{adv.name}</h4>
+                  <div className="text-[color:var(--lightgreen)] opacity-80 text-sm mb-1">{adv.title}</div>
+                  <p className="text-[color:var(--lightgreen)] opacity-80 text-sm mb-1">{adv.description}</p>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => handleEditGlobalAdvisor(adv)}
+                      className="bg-yellow-500 text-white py-1 px-3 rounded text-xs font-semibold hover:bg-yellow-600 transition-colors duration-300"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteGlobalAdvisor(adv.id)}
+                      disabled={globAdvFormLoading}
+                      className={`py-1 px-3 rounded text-xs font-semibold transition-colors duration-300 ${
+                        deleteGlobAdvConfirm === adv.id
+                          ? 'bg-red-600 text-white hover:bg-red-700'
+                          : 'bg-red-500 text-white hover:bg-red-600'
+                      } disabled:opacity-50`}
+                    >
+                      {deleteGlobAdvConfirm === adv.id ? 'Confirm?' : 'Delete'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {globalAdvisors.length === 0 && (
+                <div className="col-span-full text-[color:var(--lightgreen)] opacity-70 text-center py-8">
+                  No global advisors found.
+                </div>
+              )}
+            </div>
           </div>
-        </div>)}
+        )}
+
       </div>
     </div>
   );
