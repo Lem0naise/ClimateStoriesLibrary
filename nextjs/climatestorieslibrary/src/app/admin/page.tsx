@@ -28,7 +28,17 @@ import {
   Submission,
   fetchOrganisations,
   Organisation,
-  supabase
+  supabase,
+  BlogPost,
+  BlogImages,
+  fetchBlogPosts,
+  createBlogPost,
+  updateBlogPost,
+  deleteBlogPost,
+  fetchBlogPostById,
+  fetchBlogImages,
+  uploadBlogImage,
+  deleteBlogImage
 } from '@/utils/useSupabase';
 
 type StoryFormData = {
@@ -72,6 +82,13 @@ type GlobalAdvisorFormData = {
   logoUrl: string;
 };
 
+type BlogPostFormData = {
+  title: string;
+  content: string;
+  imageFiles: File[];
+  existingImages: BlogImages[];
+};
+
 export default function Admin() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -80,6 +97,7 @@ export default function Admin() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [organisations, setOrganisations] = useState<Organisation[]>([]);
   const [globalAdvisors, setGlobalAdvisors] = useState<GlobalAdvisor[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [storiesLoading, setStoriesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showStoryForm, setShowStoryForm] = useState(false);
@@ -136,7 +154,21 @@ export default function Admin() {
   const [editingGlobAdvId, setEditingGlobAdvId] = useState<string | null>(null);
   const [deleteGlobAdvConfirm, setDeleteGlobAdvConfirm] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'story' | 'tag' | 'submission' | 'organisation' | 'global-advisor'>('story');
+  /* Blog Posts */
+  const [blogPostFormData, setBlogPostFormData] = useState<BlogPostFormData>({
+    title: '',
+    content: '',
+    imageFiles: [],
+    existingImages: [],
+  });
+  const [blogPostFormLoading, setBlogPostFormLoading] = useState(false);
+  const [blogPostFormError, setBlogPostFormError] = useState<string | null>(null);
+  const [blogPostFormSuccess, setBlogPostFormSuccess] = useState<string | null>(null);
+  const [editingBlogPostId, setEditingBlogPostId] = useState<string | null>(null);
+  const [deleteBlogPostConfirm, setDeleteBlogPostConfirm] = useState<string | null>(null);
+  const [showBlogPostForm, setShowBlogPostForm] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<'story' | 'tag' | 'submission' | 'organisation' | 'global-advisor' | 'blog-post'>('story');
   const router = useRouter();
 
   const deletingSubmission = submissions.find(s => s.id === deleteSubmissionConfirm);
@@ -163,6 +195,7 @@ export default function Admin() {
       loadAdminData();
       loadOrganisations();
       loadGlobalAdvisors();
+      loadBlogPosts();
     };
 
     checkAuth();
@@ -207,6 +240,15 @@ export default function Admin() {
       setGlobalAdvisors(data || []);
     } catch (e) {
       setGlobalAdvisors([]);
+    }
+  };
+
+  const loadBlogPosts = async () => {
+    try {
+      const data = await fetchBlogPosts();
+      setBlogPosts(data);
+    } catch (e) {
+      setBlogPosts([]);
     }
   };
 
@@ -800,6 +842,194 @@ new Compressor(file, {
     }
   };
 
+  // Blog Post form handlers
+  const handleBlogPostInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setBlogPostFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleBlogPostImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const compressedFiles: File[] = [];
+
+    for (const file of files) {
+      if (file.size > 200 * 1024) {
+        try {
+          const compressedFile = await new Promise<File>((resolve, reject) => {
+            new Compressor(file, {
+              quality: 0.7,
+              maxWidth: 1200,
+              maxHeight: 1200,
+              success(result: File) {
+                resolve(result)},
+              error(err: Error) {
+                reject(err);
+              },
+            });
+            });
+            compressedFiles.push(compressedFile);
+        } catch (err) {
+          setBlogPostFormError('Image compression failed: ' + (err as Error).message);
+          return;
+        }
+      } else {
+        compressedFiles.push(file);
+      }
+    }
+
+    setBlogPostFormData(prev => ({ 
+      ...prev, 
+      imageFiles: [...prev.imageFiles, ...compressedFiles] 
+    }));
+  };
+
+  const handleBlogPostImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files || []);
+    setBlogPostFormData(prev => ({ 
+      ...prev, 
+      imageFiles: [...prev.imageFiles, ...files] 
+    }));
+  };
+
+  const handleBlogPostImageDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const removeImageFile = (index: number) => {
+    setBlogPostFormData(prev => ({
+      ...prev,
+      imageFiles: prev.imageFiles.filter((_, i) => i !== index)
+    }));
+  };
+
+  const removeExistingImage = async (imageId: string) => {
+    if (editingBlogPostId) {
+      setBlogPostFormLoading(true);
+      try {
+        const { error } = await deleteBlogImage(imageId);
+        if (error) {
+          setBlogPostFormError('Failed to delete image: ' + error);
+        } else {
+          setBlogPostFormData(prev => ({
+            ...prev,
+            existingImages: prev.existingImages.filter(img => img.id !== imageId)
+          }));
+        }
+      } catch (err: any) {
+        setBlogPostFormError('Error deleting image: ' + (err?.message || err));
+      } finally {
+        setBlogPostFormLoading(false);
+      }
+    }
+  };
+
+  const resetBlogPostForm = () => {
+    setBlogPostFormData({
+      title: '',
+      content: '',
+      imageFiles: [],
+      existingImages: [],
+    });
+    setEditingBlogPostId(null);
+    setBlogPostFormError(null);
+    setBlogPostFormSuccess(null);
+    setShowBlogPostForm(false);
+  };
+
+  const handleEditBlogPost = async (post: BlogPost) => {
+    const images = await fetchBlogImages(post.id);
+    setBlogPostFormData({
+      title: post.title || '',
+      content: post.content || '',
+      imageFiles: [],
+      existingImages: images,
+    });
+    setEditingBlogPostId(post.id);
+    setBlogPostFormError(null);
+    setBlogPostFormSuccess(null);
+    setShowBlogPostForm(true);
+  };
+
+  const handleDeleteBlogPost = async (postId: string) => {
+    if (deleteBlogPostConfirm === postId) {
+      setBlogPostFormLoading(true);
+      setBlogPostFormError(null);
+      try {
+        const { error } = await deleteBlogPost(postId);
+        if (error) {
+          setBlogPostFormError('Failed to delete blog post: ' + error);
+        } else {
+          setBlogPostFormSuccess('Blog post deleted.');
+          await loadBlogPosts();
+        }
+      } catch (err: any) {
+        setBlogPostFormError('Unexpected error: ' + (err?.message || err));
+      } finally {
+        setBlogPostFormLoading(false);
+        setDeleteBlogPostConfirm(null);
+      }
+    } else {
+      setDeleteBlogPostConfirm(postId);
+    }
+  };
+
+  const handleCreateBlogPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBlogPostFormLoading(true);
+    setBlogPostFormError(null);
+    setBlogPostFormSuccess(null);
+
+    try {
+      let postId = editingBlogPostId;
+
+      if (editingBlogPostId) {
+        // Update existing post
+        const { error } = await updateBlogPost(editingBlogPostId, {
+          title: blogPostFormData.title,
+          content: blogPostFormData.content,
+        });
+        if (error) {
+          setBlogPostFormError('Failed to update blog post: ' + error);
+          setBlogPostFormLoading(false);
+          return;
+        }
+      } else {
+        // Create new post
+        const { blogPost, error } = await createBlogPost({
+          title: blogPostFormData.title,
+          content: blogPostFormData.content,
+        });
+        if (error || !blogPost) {
+          setBlogPostFormError('Failed to create blog post: ' + error);
+          setBlogPostFormLoading(false);
+          return;
+        }
+        postId = blogPost.id;
+      }
+
+      // Upload new images
+      if (blogPostFormData.imageFiles.length > 0 && postId) {
+        for (const file of blogPostFormData.imageFiles) {
+          const { error: uploadError } = await uploadBlogImage(postId, file);
+          if (uploadError) {
+            setBlogPostFormError('Failed to upload image: ' + uploadError);
+            setBlogPostFormLoading(false);
+            return;
+          }
+        }
+      }
+
+      setBlogPostFormSuccess(editingBlogPostId ? 'Blog post updated!' : 'Blog post created!');
+      resetBlogPostForm();
+      await loadBlogPosts();
+    } catch (err: any) {
+      setBlogPostFormError('Unexpected error: ' + (err?.message || err));
+    } finally {
+      setBlogPostFormLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[color:var(--background)] flex items-center justify-center py-4 md:py-10">
@@ -845,7 +1075,7 @@ new Compressor(file, {
             </button>
             <button
               onClick={() => setActiveTab('submission')}
-              className={`hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg transition-all duration-300 ${
+              className={`hover:bg-[color:var(--lightgreen)] hover:text-[color:var,--darkgreen)] py-2 px-4 rounded-lg transition-all duration-300 ${
                 activeTab === 'submission'
                   ? 'bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] text-xl font-bold'
                   : 'bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] text-sm font-semibold'
@@ -875,6 +1105,17 @@ new Compressor(file, {
               id="global-advisor-tab"
             >
               Global Advisors
+            </button>
+            <button
+              onClick={() => setActiveTab('blog-post')}
+              className={`hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg  transition-all duration-300 ${
+                activeTab === 'blog-post'
+                  ? 'bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] text-xl font-bold'
+                  : 'bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] text-sm font-semibold'
+              } cursor-pointer`}
+              id="blog-post-tab"
+            >
+              Blog Posts
             </button>
           </div>
         </div>
@@ -908,7 +1149,7 @@ new Compressor(file, {
             </div>
           </div>
           <h3 className="text-[color:var(--lightgreen)] text-xl md:text-3xl font-semibold mt-5">
-              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries, {storiesLoading ? '...' : submissions.length} Submissions, {storiesLoading ? '...' : organisations.length} Organisations, {storiesLoading ? '...' : globalAdvisors.length} Global Advisors
+              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries, {storiesLoading ? '...' : submissions.length} Submissions, {storiesLoading ? '...' : organisations.length} Organisations, {storiesLoading ? '...' : globalAdvisors.length} Global Advisors, {storiesLoading ? '...' : blogPosts.length} Blog Posts
             </h3>
         </div>
 
@@ -1994,6 +2235,223 @@ new Compressor(file, {
                 <div className="col-span-full text-[color:var(--lightgreen)] opacity-70 text-center py-8">
                   No global advisors found.
                 </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Blog Post Form Section */}
+        {showBlogPostForm && (
+          <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+            <div className="flex items-center justify-between mb-4 md:mb-6">
+              <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
+                {editingBlogPostId ? 'Edit Blog Post' : 'Create New Blog Post'}
+              </h2>
+              <button
+                onClick={resetBlogPostForm}
+                className="text-[color:var(--lightgreen)] hover:opacity-70 text-xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateBlogPost} className="space-y-4">
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Title *
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={blogPostFormData.title}
+                  onChange={handleBlogPostInputChange}
+                  required
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                  placeholder="Blog post title"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Content *
+                </label>
+                <textarea
+                  name="content"
+                  value={blogPostFormData.content}
+                  onChange={handleBlogPostInputChange}
+                  required
+                  rows={10}
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none resize-vertical"
+                  placeholder="Blog post content..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Images
+                </label>
+                <div
+                  className="w-full flex flex-col items-center justify-center border-2 border-dashed border-[rgba(140,198,63,0.3)] rounded-lg p-6 bg-[rgba(255,255,255,0.05)] cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition"
+                  onDrop={handleBlogPostImageDrop}
+                  onDragOver={handleBlogPostImageDragOver}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Drop image files here"
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleBlogPostImageChange}
+                    className="hidden"
+                    id="blog-images-input"
+                  />
+                  <label htmlFor="blog-images-input" className="cursor-pointer flex flex-col items-center">
+                    <span className="text-[color:var(--lightgreen)] mb-2">
+                      Drag & drop images here, or click to select multiple
+                    </span>
+                    <span className="text-3xl">🖼️</span>
+                  </label>
+                </div>
+
+                {/* Existing Images */}
+                {blogPostFormData.existingImages.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-[color:var(--lightgreen)] text-sm font-semibold mb-2">Current Images:</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {blogPostFormData.existingImages.map((image) => (
+                        <div key={image.id} className="relative">
+                          <img
+                            src={image.image_url}
+                            alt="Blog image"
+                            className="w-full h-20 object-cover rounded border border-[rgba(140,198,63,0.3)]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeExistingImage(image.id)}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* New Images Preview */}
+                {blogPostFormData.imageFiles.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-[color:var(--lightgreen)] text-sm font-semibold mb-2">New Images:</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {blogPostFormData.imageFiles.map((file, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-20 object-cover rounded border border-[rgba(140,198,63,0.3)]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImageFile(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {blogPostFormError && (
+                <div className="text-red-500 bg-red-100 border border-red-300 rounded p-2">{blogPostFormError}</div>
+              )}
+              {blogPostFormSuccess && (
+                <div className="text-green-700 bg-green-100 border border-green-300 rounded p-2">{blogPostFormSuccess}</div>
+              )}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={blogPostFormLoading}
+                  className="flex-1 bg-[color:var(--lightgreen)] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
+                >
+                  {blogPostFormLoading ? 'Saving...' : editingBlogPostId ? 'Update Blog Post' : 'Create Blog Post'}
+                </button>
+                <button
+                  type="button"
+                  onClick={resetBlogPostForm}
+                  className="px-6 py-3 border border-[color:var(--lightgreen)] text-[color:var(--lightgreen)] rounded-lg font-semibold hover:bg-[color:var(--lightgreen)] transition-all duration-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Blog Post Management Section */}
+        {activeTab === 'blog-post' && (
+          <div id="blog-post-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+            <div className="flex items-center justify-between mb-4 md:mb-6">
+              <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
+                Blog Post Management
+              </h2>
+              <button
+                onClick={() => setShowBlogPostForm(true)}
+                className="bg-green-500 text-white py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-green-600"
+              >
+                Create Blog Post
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {blogPosts.map((post) => (
+                <div 
+                  key={post.id} 
+                  className="border border-[rgba(140,198,63,0.2)] rounded-lg p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-300"
+                >
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-[color:var(--lightgreen)] font-semibold mb-1">
+                        {post.title}
+                      </h3>
+                      <p className="text-[color:var(--lightgreen)] opacity-70 text-sm mb-2">
+                        {post.content ? (post.content.length > 150 ? post.content.substring(0, 150) + '...' : post.content) : 'No content'}
+                      </p>
+                      <p className="text-[color:var(--lightgreen)] opacity-60 text-xs">
+                        Created: {new Date(post.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="mt-3 lg:mt-0 lg:ml-4 flex gap-2">
+                      <button
+                        onClick={() => handleEditBlogPost(post)}
+                        className="bg-yellow-500 text-white py-1 px-3 rounded text-sm font-semibold hover:bg-yellow-600 transition-colors duration-300"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteBlogPost(post.id)}
+                        disabled={blogPostFormLoading}
+                        className={`py-1 px-3 rounded text-sm font-semibold transition-colors duration-300 ${
+                          deleteBlogPostConfirm === post.id 
+                            ? 'bg-red-600 text-white hover:bg-red-700' 
+                            : 'bg-red-500 text-white hover:bg-red-600'
+                        } disabled:opacity-50`}
+                      >
+                        {deleteBlogPostConfirm === post.id ? 'Confirm?' : 'Delete'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {blogPosts.length === 0 && (
+                <p className="text-[color:var(--lightgreen)] opacity-70 text-center py-8">
+                  No blog posts found.
+                </p>
               )}
             </div>
           </div>
