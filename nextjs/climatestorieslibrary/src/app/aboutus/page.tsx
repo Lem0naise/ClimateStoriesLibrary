@@ -41,6 +41,12 @@ export default function About() {
               >
                 View All Stories
               </Link>
+              <Link  
+                href="../news" 
+                className="ml-8 inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 md:py-4 px-6 md:px-9 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,18px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)] mb-4 md:mb-0"
+              >
+                Recent News 
+              </Link>
             </div>
             <div className="flex-1 mt-8 md:mt-0">
               <h2 className="md:hidden text-[color:var(--lightgreen)] text-[clamp(18px,5vw,40px)] mb-4 md:mb-6 font-bold text-center md:text-left">

@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { fetchOrganisations, Organisation } from "@/utils/useSupabase";
 
+import Link from 'next/link';
+
 export default function Connect() {
   const [organisations, setOrganisations] = useState<Organisation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,13 +98,20 @@ export default function Connect() {
             <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,15px)] opacity-80 mb-2">
               Want your organisation listed here?
             </p>
-            <a
+            <Link
               href="mailto:juliet@climatestorieslibrary.com"
               className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 px-6 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,16px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
             >
               📧 Contact Us to Add Your Org
-            </a>
+            </Link>
           </div>
+
+          <Link  
+                href="../news" 
+                className="mt-4 inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 md:py-4 px-6 md:px-9 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,18px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)] mb-4 md:mb-0"
+              >
+                View Recent News
+            </Link>
         </div>
       </div>
     </div>
