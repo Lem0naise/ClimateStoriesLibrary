@@ -65,6 +65,20 @@ export interface GlobalAdvisor {
   logo_url: string | null;
 }
 
+export interface BlogPost { 
+  id: string;
+  created_at: string;
+  title: string | null;
+  content: string | null;
+}
+
+export interface BlogImages {
+  id:string;
+  created_at: string;
+  post_id: string;
+  image_url: string;
+}
+
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -761,5 +775,257 @@ export async function fetchOrganisations(): Promise<Organisation[]> {
   } catch (error) {
     console.error('Error fetching organisations:', error);
     return [];
+  }
+}
+
+// Fetch all blog posts
+export async function fetchBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching blog posts:', error);
+      return [];
+    }
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    return [];
+  }
+}
+
+// Fetch a single blog post by ID
+export async function fetchBlogPostById(id: string): Promise<BlogPost | null> {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching blog post by ID:', error);
+      return null;
+    }
+    return data;
+  } catch (error) {
+    console.error('Error fetching blog post by ID:', error);
+    return null;
+  }
+}
+
+// Fetch a blog post by slug (title-based)
+export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  try {
+    // Fetch all blog posts and find the one with matching slug
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*');
+
+    if (error) {
+      console.error('Error fetching blog posts:', error);
+      return null;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    // Find blog post with matching slug
+    const matchingPost = data.find(post => 
+      generateSlug(post.title || '') === slug
+    );
+
+    return matchingPost || null;
+  } catch (error) {
+    console.error('Error fetching blog post by slug:', error);
+    return null;
+  }
+}
+
+// Create a new blog post
+export async function createBlogPost(blogPostData: Omit<BlogPost, 'id' | 'created_at'>) {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .insert([blogPostData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating blog post:', error);
+      return { blogPost: null, error: error.message };
+    }
+
+    return { blogPost: data, error: null };
+  } catch (error) {
+    console.error('Error creating blog post:', error);
+    return { blogPost: null, error: 'An unexpected error occurred' };
+  }
+}
+
+// Update an existing blog post
+export async function updateBlogPost(id: string, blogPostData: Partial<Omit<BlogPost, 'id' | 'created_at'>>) {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .update(blogPostData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating blog post:', error);
+      return { blogPost: null, error: error.message };
+    }
+
+    return { blogPost: data, error: null };
+  } catch (error) {
+    console.error('Error updating blog post:', error);
+    return { blogPost: null, error: 'An unexpected error occurred' };
+  }
+}
+
+// Delete a blog post and its associated images
+export async function deleteBlogPost(id: string) {
+  try {
+    // First delete associated images from storage and database
+    const images = await fetchBlogImages(id);
+    for (const image of images) {
+      await deleteBlogImage(image.id);
+    }
+
+    // Then delete the blog post
+    const { error } = await supabase
+      .from('blog_posts')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting blog post:', error);
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error('Error deleting blog post:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+// Fetch images for a blog post
+export async function fetchBlogImages(postId: string): Promise<BlogImages[]> {
+  try {
+    const { data, error } = await supabase
+      .from('blog_images')
+      .select('*')
+      .eq('post_id', postId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching blog images:', error);
+      return [];
+    }
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching blog images:', error);
+    return [];
+  }
+}
+
+// Upload an image for a blog post
+export async function uploadBlogImage(postId: string, file: File) {
+  try {
+    // Upload file to storage
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+    const filePath = `${fileName}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('blog_images')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error('Error uploading blog image:', uploadError);
+      return { error: uploadError.message };
+    }
+
+    // Get public URL
+    const { data } = supabase.storage.from('blog_images').getPublicUrl(filePath);
+    const imageUrl = data.publicUrl;
+
+    // Save image record to database
+    const { error: dbError } = await supabase
+      .from('blog_images')
+      .insert([{
+        post_id: postId,
+        image_url: imageUrl
+      }]);
+
+    if (dbError) {
+      console.error('Error saving blog image record:', dbError);
+      return { error: dbError.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error('Error uploading blog image:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+// Delete a blog image
+export async function deleteBlogImage(imageId: string) {
+  try {
+    // First get the image record to get the file path
+    const { data: image, error: fetchError } = await supabase
+      .from('blog_images')
+      .select('image_url')
+      .eq('id', imageId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching blog image for deletion:', fetchError);
+      return { error: fetchError.message };
+    }
+
+    // Extract file path from URL
+    if (image?.image_url) {
+      const url = new URL(image.image_url);
+      const filePath = url.pathname.split('/').pop();
+      
+      if (filePath) {
+        // Delete from storage
+        const { error: storageError } = await supabase.storage
+          .from('blog_images')
+          .remove([filePath]);
+
+        if (storageError) {
+          console.error('Error deleting blog image from storage:', storageError);
+        }
+      }
+    }
+
+    // Delete from database
+    const { error } = await supabase
+      .from('blog_images')
+      .delete()
+      .eq('id', imageId);
+
+    if (error) {
+      console.error('Error deleting blog image record:', error);
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error('Error deleting blog image:', error);
+    return { error: 'An unexpected error occurred' };
   }
 }
