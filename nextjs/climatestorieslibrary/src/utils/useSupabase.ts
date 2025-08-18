@@ -65,6 +65,20 @@ export interface GlobalAdvisor {
   logo_url: string | null;
 }
 
+export interface BlogPost { 
+  id: string;
+  created_at: string;
+  title: string | null;
+  content: string | null;
+}
+
+export interface BlogImages {
+  id:string;
+  created_at: string;
+  post_id: string;
+  image_url: string;
+}
+
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
