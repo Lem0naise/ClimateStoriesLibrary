@@ -817,6 +817,35 @@ export async function fetchBlogPostById(id: string): Promise<BlogPost | null> {
   }
 }
 
+// Fetch a blog post by slug (title-based)
+export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  try {
+    // Fetch all blog posts and find the one with matching slug
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*');
+
+    if (error) {
+      console.error('Error fetching blog posts:', error);
+      return null;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    // Find blog post with matching slug
+    const matchingPost = data.find(post => 
+      generateSlug(post.title || '') === slug
+    );
+
+    return matchingPost || null;
+  } catch (error) {
+    console.error('Error fetching blog post by slug:', error);
+    return null;
+  }
+}
+
 // Create a new blog post
 export async function createBlogPost(blogPostData: Omit<BlogPost, 'id' | 'created_at'>) {
   try {
