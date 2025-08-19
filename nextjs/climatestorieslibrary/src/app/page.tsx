@@ -15,6 +15,21 @@ import {
   Tag,
 } from "@/utils/useSupabase";
 
+
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    // This code runs only on the client
+    const check = () => setIsDesktop(window.innerWidth >= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  return isDesktop;
+}
+
 export default function Home() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedContinents, setSelectedContinents] = useState<string[]>([]);
@@ -175,9 +190,11 @@ export default function Home() {
 
   const hasActiveFilters = selectedTags.length > 0 || selectedContinents.length > 0 || selectedCountries.length > 0;
 
+  const isDesktop = useIsDesktop();
+
   return (
     <div className={`min-h-fit pb-[10vh] bg-[color:var(--background)] transition-colors duration-300 ${getTheme()}`}>
-      <div className="max-w-full md:max-w-[80vw] mx-auto py-4 md:py-10 px-3 md:px-5 text-green-600">
+      <div className="max-w-full md:max-w-[90vw] mx-auto py-4 md:py-10 px-3 md:px-5 text-green-600">
         <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-center p-3 md:p-10 pt-2 md:pt-2 pb-4 md:pb-10 mb-4 md:mb-8">
           <h2 className="text-[color:var(--lightgreen)] text-[clamp(24px,6vw,50px)] mb-2 md:mb-5 hidden sm:block font-bold">
             Explore the Climate Stories Library
@@ -360,6 +377,8 @@ export default function Home() {
             </div>
           </div>
 
+          {!isDesktop && (<StoriesMap stories={stories} />)}
+
           {/* Desktop Layout - Filters on left, stories on right */}
           <div className="hidden md:flex gap-6">
             {/* Desktop Filter Sidebar */}
@@ -528,12 +547,9 @@ export default function Home() {
               </div>
             </div>
 
-
             {/* Desktop Story Cards Grid */}
             <div className="flex-1 flex-col">
-
-              <StoriesMap stories={stories} />
-
+            {isDesktop && (<StoriesMap stories={stories} />)}
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {loading ? (
                   [...Array(6)].map((_, index) => (
@@ -574,6 +590,7 @@ export default function Home() {
 
           {/* Mobile Story Cards Grid */}
           <div className="md:hidden grid grid-cols-1 gap-3">
+            
             {loading ? (
               [...Array(6)].map((_, index) => (
                 <div key={index} className="bg-[rgba(255,255,255,0.08)] rounded-xl border border-[rgba(140,198,63,0.2)] overflow-hidden animate-pulse">
