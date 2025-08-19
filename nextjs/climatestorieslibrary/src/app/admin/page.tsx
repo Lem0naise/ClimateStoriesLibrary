@@ -1455,7 +1455,7 @@ new Compressor(file, {
 
                 <div>
                   <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
-                    Region
+                    Region Or Address (For Marker Purposes Only - Will Not Display)
                   </label>
                   <input
                     type="text"
