@@ -13,9 +13,10 @@
     "@supabase/supabase-js": "^2.39.0",
     "compressorjs": "^1.2.1",
     "next": "15.3.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-leaflet": "^5.0.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-leaflet": "^4.2.1",
+    "react-leaflet-cluster": "^3.1.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
