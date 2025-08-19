@@ -1,10 +1,29 @@
 "use client";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import MarkerClusterGroup from 'react-leaflet-cluster';
+import 'react-leaflet-cluster/dist/assets/MarkerCluster.css'
+import 'react-leaflet-cluster/dist/assets/MarkerCluster.Default.css'
+import 'leaflet/dist/leaflet.css'
+
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Link from "next/link";
 import { Story } from "@/utils/useSupabase";
 import { useMemo } from "react";
+
+const createClusterCustomIcon = function (cluster:any) {
+  return new L.DivIcon({
+    html: `<div class="custom-cluster-icon">${cluster.getChildCount()}</div>`,
+    className: 'marker-cluster-custom',
+    iconSize: L.point(40, 40, true),
+  });
+};
+
+// When need to self-serve!!!:
+//https://switch2osm.org/serving-tiles/
+//https://www.maptiler.com/
+//https://www.mapbox.com/
+
 
 // Default marker icon fix for leaflet in React
 if (typeof window !== "undefined") {
@@ -21,7 +40,7 @@ interface StoriesMapClientProps {
 }
 
 function randomiseCoord (coord:number) {
-    return coord + (Math.random() * 2 - 1)* 1; // multiplier of 1 is degrees of coord variation
+    return coord + (Math.random() * 2 - 1)* 0.5; // multiplier of 0.5 is degrees of coord variation
 }
 
 export default function StoriesMapClient({ stories }: StoriesMapClientProps) {
@@ -54,31 +73,30 @@ export default function StoriesMapClient({ stories }: StoriesMapClientProps) {
   const center: [number, number] = [20, 0];
   const mapKey = markers.map((m) => m.id).join("-") || "empty";
 
+  //attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+// url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
   
   return (
     <div>
     <div className="w-full mb-2 rounded-lg overflow-hidden border-2 border-[rgba(140,198,63,0.3)]" style={{ minHeight: 350 }}>
-      {markers.length === 0 ? (
-        <div className="left-0 right-0 top-0 bottom-0 flex items-center justify-center bg-white bg-opacity-70 z-10" style={{ minHeight: 350 }}>
-          <span className="text-green-700 font-semibold">No stories with map locations.</span>
-        </div>
-      ) : (
-        <MapContainer key={mapKey} center={center} zoom={2} style={{ height: 450, width: "100%" }} scrollWheelZoom={true}>
+        <MapContainer key={new Date().getTime()} center={center} zoom={2} style={{ height: 450, width: "100%" }} scrollWheelZoom={true}>
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg"
           />
+        <MarkerClusterGroup chunkedLoading maxClusterRadius={5} iconCreateFunction={createClusterCustomIcon}>
           {markers.map((marker) => (
             <Marker key={marker.id} position={marker.coords}>
               <Popup>
-                <Link href={marker.slug} className="text-green-700 font-semibold underline hover:opacity-80">
+                <Link href={marker.slug} className="text-green-700 font-semibold underline hover:opacity-80 ${suseFont.variable}">
                   {marker.title}
                 </Link>
               </Popup>
             </Marker>
           ))}
+          </MarkerClusterGroup>
         </MapContainer>
-      )}
+        
     </div>
     <div className="text-xs text-gray-500 mb-4 px-2">
         Marker locations are intentionally imprecise to protect the privacy of story contributors.
