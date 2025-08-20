@@ -80,7 +80,7 @@ body {
 
 /* Style the inner div holding the number */
 .custom-cluster-icon {
-  line-height: normal; /* Override any weird line-height */
+  line-height: 40px; /* Override any weird line-height */
   background: transparent;
   padding: 0;
   margin: 0;
