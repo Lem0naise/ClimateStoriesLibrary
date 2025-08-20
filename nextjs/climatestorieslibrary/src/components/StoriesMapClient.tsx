@@ -37,13 +37,14 @@ if (typeof window !== "undefined") {
 
 interface StoriesMapClientProps {
   stories: Story[];
+  minHeight: number;
 }
 
 function randomiseCoord (coord:number) {
     return coord + (Math.random() * 2 - 1)* 0.5; // multiplier of 0.5 is degrees of coord variation
 }
 
-export default function StoriesMapClient({ stories }: StoriesMapClientProps) {
+export default function StoriesMapClient({ stories, minHeight}: StoriesMapClientProps) {
   // Only use stories with valid latitude and longitude
   const markers = useMemo(
     () =>
@@ -78,8 +79,8 @@ export default function StoriesMapClient({ stories }: StoriesMapClientProps) {
   
   return (
     <div>
-    <div className="w-full mb-2 rounded-lg overflow-hidden border-2 border-[rgba(140,198,63,0.3)]" style={{ minHeight: 350 }}>
-        <MapContainer key={new Date().getTime()} center={center} zoom={2} style={{ height: 450, width: "100%" }} scrollWheelZoom={true}>
+    <div className="w-full mb-2 rounded-lg overflow-hidden border-2 border-[rgba(140,198,63,0.3)]" style={{ minHeight: 250 }}>
+        <MapContainer key={new Date().getTime()} center={center} zoom={2} style={{ height: minHeight, width: "100%" }} scrollWheelZoom={true}>
           <TileLayer
             attribution='&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg"

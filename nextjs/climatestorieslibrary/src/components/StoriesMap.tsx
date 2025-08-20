@@ -5,8 +5,9 @@ const StoriesMapClient = dynamic(() => import("./StoriesMapClient"), { ssr: fals
 
 interface StoriesMapProps {
   stories: Story[];
+  minHeight: number;
 }
 
-export default function StoriesMap({ stories }: StoriesMapProps) {
-  return <StoriesMapClient stories={stories} />;
+export default function StoriesMap({ stories, minHeight }: StoriesMapProps) {
+  return <StoriesMapClient stories={stories} minHeight={minHeight} />;
 }

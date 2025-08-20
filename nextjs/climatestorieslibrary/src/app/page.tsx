@@ -377,7 +377,7 @@ export default function Home() {
             </div>
           </div>
 
-          {!isDesktop && (<StoriesMap stories={stories} />)}
+          {!isDesktop && (<StoriesMap stories={stories} minHeight={300} />)}
 
           {/* Desktop Layout - Filters on left, stories on right */}
           <div className="hidden md:flex gap-6">
@@ -549,7 +549,7 @@ export default function Home() {
 
             {/* Desktop Story Cards Grid */}
             <div className="flex-1 flex-col">
-            {isDesktop && (<StoriesMap stories={stories} />)}
+            {isDesktop && (<StoriesMap stories={stories} minHeight={450}/>)}
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {loading ? (
                   [...Array(6)].map((_, index) => (
