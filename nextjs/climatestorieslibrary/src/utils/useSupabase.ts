@@ -13,6 +13,8 @@ export interface Story {
   classification: string;
   description: string;
   tags?: Tag[];
+  latitude: string;
+  longitude: string;
 }
 
 export interface Tag {

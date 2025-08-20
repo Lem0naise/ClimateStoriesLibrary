@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Compressor from 'compressorjs';
@@ -51,6 +51,8 @@ type StoryFormData = {
   classification: string;
   description: string;
   selectedTags: string[];
+  latitude: string;
+  longitude: string;
 };
 
 type OrganisationFormData = {
@@ -111,7 +113,9 @@ export default function Admin() {
     region: '',
     classification: '',
     description: '',
-    selectedTags: []
+    selectedTags: [],
+    latitude: '',
+    longitude: '',
   });
   const [formLoading, setFormLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -121,6 +125,8 @@ export default function Admin() {
   const [deleteSubmissionText, setDeleteSubmissionText] = useState<string>('');
   const [inlineEditingTag, setInlineEditingTag] = useState<string | null>(null);
   const [inlineTagName, setInlineTagName] = useState('');
+
+  const storyFormRef = useRef<HTMLDivElement>(null);
 
   /* Organisations */
   const [orgFormData, setOrgFormData] = useState<OrganisationFormData>({
@@ -201,6 +207,14 @@ export default function Admin() {
     checkAuth();
   }, [router]);
 
+  const geocodeLocation = async (address: string) => {
+    const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_GEOCODING_KEY; // Store securely
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data;
+  }
+
   const loadAdminData = async () => {
     setStoriesLoading(true);
     try {
@@ -271,7 +285,9 @@ export default function Admin() {
       region: '',
       classification: '',
       description: '',
-      selectedTags: []
+      selectedTags: [],
+      latitude: '',
+      longitude: ''
     });
     setEditingStory(null);
     setShowStoryForm(false);
@@ -282,6 +298,17 @@ export default function Admin() {
     setShowStoryForm(true);
   };
 
+  const handleLocationGeocoding = async () => {
+    if (!storyFormData.country && !storyFormData.region && !storyFormData.continent)     return {lat: '', lng:''};
+    const address = [storyFormData.region, storyFormData.country, storyFormData.continent];
+    const geo = await geocodeLocation(address.filter(Boolean).join(','));
+    if (geo.status === 'OK' && geo.results.length > 0){
+      const location = geo.results[0].geometry.location;
+      return {lat:location.lat.toString(), lng:location.lng.toString()};
+    }
+    return {lat: '', lng:''}
+  };
+
   const handleEditStory = async (storyId: string) => {
     const story = await fetchStoryById(storyId);
     if (story) {
@@ -289,15 +316,22 @@ export default function Admin() {
         title: story.title,
         youtube_url: story.youtube_url,
         story_date: story.story_date,
-        continent: story.continent,
-        country: story.country,
-        region: story.region,
-        classification: story.classification,
+        continent: story.continent || '',
+        country: story.country || '',
+        region: story.region || '',
+        classification: story.classification || '',
         description: story.description || '',
-        selectedTags: story.tags?.map(tag => tag.id) || []
+        selectedTags: story.tags?.map(tag => tag.id) || [],
+        latitude: story.latitude || '',
+        longitude: story.longitude || '',
       });
       setEditingStory(story);
       setShowStoryForm(true);
+
+      setTimeout(() => {
+        storyFormRef.current?.scrollIntoView({behavior:'smooth', block:'start'});
+
+      }, 50);
     }
   };
 
@@ -323,6 +357,16 @@ export default function Admin() {
     setError(null);
 
     try {
+      // geocode to get latitude and longitude first
+      const {lat, lng} = await handleLocationGeocoding();
+      const latitude = lat;
+      const longitude = lng;
+      setStoryFormData(prev => ({
+        ...prev,
+        latitude: latitude,
+        longitude: longitude,
+      }));
+
       const storyData = {
         title: storyFormData.title,
         youtube_url: storyFormData.youtube_url,
@@ -331,7 +375,9 @@ export default function Admin() {
         country: storyFormData.country,
         region: storyFormData.region,
         classification: storyFormData.classification,
-        description: storyFormData.description
+        description: storyFormData.description,
+        latitude: latitude,
+        longitude: longitude
       };
 
       let storyResult;
@@ -1310,7 +1356,7 @@ new Compressor(file, {
 
         {/* Story Form Section */}
         {showStoryForm && (
-          <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+          <div ref={storyFormRef} className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
             <div className="flex items-center justify-between mb-4 md:mb-6">
               <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold">
                 {editingStory ? 'Edit Story' : 'Create New Story'}
@@ -1409,11 +1455,11 @@ new Compressor(file, {
 
                 <div>
                   <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
-                    Region
+                    Region Or Address (For Marker Purposes Only - Will Not Display)
                   </label>
                   <input
                     type="text"
-                    value={storyFormData.region}
+                    value={storyFormData.region ?? ''}
                     onChange={(e) => setStoryFormData(prev => ({ ...prev, region: e.target.value }))}
                     className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
                     placeholder="Region"
@@ -1820,6 +1866,7 @@ new Compressor(file, {
                           <span><strong>Location:</strong> {submission.location}</span>
                           <span><strong>Email:</strong> {submission.email || 'N/A'}</span>
                           <span><strong>Tel:</strong> {submission.tel || 'N/A'}</span>
+                          <span><strong>Agreed Policy Version:</strong> {submission.agreed_policy_version || 'N/A'}</span>
                           <span><strong>Description:</strong> {submission.more_about || 'N/A'}</span>
                           <span><strong>Occupation:</strong> {submission.occupation || 'N/A'}</span>
                         </div>

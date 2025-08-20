@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import StoriesMap from "@/components/StoriesMap"
 import { useState, useEffect } from "react";
 import StoryCard from "@/components/StoryCard";
 import FilterButton from "@/components/TagFilterer";
@@ -13,6 +14,21 @@ import {
   Story, 
   Tag,
 } from "@/utils/useSupabase";
+
+
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    // This code runs only on the client
+    const check = () => setIsDesktop(window.innerWidth >= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  return isDesktop;
+}
 
 export default function Home() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -174,9 +190,11 @@ export default function Home() {
 
   const hasActiveFilters = selectedTags.length > 0 || selectedContinents.length > 0 || selectedCountries.length > 0;
 
+  const isDesktop = useIsDesktop();
+
   return (
     <div className={`min-h-fit pb-[10vh] bg-[color:var(--background)] transition-colors duration-300 ${getTheme()}`}>
-      <div className="max-w-full md:max-w-[80vw] mx-auto py-4 md:py-10 px-3 md:px-5 text-green-600">
+      <div className="max-w-full md:max-w-[90vw] mx-auto py-4 md:py-10 px-3 md:px-5 text-green-600">
         <div className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-center p-3 md:p-10 pt-2 md:pt-2 pb-4 md:pb-10 mb-4 md:mb-8">
           <h2 className="text-[color:var(--lightgreen)] text-[clamp(24px,6vw,50px)] mb-2 md:mb-5 hidden sm:block font-bold">
             Explore the Climate Stories Library
@@ -187,14 +205,142 @@ export default function Home() {
           <p className="text-[color:var(--lightgreen)] text-[clamp(12px,3vw,18px)] leading-relaxed opacity-90 max-w-[700px] mx-auto mb-4 md:mb-10">
             The Climate Stories Library provides a platform for individuals and grassroots groups to share their experiences of the climate and nature crisis, and other intersecting injustices.
           </p>
+
+
+          {!isDesktop && (<StoriesMap stories={stories} minHeight={300} />)}
+
           
           {/* Mobile Filter Section - Above content */}
           <div className="md:hidden bg-[rgba(255,255,255,0.15)] p-2 rounded-lg border border-[rgba(140,198,63,0.3)] mb-4">
-            {/* Compact Filter Section */}
-            <div className="bg-[rgba(255,255,255,0.15)] p-2 rounded-lg border border-[rgba(140,198,63,0.3)] mb-3 max-w-4xl mx-auto">
-              <div className="flex items-center justify-between mb-2">
+              
+
+              {/* Filter Categories */}
+              <div className="flex gap-1">
+                  <button
+                    onClick={() => toggleFilterExpansion('tags')}
+                    className={`flex-1 border border-[rgba(140,198,63,0.3)] rounded p-2 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)] ${expandedFilter === 'tags' ? 'bg-[rgba(255,255,255,0.08)]' : ''}`}
+                  >
+                    <span className="text-xs font-medium text-[color:var(--lightgreen)]">
+                      Tags
+                    </span>
+                    <span className="text-sm">{expandedFilter === 'tags' ? '−' : '+'}</span>
+                  </button>
+                
+
+                  <button
+                    onClick={() => toggleFilterExpansion('continents')}
+                    className={`flex-1 border border-[rgba(140,198,63,0.3)] rounded p-2 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)] ${expandedFilter === 'tags' ? 'bg-[rgba(255,255,255,0.08)]' : ''}`}
+                  >
+                    <span className="text-xs font-medium text-[color:var(--lightgreen)]">
+                      Continents
+                    </span>
+                    <span className="text-sm">{expandedFilter === 'continents' ? '−' : '+'}</span>
+                  </button>
+                  
+
+                  <button
+                    onClick={() => toggleFilterExpansion('countries')}
+                    className={`flex-1 border border-[rgba(140,198,63,0.3)] rounded p-2 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)] ${expandedFilter === 'countries' ? 'bg-[rgba(255,255,255,0.08)]' : ''}`}
+                  >
+                    <span className="text-xs font-medium text-[color:var(--lightgreen)]">
+                      Countries
+                    </span>
+                    <span className="text-sm">{expandedFilter === 'countries' ? '−' : '+'}</span>
+                  </button>
+                  
+
+              </div>
+
+
+              {expandedFilter === 'tags' && (
+                    <div className="mt-1  p-2 border-t border-[rgba(140,198,63,0.3)]">
+                      <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchTerms.tags}
+                        onChange={(e) => setSearchTerms(prev => ({ ...prev, tags: e.target.value }))}
+                        className="w-full p-1 mb-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-white placeholder-gray-400 text-xs"
+                      />
+                      <div className="grid grid-cols-1 gap-1 max-h-24 overflow-y-auto">
+                        {filtersLoading ? (
+                          [...Array(3)].map((_, index) => (
+                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-1 px-1 animate-pulse">
+                              <div className="h-2 bg-[rgba(140,198,63,0.3)] rounded" />
+                            </div>
+                          ))
+                        ) : (
+                          getFilteredOptions(tags, searchTerms.tags).map((tag) => (
+                            <FilterButton
+                              key={tag.id}
+                              name={tag.name}
+                              isSelected={selectedTags.includes(tag.name)}
+                              onClick={handleTagClick}
+                              type="tag"
+                            />
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {expandedFilter === 'continents' && (
+                    <div className="mt-1  p-2 border-t border-[rgba(140,198,63,0.3)]">
+                      <div className="grid grid-cols-1 gap-1 max-h-24 overflow-y-auto">
+                        {filtersLoading ? (
+                          [...Array(2)].map((_, index) => (
+                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-1 px-1 animate-pulse">
+                              <div className="h-2 bg-[rgba(140,198,63,0.3)] rounded" />
+                            </div>
+                          ))
+                        ) : (
+                          continents.map((continent) => (
+                            <FilterButton
+                              key={continent}
+                              name={continent}
+                              isSelected={selectedContinents.includes(continent)}
+                              onClick={handleContinentClick}
+                              type="continent"
+                            />
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {expandedFilter === 'countries' && (
+                    <div className="mt-1 p-2 border-t border-[rgba(140,198,63,0.3)]">
+                      <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchTerms.countries}
+                        onChange={(e) => setSearchTerms(prev => ({ ...prev, countries: e.target.value }))}
+                        className="w-full p-1 mb-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-white placeholder-gray-400 text-xs"
+                      />
+                      <div className="grid grid-cols-1 gap-1 max-h-24 overflow-y-auto">
+                        {filtersLoading ? (
+                          [...Array(3)].map((_, index) => (
+                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-1 px-1 animate-pulse">
+                              <div className="h-2 bg-[rgba(140,198,63,0.3)] rounded" />
+                            </div>
+                          ))
+                        ) : (
+                          getFilteredOptions(countries, searchTerms.countries).map((country) => (
+                            <FilterButton
+                              key={country}
+                              name={country}
+                              isSelected={selectedCountries.includes(country)}
+                              onClick={handleCountryClick}
+                              type="country"
+                            />
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between mb-2">
                 <h3 className="text-[color:var(--lightgreen)] text-sm font-semibold">
-                    {hasActiveFilters && (<>{stories.length} Stories with filters</>)}
+                    {hasActiveFilters && (<>{stories.length} Stories filtered</>)}
                 </h3>
                 {hasActiveFilters && (
                   <button
@@ -231,176 +377,13 @@ export default function Home() {
                   </div>
                 </div>
               )}
-
-              {/* Filter Categories */}
-              <div className="grid grid-cols-3 gap-1">
-                {/* Tags Filter */}
-                <div className="border border-[rgba(140,198,63,0.3)] rounded">
-                  <button
-                    onClick={() => toggleFilterExpansion('tags')}
-                    className="w-full p-2 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
-                  >
-                    <span className="text-xs font-medium text-[color:var(--lightgreen)]">
-                      Tags
-                    </span>
-                    <span className="text-sm">{expandedFilter === 'tags' ? '−' : '+'}</span>
-                  </button>
-                  {expandedFilter === 'tags' && (
-                    <div className="p-2 border-t border-[rgba(140,198,63,0.3)]">
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchTerms.tags}
-                        onChange={(e) => setSearchTerms(prev => ({ ...prev, tags: e.target.value }))}
-                        className="w-full p-1 mb-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-white placeholder-gray-400 text-xs"
-                      />
-                      <div className="grid grid-cols-1 gap-1 max-h-24 overflow-y-auto">
-                        {filtersLoading ? (
-                          [...Array(3)].map((_, index) => (
-                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-1 px-1 animate-pulse">
-                              <div className="h-2 bg-[rgba(140,198,63,0.3)] rounded" />
-                            </div>
-                          ))
-                        ) : (
-                          getFilteredOptions(tags, searchTerms.tags).map((tag) => (
-                            <FilterButton
-                              key={tag.id}
-                              name={tag.name}
-                              isSelected={selectedTags.includes(tag.name)}
-                              onClick={handleTagClick}
-                              type="tag"
-                            />
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Continents Filter */}
-                <div className="border border-[rgba(140,198,63,0.3)] rounded">
-                  <button
-                    onClick={() => toggleFilterExpansion('continents')}
-                    className="w-full p-2 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
-                  >
-                    <span className="text-xs font-medium text-[color:var(--lightgreen)]">
-                      Continents
-                    </span>
-                    <span className="text-sm">{expandedFilter === 'continents' ? '−' : '+'}</span>
-                  </button>
-                  {expandedFilter === 'continents' && (
-                    <div className="p-2 border-t border-[rgba(140,198,63,0.3)]">
-                      <div className="grid grid-cols-1 gap-1 max-h-24 overflow-y-auto">
-                        {filtersLoading ? (
-                          [...Array(2)].map((_, index) => (
-                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-1 px-1 animate-pulse">
-                              <div className="h-2 bg-[rgba(140,198,63,0.3)] rounded" />
-                            </div>
-                          ))
-                        ) : (
-                          continents.map((continent) => (
-                            <FilterButton
-                              key={continent}
-                              name={continent}
-                              isSelected={selectedContinents.includes(continent)}
-                              onClick={handleContinentClick}
-                              type="continent"
-                            />
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Countries Filter */}
-                <div className="border border-[rgba(140,198,63,0.3)] rounded">
-                  <button
-                    onClick={() => toggleFilterExpansion('countries')}
-                    className="w-full p-2 text-left flex items-center justify-between hover:bg-[rgba(255,255,255,0.1)]"
-                  >
-                    <span className="text-xs font-medium text-[color:var(--lightgreen)]">
-                      Countries
-                    </span>
-                    <span className="text-sm">{expandedFilter === 'countries' ? '−' : '+'}</span>
-                  </button>
-                  {expandedFilter === 'countries' && (
-                    <div className="p-2 border-t border-[rgba(140,198,63,0.3)]">
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchTerms.countries}
-                        onChange={(e) => setSearchTerms(prev => ({ ...prev, countries: e.target.value }))}
-                        className="w-full p-1 mb-2 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded text-white placeholder-gray-400 text-xs"
-                      />
-                      <div className="grid grid-cols-1 gap-1 max-h-24 overflow-y-auto">
-                        {filtersLoading ? (
-                          [...Array(3)].map((_, index) => (
-                            <div key={index} className="bg-[rgba(255,255,255,0.1)] rounded py-1 px-1 animate-pulse">
-                              <div className="h-2 bg-[rgba(140,198,63,0.3)] rounded" />
-                            </div>
-                          ))
-                        ) : (
-                          getFilteredOptions(countries, searchTerms.countries).map((country) => (
-                            <FilterButton
-                              key={country}
-                              name={country}
-                              isSelected={selectedCountries.includes(country)}
-                              onClick={handleCountryClick}
-                              type="country"
-                            />
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Desktop Layout - Filters on left, stories on right */}
           <div className="hidden md:flex gap-6">
             {/* Desktop Filter Sidebar */}
             <div className="w-50 bg-[rgba(255,255,255,0.15)] p-4 rounded-xl border-2 border-[rgba(140,198,63,0.3)] h-fit sticky top-25">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[color:var(--lightgreen)] text-[clamp(16px,1.4vw,18px)] font-semibold">
-                  {hasActiveFilters && (<>{stories.length} Stories with filters</>)}
-                </h3>
-                {hasActiveFilters && (
-                  <button
-                    onClick={clearAllFilters}
-                    className="text-[clamp(12px,1vw,14px)] text-[color:var(--lightgreen)] opacity-70 hover:opacity-100 underline"
-                  >
-                    Clear All
-                  </button>
-                )}
-              </div>
-
-              {hasActiveFilters && (
-                <div className="mb-4 p-3 bg-[rgba(0,0,0,0.2)] rounded-lg">
-                  <div className="flex flex-wrap gap-2 text-[clamp(11px,0.9vw,13px)]">
-                    {selectedTags.map(tag => (
-                      <span key={tag} className="bg-[#304e25] text-white px-2 py-1 rounded-md flex items-center gap-1">
-                        {tag}
-                        <button onClick={() => handleTagClick(tag)} className="ml-1 hover:bg-red-600 rounded">×</button>
-                      </span>
-                    ))}
-                    {selectedContinents.map(continent => (
-                      <span key={continent} className="bg-[#304e25] text-white px-2 py-1 rounded-md flex items-center gap-1">
-                        {continent}
-                        <button onClick={() => handleContinentClick(continent)} className="ml-1 hover:bg-red-600 rounded">×</button>
-                      </span>
-                    ))}
-                    {selectedCountries.map(country => (
-                      <span key={country} className="bg-[#304e25] text-white px-2 py-1 rounded-md flex items-center gap-1">
-                        {country}
-                        <button onClick={() => handleCountryClick(country)} className="ml-1 hover:bg-red-600 rounded">×</button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+              
 
               <div className="space-y-3">
                 {/* Tags Filter */}
@@ -525,10 +508,50 @@ export default function Home() {
                   )}
                 </div>
               </div>
+
+              <div className="flex items-center justify-between mt-4">
+                <h3 className="text-[color:var(--lightgreen)] text-[clamp(16px,1.4vw,18px)] font-semibold">
+                  {hasActiveFilters && (<>{stories.length} Stories filtered</>)}
+                </h3>
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="text-[clamp(12px,1vw,14px)] text-[color:var(--lightgreen)] opacity-70 hover:opacity-100 underline"
+                  >
+                    Clear All
+                  </button>
+                )}
+              </div>
+
+              {hasActiveFilters && (
+                <div className="mb-4 p-3 bg-[rgba(0,0,0,0.2)] rounded-lg">
+                  <div className="flex flex-wrap gap-2 text-[clamp(11px,0.9vw,13px)]">
+                    {selectedTags.map(tag => (
+                      <span key={tag} className="bg-[#304e25] text-white px-2 py-1 rounded-md flex items-center gap-1">
+                        {tag}
+                        <button onClick={() => handleTagClick(tag)} className="ml-1 hover:bg-red-600 rounded">×</button>
+                      </span>
+                    ))}
+                    {selectedContinents.map(continent => (
+                      <span key={continent} className="bg-[#304e25] text-white px-2 py-1 rounded-md flex items-center gap-1">
+                        {continent}
+                        <button onClick={() => handleContinentClick(continent)} className="ml-1 hover:bg-red-600 rounded">×</button>
+                      </span>
+                    ))}
+                    {selectedCountries.map(country => (
+                      <span key={country} className="bg-[#304e25] text-white px-2 py-1 rounded-md flex items-center gap-1">
+                        {country}
+                        <button onClick={() => handleCountryClick(country)} className="ml-1 hover:bg-red-600 rounded">×</button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Desktop Story Cards Grid */}
-            <div className="flex-1">
+            <div className="flex-1 flex-col">
+            {isDesktop && (<StoriesMap stories={stories} minHeight={450}/>)}
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {loading ? (
                   [...Array(6)].map((_, index) => (
@@ -569,6 +592,7 @@ export default function Home() {
 
           {/* Mobile Story Cards Grid */}
           <div className="md:hidden grid grid-cols-1 gap-3">
+            
             {loading ? (
               [...Array(6)].map((_, index) => (
                 <div key={index} className="bg-[rgba(255,255,255,0.08)] rounded-xl border border-[rgba(140,198,63,0.2)] overflow-hidden animate-pulse">

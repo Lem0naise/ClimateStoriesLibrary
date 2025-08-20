@@ -39,8 +39,7 @@ export default function StoryCard({ id, title, description, tags, youtubeUrl, co
             <div className="text-[clamp(11px,1vw,13px)] font-semibold">
 
               {country && <span className="block">{country}</span>}
-               {region && <span className="block text-[clamp(9px,0.8vw,11px)] opacity-90">{region}</span>}
-              {(!region && continent) && <span className="block text-[clamp(9px,0.8vw,11px)] opacity-90">{continent}</span>}
+              {continent && <span className="block text-[clamp(9px,0.8vw,11px)] opacity-90">{continent}</span>}
             </div>
           </div>
         )}
