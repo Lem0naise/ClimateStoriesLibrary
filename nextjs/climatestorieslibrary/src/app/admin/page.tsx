@@ -1866,6 +1866,7 @@ new Compressor(file, {
                           <span><strong>Location:</strong> {submission.location}</span>
                           <span><strong>Email:</strong> {submission.email || 'N/A'}</span>
                           <span><strong>Tel:</strong> {submission.tel || 'N/A'}</span>
+                          <span><strong>Agreed Policy Version:</strong> {submission.agreed_policy_version || 'N/A'}</span>
                           <span><strong>Description:</strong> {submission.more_about || 'N/A'}</span>
                           <span><strong>Occupation:</strong> {submission.occupation || 'N/A'}</span>
                         </div>
