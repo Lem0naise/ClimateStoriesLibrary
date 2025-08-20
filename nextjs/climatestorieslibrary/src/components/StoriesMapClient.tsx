@@ -80,7 +80,7 @@ export default function StoriesMapClient({ stories, minHeight}: StoriesMapClient
   return (
     <div>
     <div className="w-full mb-2 rounded-lg overflow-hidden border-2 border-[rgba(140,198,63,0.3)]" style={{ minHeight: 250 }}>
-        <MapContainer key={new Date().getTime()} center={center} zoom={2} style={{ height: minHeight, width: "100%" }} scrollWheelZoom={true}>
+        <MapContainer center={center} zoom={2} style={{ height: minHeight, width: "100%" }} scrollWheelZoom={true}>
           <TileLayer
             attribution='&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg"
