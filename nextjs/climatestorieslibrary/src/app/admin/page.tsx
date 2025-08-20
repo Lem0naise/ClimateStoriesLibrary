@@ -208,10 +208,8 @@ export default function Admin() {
   }, [router]);
 
   const geocodeLocation = async (address: string) => {
-    const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_GEOCODING_KEY; // Store securely
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_API_KEY}`;
-    const res = await fetch(url);
-    const data = await res.json();
+    const response = await fetch(`/api/geocode?address=${encodeURIComponent(address)}`);
+    const data = await response.json();
     return data;
   }
 
@@ -306,6 +304,8 @@ export default function Admin() {
       const location = geo.results[0].geometry.location;
       return {lat:location.lat.toString(), lng:location.lng.toString()};
     }
+    console.log("Problem geocoding location.")
+    console.log(geo);
     return {lat: '', lng:''}
   };
 
