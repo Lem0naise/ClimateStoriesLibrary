@@ -74,6 +74,15 @@ export default function StoryPage() {
     return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
 };
 
+const getYoutubeLinkUrl = (url : string) => {
+   const videoId = getYouTubeVideoId(url);
+  if (!videoId) return null;
+  const params = new URLSearchParams({
+    'v': videoId
+  });
+  return `https://www.youtube.com/watch?${params.toString()}`;
+}
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[color:var(--background)] flex items-center justify-center py-4 sm:py-10">
@@ -113,6 +122,7 @@ export default function StoryPage() {
   }
 
   const youtubeEmbedUrl = getYoutubeEmbedUrl(story.youtube_url);
+  const youtubeWatchUrl = getYoutubeLinkUrl(story.youtube_url);
 
   return (
     <div className="min-h-screen bg-[color:var(--background)] py-4 sm:py-10">
@@ -185,15 +195,15 @@ export default function StoryPage() {
           </div>
 
           {/* Caption Notice */}
-          {youtubeEmbedUrl && (
+          {youtubeEmbedUrl && youtubeWatchUrl && (
             <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-[rgba(140,198,63,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg">
               <div className="flex items-start gap-2">
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 text-[color:var(--lightgreen)] opacity-75 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-[color:var(--lightgreen)] text-xs sm:text-sm opacity-75">
-                  <strong>Caption tip:</strong> English captions may be available for this video. 
-                  Click the CC button in the video player and use auto-translate if needed.
+                  <strong> English captions may be available for this video</strong>. 
+                  Click the CC button in the video player and use auto-translate if needed. If you cannot see captions, you can <a className='underline text-black' href={youtubeWatchUrl}>view the video on YouTube here</a>.
                 </p>
               </div>
             </div>
