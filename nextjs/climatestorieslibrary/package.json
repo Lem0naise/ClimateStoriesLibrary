@@ -12,7 +12,7 @@
     "@supabase/auth-helpers-nextjs": "^0.8.7",
     "@supabase/supabase-js": "^2.39.0",
     "compressorjs": "^1.2.1",
-    "next": "15.3.4",
+    "next": "15.3.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
