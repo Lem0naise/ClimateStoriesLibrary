@@ -629,6 +629,20 @@ export default function Home() {
           </div>
           
           <div className="mt-4 md:mt-9">
+            <div className="bg-[rgba(255,255,255,0.08)] rounded-xl border border-[rgba(140,198,63,0.2)] p-4 md:p-6 mb-4 md:mb-6 text-center">
+              <h3 className="text-[color:var(--lightgreen)] text-lg md:text-xl font-bold mb-2">
+                For Teachers
+              </h3>
+              <p className="text-[color:var(--lightgreen)] text-sm opacity-90 mb-4">
+                Download free teaching resources to bring climate stories into your classroom.
+              </p>
+              <a 
+                href="/teaching" 
+                className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 md:py-4 px-6 md:px-9 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,18px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
+              >
+                View Teaching Resources
+              </a>
+            </div>
             <a 
               target="_blank" 
               href="https://www.instagram.com/climatestorieslibrary" 

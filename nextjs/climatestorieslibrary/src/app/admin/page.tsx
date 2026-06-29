@@ -38,8 +38,24 @@ import {
   fetchBlogPostById,
   fetchBlogImages,
   uploadBlogImage,
-  deleteBlogImage
+  deleteBlogImage,
+  TeachingResource,
+  fetchTeachingResources,
+  createTeachingResource,
+  updateTeachingResource,
+  deleteTeachingResource,
+  uploadTeachingResourceFile
 } from '@/utils/useSupabase';
+
+type TeachingResourceFormData = {
+  title: string;
+  description: string;
+  category: string;
+  file: File | null;
+  file_url: string;
+  file_type: string;
+  file_size: string;
+};
 
 type StoryFormData = {
   title: string;
@@ -174,7 +190,24 @@ export default function Admin() {
   const [deleteBlogPostConfirm, setDeleteBlogPostConfirm] = useState<string | null>(null);
   const [showBlogPostForm, setShowBlogPostForm] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'story' | 'tag' | 'submission' | 'organisation' | 'global-advisor' | 'blog-post'>('story');
+  /* Teaching Resources */
+  const [teachingResources, setTeachingResources] = useState<TeachingResource[]>([]);
+  const [resourceFormData, setResourceFormData] = useState<TeachingResourceFormData>({
+    title: '',
+    description: '',
+    category: '',
+    file: null,
+    file_url: '',
+    file_type: 'pdf',
+    file_size: '',
+  });
+  const [resourceFormLoading, setResourceFormLoading] = useState(false);
+  const [resourceFormError, setResourceFormError] = useState<string | null>(null);
+  const [resourceFormSuccess, setResourceFormSuccess] = useState<string | null>(null);
+  const [editingResourceId, setEditingResourceId] = useState<string | null>(null);
+  const [deleteResourceConfirm, setDeleteResourceConfirm] = useState<string | null>(null);
+
+  const [activeTab, setActiveTab] = useState<'story' | 'tag' | 'submission' | 'organisation' | 'global-advisor' | 'blog-post' | 'teaching-resource'>('story');
   const router = useRouter();
 
   const deletingSubmission = submissions.find(s => s.id === deleteSubmissionConfirm);
@@ -202,6 +235,7 @@ export default function Admin() {
       loadOrganisations();
       loadGlobalAdvisors();
       loadBlogPosts();
+      loadTeachingResources();
     };
 
     checkAuth();
@@ -261,6 +295,15 @@ export default function Admin() {
       setBlogPosts(data);
     } catch (e) {
       setBlogPosts([]);
+    }
+  };
+
+  const loadTeachingResources = async () => {
+    try {
+      const data = await fetchTeachingResources();
+      setTeachingResources(data);
+    } catch (e) {
+      setTeachingResources([]);
     }
   };
 
@@ -1076,6 +1119,143 @@ new Compressor(file, {
     }
   };
 
+  const resetResourceForm = () => {
+    setResourceFormData({
+      title: '',
+      description: '',
+      category: '',
+      file: null,
+      file_url: '',
+      file_type: 'pdf',
+      file_size: '',
+    });
+    setEditingResourceId(null);
+    setResourceFormError(null);
+    setResourceFormSuccess(null);
+  };
+
+  const handleResourceInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setResourceFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleResourceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
+      setResourceFormData(prev => ({
+        ...prev,
+        file,
+        file_type: fileExt === 'pptx' ? 'pptx' : 'pdf',
+        file_size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+      }));
+    }
+  };
+
+  const handleEditResource = (resource: TeachingResource) => {
+    setResourceFormData({
+      title: resource.title,
+      description: resource.description || '',
+      category: resource.category || '',
+      file: null,
+      file_url: resource.file_url,
+      file_type: resource.file_type,
+      file_size: resource.file_size || '',
+    });
+    setEditingResourceId(resource.id);
+    setResourceFormError(null);
+    setResourceFormSuccess(null);
+  };
+
+  const handleDeleteResource = async (resourceId: string) => {
+    if (deleteResourceConfirm === resourceId) {
+      setResourceFormLoading(true);
+      setResourceFormError(null);
+      try {
+        const { error } = await deleteTeachingResource(resourceId);
+        if (error) {
+          setResourceFormError('Failed to delete resource: ' + error);
+        } else {
+          setResourceFormSuccess('Resource deleted.');
+          await loadTeachingResources();
+        }
+      } catch (err: any) {
+        setResourceFormError('Unexpected error: ' + (err?.message || err));
+      } finally {
+        setResourceFormLoading(false);
+        setDeleteResourceConfirm(null);
+      }
+    } else {
+      setDeleteResourceConfirm(resourceId);
+    }
+  };
+
+  const handleCreateResource = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResourceFormLoading(true);
+    setResourceFormError(null);
+    setResourceFormSuccess(null);
+
+    try {
+      let fileUrl = resourceFormData.file_url;
+      let fileType = resourceFormData.file_type;
+      let fileSize = resourceFormData.file_size;
+
+      if (resourceFormData.file) {
+        const { url, error: uploadError } = await uploadTeachingResourceFile(resourceFormData.file);
+        if (uploadError || !url) {
+          setResourceFormError('Failed to upload file: ' + (uploadError || 'Unknown error'));
+          setResourceFormLoading(false);
+          return;
+        }
+        fileUrl = url;
+        fileSize = `${(resourceFormData.file.size / (1024 * 1024)).toFixed(1)} MB`;
+        fileType = resourceFormData.file.name.split('.').pop()?.toLowerCase() === 'pptx' ? 'pptx' : 'pdf';
+      }
+
+      if (editingResourceId) {
+        const updateData: any = {
+          title: resourceFormData.title,
+          description: resourceFormData.description,
+          category: resourceFormData.category,
+        };
+        if (fileUrl !== resourceFormData.file_url) {
+          updateData.file_url = fileUrl;
+          updateData.file_type = fileType;
+          updateData.file_size = fileSize;
+        }
+        const { error } = await updateTeachingResource(editingResourceId, updateData);
+        if (error) {
+          setResourceFormError('Failed to update resource: ' + error);
+          setResourceFormLoading(false);
+          return;
+        }
+      } else {
+        const { error } = await createTeachingResource({
+          title: resourceFormData.title,
+          description: resourceFormData.description,
+          category: resourceFormData.category,
+          file_url: fileUrl,
+          file_type: fileType,
+          file_size: fileSize,
+        });
+        if (error) {
+          setResourceFormError('Failed to create resource: ' + error);
+          setResourceFormLoading(false);
+          return;
+        }
+      }
+
+      setResourceFormSuccess(editingResourceId ? 'Resource updated!' : 'Resource created!');
+      resetResourceForm();
+      await loadTeachingResources();
+    } catch (err: any) {
+      setResourceFormError('Unexpected error: ' + (err?.message || err));
+    } finally {
+      setResourceFormLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[color:var(--background)] flex items-center justify-center py-4 md:py-10">
@@ -1163,6 +1343,17 @@ new Compressor(file, {
             >
               Blog Posts
             </button>
+            <button
+              onClick={() => setActiveTab('teaching-resource')}
+              className={`hover:bg-[color:var(--lightgreen)] hover:text-[color:var(--darkgreen)] py-2 px-4 rounded-lg  transition-all duration-300 ${
+                activeTab === 'teaching-resource'
+                  ? 'bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] text-xl font-bold'
+                  : 'bg-[color:var(--darkgreen)] text-[color:var(--lightgreen)] text-sm font-semibold'
+              } cursor-pointer`}
+              id="teaching-resource-tab"
+            >
+              Resources
+            </button>
           </div>
         </div>
         {/* --- End Sticky Jump Links --- */}
@@ -1195,7 +1386,7 @@ new Compressor(file, {
             </div>
           </div>
           <h3 className="text-[color:var(--lightgreen)] text-xl md:text-3xl font-semibold mt-5">
-              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries, {storiesLoading ? '...' : submissions.length} Submissions, {storiesLoading ? '...' : organisations.length} Organisations, {storiesLoading ? '...' : globalAdvisors.length} Global Advisors, {storiesLoading ? '...' : blogPosts.length} Blog Posts
+              {storiesLoading ? '...' : stories.length} Stories, {storiesLoading ? '...' : tags.length} Tags, {storiesLoading ? '...' : [...new Set(stories.map(s => s.country).filter(Boolean))].length} Countries, {storiesLoading ? '...' : submissions.length} Submissions, {storiesLoading ? '...' : organisations.length} Organisations, {storiesLoading ? '...' : globalAdvisors.length} Global Advisors, {storiesLoading ? '...' : blogPosts.length} Blog Posts, {storiesLoading ? '...' : teachingResources.length} Resources
             </h3>
         </div>
 
@@ -2498,6 +2689,217 @@ new Compressor(file, {
               {blogPosts.length === 0 && (
                 <p className="text-[color:var(--lightgreen)] opacity-70 text-center py-8">
                   No blog posts found.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Teaching Resource Management Section */}
+        {activeTab === 'teaching-resource' && (
+          <div id="teaching-resource-management-section" className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-8 mb-4 md:mb-8">
+            <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,24px)] font-bold mb-4">
+              {editingResourceId ? 'Edit Resource' : 'Add Teaching Resource'}
+            </h2>
+            <form onSubmit={handleCreateResource} className="space-y-4 mb-8">
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Title *
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={resourceFormData.title}
+                  onChange={handleResourceInputChange}
+                  required
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none"
+                  placeholder="Resource title"
+                />
+              </div>
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={resourceFormData.description}
+                  onChange={handleResourceInputChange}
+                  rows={3}
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] placeholder-gray-400 focus:border-[color:var(--lightgreen)] focus:outline-none resize-vertical"
+                  placeholder="Brief description of the resource"
+                />
+              </div>
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  Category
+                </label>
+                <select
+                  name="category"
+                  value={resourceFormData.category}
+                  onChange={handleResourceInputChange}
+                  className="w-full p-3 bg-[rgba(255,255,255,0.1)] border border-[rgba(140,198,63,0.3)] rounded-lg text-[color:var(--lightgreen)] focus:border-[color:var(--lightgreen)] focus:outline-none"
+                >
+                  <option value="">Select category</option>
+                  <option value="Lesson Plan">Lesson Plan</option>
+                  <option value="Worksheet">Worksheet</option>
+                  <option value="Presentation">Presentation</option>
+                  <option value="Activity Guide">Activity Guide</option>
+                  <option value="Discussion Guide">Discussion Guide</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[color:var(--lightgreen)] text-sm font-semibold mb-2">
+                  File (PDF or PPTX) {editingResourceId ? '(leave empty to keep existing)' : '*'}
+                </label>
+                <div
+                  className="w-full flex flex-col items-center justify-center border-2 border-dashed border-[rgba(140,198,63,0.3)] rounded-lg p-6 bg-[rgba(255,255,255,0.05)] cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition"
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const file = e.dataTransfer.files?.[0] || null;
+                    if (file) {
+                      const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
+                      setResourceFormData(prev => ({
+                        ...prev,
+                        file,
+                        file_type: fileExt === 'pptx' ? 'pptx' : 'pdf',
+                        file_size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+                      }));
+                    }
+                  }}
+                  onDragOver={(e) => e.preventDefault()}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Drop file here"
+                >
+                  <input
+                    type="file"
+                    accept=".pdf,.pptx"
+                    onChange={handleResourceFileChange}
+                    className="hidden"
+                    id="resource-file-input"
+                  />
+                  <label htmlFor="resource-file-input" className="cursor-pointer flex flex-col items-center">
+                    {resourceFormData.file ? (
+                      <>
+                        <span className="text-[color:var(--lightgreen)] mb-2">
+                          Selected: {resourceFormData.file.name}
+                        </span>
+                        <span className="text-[color:var(--lightgreen)] text-xs opacity-70">
+                          {resourceFormData.file_size}
+                        </span>
+                      </>
+                    ) : resourceFormData.file_url ? (
+                      <>
+                        <span className="text-[color:var(--lightgreen)] mb-2">
+                          Current file (upload a new one to replace)
+                        </span>
+                        <span className="text-[color:var(--lightgreen)] text-xs opacity-70">
+                          {resourceFormData.file_type.toUpperCase()} · {resourceFormData.file_size}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-[color:var(--lightgreen)] mb-2">
+                          Drag & drop file here, or click to select
+                        </span>
+                        <span className="text-3xl">📁</span>
+                        <span className="text-[color:var(--lightgreen)] text-xs opacity-70 mt-1">
+                          Supports PDF and PPTX files
+                        </span>
+                      </>
+                    )}
+                  </label>
+                </div>
+              </div>
+              {resourceFormError && (
+                <div className="text-red-500 bg-red-100 border border-red-300 rounded p-2">{resourceFormError}</div>
+              )}
+              {resourceFormSuccess && (
+                <div className="text-green-700 bg-green-100 border border-green-300 rounded p-2">{resourceFormSuccess}</div>
+              )}
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={resourceFormLoading}
+                  className="bg-[color:var(--lightgreen)] text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] disabled:opacity-50"
+                >
+                  {resourceFormLoading
+                    ? 'Saving...'
+                    : editingResourceId
+                      ? 'Update Resource'
+                      : 'Create Resource'}
+                </button>
+                {(editingResourceId || resourceFormData.title || resourceFormData.description || resourceFormData.category || resourceFormData.file) && (
+                  <button
+                    type="button"
+                    onClick={resetResourceForm}
+                    disabled={resourceFormLoading}
+                    className="px-6 py-3 border border-[color:var(--lightgreen)] text-[color:var(--lightgreen)] rounded-lg font-semibold hover:bg-[color:var(--lightgreen)] transition-all duration-300"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+            <h3 className="text-[color:var(--lightgreen)] text-lg font-semibold mb-2">Existing Resources</h3>
+            <div className="space-y-4">
+              {teachingResources.map((resource) => (
+                <div
+                  key={resource.id}
+                  className="border border-[rgba(140,198,63,0.2)] rounded-lg p-4 hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-300"
+                >
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-[color:var(--lightgreen)] font-semibold">
+                          {resource.title}
+                        </h3>
+                        <span className="bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] text-xs font-bold px-2 py-0.5 rounded">
+                          {resource.file_type.toUpperCase()}
+                        </span>
+                        {resource.category && (
+                          <span className="text-[color:var(--lightgreen)] opacity-60 text-xs">
+                            {resource.category}
+                          </span>
+                        )}
+                      </div>
+                      {resource.description && (
+                        <p className="text-[color:var(--lightgreen)] opacity-70 text-sm mb-2">
+                          {resource.description.length > 150 ? resource.description.substring(0, 150) + '...' : resource.description}
+                        </p>
+                      )}
+                      <p className="text-[color:var(--lightgreen)] opacity-60 text-xs">
+                        {resource.file_size && <span>{resource.file_size} · </span>}
+                        Created: {new Date(resource.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="mt-3 lg:mt-0 lg:ml-4 flex gap-2">
+                      <button
+                        onClick={() => handleEditResource(resource)}
+                        className="bg-yellow-500 text-white py-1 px-3 rounded text-sm font-semibold hover:bg-yellow-600 transition-colors duration-300"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteResource(resource.id)}
+                        disabled={resourceFormLoading}
+                        className={`py-1 px-3 rounded text-sm font-semibold transition-colors duration-300 ${
+                          deleteResourceConfirm === resource.id
+                            ? 'bg-red-600 text-white hover:bg-red-700'
+                            : 'bg-red-500 text-white hover:bg-red-600'
+                        } disabled:opacity-50`}
+                      >
+                        {deleteResourceConfirm === resource.id ? 'Confirm?' : 'Delete'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {teachingResources.length === 0 && (
+                <p className="text-[color:var(--lightgreen)] opacity-70 text-center py-8">
+                  No teaching resources found.
                 </p>
               )}
             </div>

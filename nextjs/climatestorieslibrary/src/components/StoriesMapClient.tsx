@@ -99,9 +99,7 @@ export default function StoriesMapClient({ stories, minHeight}: StoriesMapClient
         </MapContainer>
         
     </div>
-    <div className="text-xs text-gray-500 mb-4 px-2">
-        Marker locations are intentionally imprecise to protect the privacy of story contributors.
-      </div>
+   
     </div>
   );
 }

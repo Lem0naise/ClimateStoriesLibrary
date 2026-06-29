@@ -26,9 +26,13 @@ export default function Footer() {
           </div>
         </div>
 
-        <div  className="text-[color:var(--lightgreen)] text-sm font-medium opacity-90 md:text-xs max-[580px]:text-[11px]">
-          <a href="/privacy-policy" target="_blank"
-         >Privacy Policy</a>
+        <div className="flex items-center gap-4">
+          <a href="/teaching" className="text-[color:var(--lightgreen)] text-sm font-medium opacity-90 md:text-xs max-[580px]:text-[11px] hover:opacity-100">
+            Teaching
+          </a>
+          <a href="/privacy-policy" target="_blank" className="text-[color:var(--lightgreen)] text-sm font-medium opacity-90 md:text-xs max-[580px]:text-[11px] hover:opacity-100">
+            Privacy Policy
+          </a>
         </div>
         
         <div className="text-[color:var(--lightgreen)] text-sm font-medium opacity-90 md:text-xs max-[580px]:text-[11px]">
