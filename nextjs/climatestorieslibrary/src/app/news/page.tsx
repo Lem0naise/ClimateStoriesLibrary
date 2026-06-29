@@ -136,6 +136,15 @@ export default function News() {
               View Climate Stories
             </Link>
           </div>
+          {/* Call to Action */}
+          <div className="mt-6 md:mt-9">
+            <Link 
+              href="/connect" 
+              className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-3 md:py-4 px-6 md:px-9 rounded-lg no-underline font-semibold text-[clamp(12px,3vw,18px)] transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
+            >
+              View Grassroots Groups
+            </Link>
+          </div>
         </div>
       </div>
     </div>

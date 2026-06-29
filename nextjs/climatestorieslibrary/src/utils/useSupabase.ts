@@ -81,6 +81,17 @@ export interface BlogImages {
   image_url: string;
 }
 
+export interface TeachingResource {
+  id: string;
+  created_at: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  file_url: string;
+  file_type: string;
+  file_size: string | null;
+}
+
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -1029,5 +1040,134 @@ export async function deleteBlogImage(imageId: string) {
   } catch (error) {
     console.error('Error deleting blog image:', error);
     return { error: 'An unexpected error occurred' };
+  }
+}
+
+export async function fetchTeachingResources(): Promise<TeachingResource[]> {
+  try {
+    const { data, error } = await supabase
+      .from('teaching_resources')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching teaching resources:', error);
+      return [];
+    }
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching teaching resources:', error);
+    return [];
+  }
+}
+
+export async function createTeachingResource(resourceData: {
+  title: string;
+  description: string;
+  category: string;
+  file_url: string;
+  file_type: string;
+  file_size: string;
+}) {
+  try {
+    const { data, error } = await supabase
+      .from('teaching_resources')
+      .insert([resourceData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating teaching resource:', error);
+      return { error: error.message };
+    }
+    return { error: null, data };
+  } catch (error) {
+    console.error('Error creating teaching resource:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+export async function updateTeachingResource(id: string, resourceData: {
+  title?: string;
+  description?: string;
+  category?: string;
+  file_url?: string;
+  file_type?: string;
+  file_size?: string;
+}) {
+  try {
+    const { data, error } = await supabase
+      .from('teaching_resources')
+      .update(resourceData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating teaching resource:', error);
+      return { error: error.message };
+    }
+    return { error: null, data };
+  } catch (error) {
+    console.error('Error updating teaching resource:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+export async function deleteTeachingResource(id: string) {
+  try {
+    const { data: resource, error: fetchError } = await supabase
+      .from('teaching_resources')
+      .select('file_url')
+      .eq('id', id)
+      .single();
+
+    if (!fetchError && resource?.file_url) {
+      const url = new URL(resource.file_url);
+      const filePath = url.pathname.split('/').pop();
+      if (filePath) {
+        await supabase.storage.from('teaching_resources').remove([filePath]);
+      }
+    }
+
+    const { error } = await supabase
+      .from('teaching_resources')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting teaching resource:', error);
+      return { error: error.message };
+    }
+    return { error: null };
+  } catch (error) {
+    console.error('Error deleting teaching resource:', error);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+export async function uploadTeachingResourceFile(file: File): Promise<{ url: string; error: string | null }> {
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('teaching_resources')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error('Error uploading teaching resource file:', uploadError);
+      return { url: '', error: uploadError.message };
+    }
+
+    const { data } = supabase.storage.from('teaching_resources').getPublicUrl(filePath);
+    return { url: data.publicUrl, error: null };
+  } catch (error) {
+    console.error('Error uploading teaching resource file:', error);
+    return { url: '', error: 'An unexpected error occurred' };
   }
 }

@@ -33,16 +33,16 @@ export default function Navigation() {
               className="text-[color:var(--lightgreen)] no-underline text-sm font-semibold py-2 px-3 rounded-md transition-all duration-300 relative hover:text-white hover:bg-[rgba(140,198,63,0.1)] after:content-[''] after:absolute after:-bottom-1 after:left-1/2 after:w-0 after:h-0.5 after:bg-[color:var(--lightgreen)] after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-4/5 sm:text-base sm:px-4"
             >
               <span className="hidden lg:inline">Browse Stories</span>
-              <span className="lg:hidden">Browse</span>
+              
             </Link>
           </li>
           <li className="relative">
             <Link 
-              href="/connect" 
+              href="/news" 
               className="text-[color:var(--lightgreen)] no-underline text-sm font-semibold py-2 px-3 rounded-md transition-all duration-300 relative hover:text-white hover:bg-[rgba(140,198,63,0.1)] after:content-[''] after:absolute after:-bottom-1 after:left-1/2 after:w-0 after:h-0.5 after:bg-[color:var(--lightgreen)] after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-4/5 sm:text-base sm:px-4"
             >
-              <span className="hidden md:inline">Grassroots Groups</span>
-              <span className="md:hidden">Groups</span>
+              <span className="hidden md:inline">News</span>
+              <span className="md:hidden">News</span>
             </Link>
           </li>
           <li className="relative">
@@ -50,8 +50,17 @@ export default function Navigation() {
               href="/aboutus" 
               className="text-[color:var(--lightgreen)] no-underline text-sm font-semibold py-2 px-3 rounded-md transition-all duration-300 relative hover:text-white hover:bg-[rgba(140,198,63,0.1)] after:content-[''] after:absolute after:-bottom-1 after:left-1/2 after:w-0 after:h-0.5 after:bg-[color:var(--lightgreen)] after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-4/5 sm:text-base sm:px-4"
             >
-              <span className="hidden lg:inline">About and News</span>
+              <span className="hidden lg:inline">About</span>
               <span className="lg:hidden">About</span>
+            </Link>
+          </li>
+          <li className="relative">
+            <Link 
+              href="/teaching" 
+              className="text-[color:var(--lightgreen)] no-underline text-sm font-semibold py-2 px-3 rounded-md transition-all duration-300 relative hover:text-white hover:bg-[rgba(140,198,63,0.1)] after:content-[''] after:absolute after:-bottom-1 after:left-1/2 after:w-0 after:h-0.5 after:bg-[color:var(--lightgreen)] after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-4/5 sm:text-base sm:px-4"
+            >
+              <span className="hidden lg:inline">Teaching</span>
+              <span className="lg:hidden">Teach</span>
             </Link>
           </li>
           <li className="relative">
