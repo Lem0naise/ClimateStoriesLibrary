@@ -96,12 +96,12 @@ export default function TeachingResources() {
                     <div className="flex items-center justify-between mt-auto pt-4 border-t border-[rgba(140,198,63,0.15)]">
                       <span className="text-[color:var(--lightgreen)] text-xs opacity-60">
                         {formatFileSize(resource.file_size)}
+                        {resource.download_count > 0 && (
+                          <> · {resource.download_count} download{resource.download_count !== 1 ? 's' : ''}</>
+                        )}
                       </span>
                       <a
-                        href={resource.file_url}
-                        download
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={`/api/resources/download/${resource.id}`}
                         className="inline-block bg-[color:var(--lightgreen)] text-[color:var(--darkgreen)] py-2 px-5 rounded-lg no-underline font-semibold text-sm transition-all duration-300 hover:bg-[color:var(--darkgreen)] hover:text-[color:var(--lightgreen)] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(140,198,63,0.3)]"
                       >
                         Download

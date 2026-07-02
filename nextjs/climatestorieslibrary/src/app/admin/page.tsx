@@ -2871,7 +2871,7 @@ new Compressor(file, {
                       )}
                       <p className="text-[color:var(--lightgreen)] opacity-60 text-xs">
                         {resource.file_size && <span>{resource.file_size} · </span>}
-                        Created: {new Date(resource.created_at).toLocaleDateString()}
+                        {resource.download_count} download{resource.download_count !== 1 ? 's' : ''} · Created: {new Date(resource.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="mt-3 lg:mt-0 lg:ml-4 flex gap-2">

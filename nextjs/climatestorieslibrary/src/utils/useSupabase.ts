@@ -90,6 +90,7 @@ export interface TeachingResource {
   file_url: string;
   file_type: string;
   file_size: string | null;
+  download_count: number;
 }
 
 // Initialize Supabase client
@@ -1169,5 +1170,24 @@ export async function uploadTeachingResourceFile(file: File): Promise<{ url: str
   } catch (error) {
     console.error('Error uploading teaching resource file:', error);
     return { url: '', error: 'An unexpected error occurred' };
+  }
+}
+
+export async function getTeachingResourceById(id: string): Promise<TeachingResource | null> {
+  try {
+    const { data, error } = await supabase
+      .from('teaching_resources')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching teaching resource:', error);
+      return null;
+    }
+    return data;
+  } catch (error) {
+    console.error('Error fetching teaching resource:', error);
+    return null;
   }
 }
