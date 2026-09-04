@@ -279,17 +279,21 @@ export default function About() {
           </p>
         </section>
 
-        <section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] text-left p-4 md:p-6">
-          <p className="text-[color:var(--lightgreen)] text-[clamp(11px,2.2vw,14px)] leading-relaxed opacity-70">
-            This website is the work of {" "}
+        <section className="bg-[color:var(--boxcolor)] rounded-[8px] md:rounded-[15px] backdrop-blur-sm border-[3px] md:border-[5px] border-[rgba(140,198,63,0.2)] p-4 md:p-9">
+          <h2 className="text-[color:var(--lightgreen)] text-[clamp(18px,4vw,32px)] mb-4 md:mb-6 font-bold">
+            Website Development
+          </h2>
+          <p className="text-[color:var(--lightgreen)] text-[clamp(12px,2.5vw,16px)] leading-relaxed opacity-90 mb-4">
+            This website was designed and built by{" "}
             <a
-              href="https://indigonolan.com"
+              href="https://indigo.spot"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[color:var(--lightgreen)] underline hover:opacity-90 transition-opacity"
+              className="text-[color:var(--lightgreen)] underline font-semibold hover:opacity-70"
             >
               Indigo Nolan
-            </a>. If you like it, get in contact with Indigo!
+            </a>
+            . If you like it, get in contact with Indigo!
           </p>
         </section>
       </div>
