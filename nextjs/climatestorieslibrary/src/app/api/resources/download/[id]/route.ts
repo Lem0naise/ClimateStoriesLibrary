@@ -12,20 +12,28 @@ export async function GET(
 
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-  const { data: resource } = await supabase
+  const { data: resource, error: fetchError } = await supabase
     .from("teaching_resources")
-    .select("file_url, download_count")
+    .select("file_url")
     .eq("id", id)
     .single();
 
-  if (!resource) {
+  if (fetchError || !resource) {
     return NextResponse.json({ error: "Resource not found" }, { status: 404 });
   }
 
-  await supabase
-    .from("teaching_resources")
-    .update({ download_count: (resource.download_count || 0) + 1 })
-    .eq("id", id);
+  const { error: incrementError } = await supabase.rpc(
+    "increment_teaching_resource_download",
+    { resource_id: id }
+  );
+
+  if (incrementError) {
+    console.error("Error incrementing download count:", incrementError);
+    return NextResponse.json(
+      { error: "Failed to update download count" },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.redirect(resource.file_url);
 }
